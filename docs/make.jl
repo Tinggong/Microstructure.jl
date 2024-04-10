@@ -21,7 +21,7 @@ makedocs(
     format = Documenter.HTML(mathengine = mathengine,
                              canonical=""),
     pages=[
-        "Home" => "home.md",
+        "Home" => "index.md",
         "Getting started" => "getting_started.md",
         "Tutorials" => Any[
             "tutorials/1_build_models.md",
