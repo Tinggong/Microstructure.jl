@@ -1,7 +1,7 @@
 name = "Microstructure"
 uuid = "bb9cb41e-5262-42dc-ac73-4f266bc6ab72"
 authors = ["Ting Gong"]
-version = "1.0.0-DEV"
+version = "1.0.0"
 
 [deps]
 DelimitedFiles = "8bb1440f-4735-579b-a4ab-409b98df4dab"
