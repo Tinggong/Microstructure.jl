@@ -1,1 +1,9 @@
-/Manifest.toml
+Manifest.toml
+.vscode
+
+docs/build/
+docs/site/
+
+# these will be demonstrated on the documentation website
+/demos
+/scripts
