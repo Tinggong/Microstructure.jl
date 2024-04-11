@@ -5,22 +5,21 @@
 Microstructure.jl is a Julia toolbox aiming at fast and probabilistic microstructure imaging. It features flexible and extendable compartment modelling with diffusion MRI and combined diffusion-relaxometry MRI. Microstructure.jl is currently under testing and optimization. If you have any questions using it, please email me at tgong1@mgh.harvard.edu. 
 
 ## Installation 
-To install Microstructure.jl and keep up to date, you can use the Julia package manager and github link:
+To install Microstructure.jl and keep up to date, you can use the repository link. Type ] in Julia to enter package mode and add the link:
 
 ```julia
-julia> using Pkg
-julia> add https://github.com/Tinggong/Microstructure.jl.git
+julia> ]
+(@v1.8) pkg> add https://github.com/Tinggong/Microstructure.jl.git
 ```
 
 Once package registry is approved, you will be able to install it by using the package name:
 
 ```julia
-julia> using Pkg
-julia> add Microstructrue
+(@v1.8) pkg> add Microstructrue
 ```
 
 ## Usage 
-Documentation demonstrating different features of the package can be found on the documentation website. 
+Documentation demonstrating different features of the package can be found on the [documentation website](https://tinggong.github.io/Microstructure.jl/dev/)
 The documentation website is under construction and will be frequently updated.
 
 ## Relationship to Other Packages

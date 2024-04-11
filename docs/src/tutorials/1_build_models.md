@@ -1,6 +1,6 @@
 # How to build a microstructure model
 
-## diffusion MRI model
+## 1. diffusion MRI model
 
 Load the module
 
@@ -43,23 +43,21 @@ You can specify tissue parameters when declearing a model; fields/subfiedls that
 estimates = ExCaliber( axon = Cylinder(da = 4e-6, dpara = 0.7e-9))
 ````
 
-You can change the fields/subfields of a decleared model struct by using update! funciton
+You can change the fields/subfields of a decleared model struct by using update! funciton.
 
-update a field/subfields
-
+    a. update a field/subfields
 ````julia
 undate!(estimates, "axon.da" => 5e-6)
 ````
 
-update a field/subfield using parameter links.
-It's common that we need to link certain tissue parameters in some models as they may not be distinguishable under the experimental condition
+It's common that we need to link certain tissue parameters in some models as they may not be distinguishable under the experimental condition.
 
+    b. update a field/subfield using parameter links.
 ````julia
 update!(estimates,"axon.d0" => "axon.dpara")
 ````
 
-update multiple parameters
-
+    c. update multiple parameters
 ````julia
 update!(estimates,("axon.da" => 5e-6, "axon.dpara" => 0.5e-9, "axon.d0" => "axon.dpara", "extra.dpara" => "axon.dpara"))
 ````
@@ -99,7 +97,7 @@ plot(prot.bval, signals, label="predicted signals", lc=:black, lw=2)
 scatter!(prot.bval, meas, label="noisy measurements", mc=:red, ms=2, ma=0.5)
 xlabel!("b-values [s/m^2]")
 ````
-## Combined Diffusion-relaxometry model 
+## 2. Combined Diffusion-relaxometry model 
 
 Now let's look at a diffusion-relaxometry model MTE-SANDI. Similarly, declear a model object and check the values
 
@@ -109,7 +107,9 @@ print_model(model)
 @show model
 ````
 
-MTE_SANDI requires data acquired at multiple echo times to solve the inverse problem and we will define a different protocol for it make a multi-TE protocol
+MTE_SANDI requires data acquired at multiple echo times to solve the inverse problem and we will define a different protocol for it.
+
+Make a multi-TE protocol
 
 ````julia
 nTE = 4
