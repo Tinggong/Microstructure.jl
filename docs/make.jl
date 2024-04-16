@@ -42,6 +42,6 @@ makedocs(
 )
 
 deploydocs(
-   repo = "github.com/Tinggong/Microstructure.jl.git";
-   push_preview = true
+   repo = "github.com/Tinggong/Microstructure.jl.git"
+   #push_preview = true
 )
