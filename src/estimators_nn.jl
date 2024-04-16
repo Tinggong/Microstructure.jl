@@ -89,7 +89,7 @@ end
 return a mlp with ninput/noutput as the number of input/output channels, and number of units in each layer specified in hiddenlayers 
 a dropout layer is inserted before the output layer with dropout probability dropoutp
 """
-function create_mlp(ninput::Int64,noutput::Int64,hiddenlayers::Tuple{Vararg{Int}},dropoutp::Float64=0.2)
+function create_mlp(ninput::Int64,noutput::Int64,hiddenlayers::Tuple{Vararg{Int64}},dropoutp::Float64=0.2)
 
     num = (ninput,hiddenlayers...)
     mlp = [Dense(num[i]=>num[i+1],relu) for i in 1:length(num)-1]
@@ -157,7 +157,7 @@ end
     train_loop!(mlp, trainingarg, inputs, labels)
 Train and update the mlp and return training logs
 """
-function train_loop!(mlp::Chain{<:Any},arg::TrainingArg,inputs::Array{Float64,2},labels::Array{Float64,2})
+function train_loop!(mlp::Chain{T},arg::TrainingArg,inputs::Array{Float64,2},labels::Array{Float64,2}) where T
     
     opt_state = Flux.setup(Adam(arg.lr), mlp)
 
@@ -206,7 +206,7 @@ end
     test(mlp, data, ntest)
 apply trained mlp to test data ntest times to get mean and std of estimates
 """
-function test(mlp::Chain{<:Any},data::Array{Float64,2},ntest)
+function test(mlp::Chain{T},data::Array{Float64,2},ntest) where T
     est = []
     est_std = []
     Flux.trainmode!(mlp)
