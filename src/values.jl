@@ -67,5 +67,32 @@ const BesselJ_RootsSphere = @SVector [
 94.2265525745684
 97.368830362901]
 
-# scaling factors to tissue parameters
-# scaling_factors 
+"""
+scaling_factors lookup table 
+(parameter range,unit scaling, further scaling to similar range)
+"""
+const scalings_in_vivo = Dict(
+    "dpara" => ((0.0e-9,3.0e-9), 1.0e9, 1.0/3.0),
+    "d0" => ((0.0e-9,3.0e-9), 1.0e9, 1.0/3.0),
+    "diff" => ((0.0e-9,3.0e-9), 1.0e9, 1.0/3.0),
+    "da" => ((1.0e-6,10.0e-6), 1.0e6, 1.0/5.0),
+    "size" => ((1.0e-6,10.0e-6),1.0e6, 1.0/5.0),
+    "t2" => ((20.0e-3,200.0e-3),1.0e3, 1.0/100.0),
+    "dperp_frac" => ((0.0,1.0), 1.0, 1.0),
+    "fracs" => ((0.0,1.0), 1.0, 1.0),
+    "S0norm" => ((1.0,5.0),1.0, 1.0/5.0)
+)
+
+const scalings_ex_vivo = Dict(
+    "dpara" => ((0.0e-9,2.0e-9), 1.0e9, 1.0/2.0),
+    "d0" => ((0.0e-9,2.0e-9), 1.0e9, 1.0/2.0),
+    "diff" => ((0.0e-9,2.0e-9), 1.0e9, 1.0/2.0),
+    "da" => ((1.0e-6,10.0e-6), 1.0e6, 1.0/5.0),
+    "size" => ((1.0e-6,10.0e-6),1.0e6, 1.0/5.0),
+    "t2" => ((20.0e-3,200.0e-3),1.0e3, 1.0/100.0),
+    "dperp_frac" => ((0.0,1.0), 1.0, 1.0),
+    "fracs" => ((0.0,1.0), 1.0, 1.0),
+    "S0norm" => ((1.0,5.0),1.0, 1.0/5.0)
+)
+
+const scalings = Dict("in_vivo" => scalings_in_vivo, "ex_vivo" => scalings_ex_vivo)

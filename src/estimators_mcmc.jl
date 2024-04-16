@@ -2,7 +2,7 @@
 
 using Random, Distributions, StaticArrays
 
-export Sampler, Noisemodel, mcmc!, subsampler,logp_gauss, logp_rician, update!, increment!, getsubfield, draw_samples, draw_samples!
+export Sampler, Noisemodel, mcmc!, subsampler,logp_gauss, logp_rician, update!, increment!, getsubfield, draw_samples, draw_samples!, findsubfield
 
 """
 Noise model used for modelling
