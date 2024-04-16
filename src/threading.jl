@@ -2,6 +2,8 @@
 export pre_allocate, empty_chain!, create_chain
 
 """
+    pre_allocate(model, sampler, datasize)
+
 Allocating spaces for caching computing results based on model and sampler
     measlen: the number of measurements in the protocol
     datasize: the size of data; for voxel-wise parallel computing, datasize is the number of voxels within a brain mask
@@ -25,6 +27,10 @@ function pre_allocate(model::BiophysicalModel,sampler::Sampler,datasize::Tuple{V
     return measurements, estimates, chains, outputs
 end
 
+"""
+    create_chain(sampler, container)
+create undefied container ("vec" or "dict") for saving mcmc chain
+"""
 function create_chain(sampler::Sampler, container::String)
     
     example = rand.(sampler.proposal)

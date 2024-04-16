@@ -13,6 +13,8 @@ export model_signals, SANDI, SANDIdot, MTE_SANDI, ExCaliber, MTE_SMT, print_mode
 abstract type BiophysicalModel end
 
 """
+    SANDI(soma, neurite, extra, fracs)
+
 SANDI models or MTE-SANDI models including three tissue compartments for in vivo imaging
 For SANDI model, ignore the field of t2 in all compartments and set them to 0
 """
@@ -24,6 +26,8 @@ Base.@kwdef mutable struct SANDI <: BiophysicalModel
 end
 
 """
+    MTE_SANDI(soma, neurite, extra, fracs, S0norm)
+
 For MTE-SANDI model, consider the t2 values in all compartments
 The fraction vector represents fractions of the soma and neurite with the fraction of extra being 1-sum(fracs)
 S0norm is the relaxation-weighting free signal from all compartments S(b=0,t=0) normalised by S(b=0,t=TEmin)
@@ -52,6 +56,8 @@ Base.@kwdef mutable struct SANDIdot <: BiophysicalModel
 end
 
 """
+    ExCaliber(axon, extra, csf, dot, fracs)
+
 ExCaliber model for ex vivo tissue; dot signal considered
 The fraction vector represents fractions of the axon, CSF and dot with the fraction of extra being 1-sum(fracs)
 """
@@ -71,6 +77,8 @@ Base.@kwdef mutable struct ExCaliber_beta <: BiophysicalModel
 end
 
 """
+    MTE_SMT(axon, extra, fracs, S0norm)
+    
 To test multi-TE spherical mean technique for low-b in vivo imaging
 """
 Base.@kwdef mutable struct MTE_SMT <: BiophysicalModel

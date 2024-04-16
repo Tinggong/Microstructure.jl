@@ -5,11 +5,12 @@ using Random, Distributions, StaticArrays
 export Sampler, Noisemodel, mcmc!, subsampler,logp_gauss, logp_rician, update!, increment!, getsubfield, draw_samples, draw_samples!, findsubfield
 
 """
+    Noisemodel(logpdf, sigma_start, sigma_range, proposal)
 Noise model used for modelling
-    logpdf: Function to calculate log likelihood of measurements; set between logp_gauss and logp_rician
-    sigma_start: starting value
-    sigma_range: prior range
-    proposal: proposal distribution
+logpdf: Function to calculate log likelihood of measurements; set between logp_gauss and logp_rician
+sigma_start: starting value
+sigma_range: prior range
+proposal: proposal distribution
 """
 Base.@kwdef struct Noisemodel
     logpdf::Function = logp_gauss
@@ -19,11 +20,9 @@ Base.@kwdef struct Noisemodel
 end
 
 """
+    logp_gauss(measurements, predictions, sigma)
 logpdf with Gaussian noise model.
 sigma is the standard deviation of Gaussian noise
-
-# using Distributions.jl
-# logpdf(Product(Normal.(preds,sigma)),meas)
 """
 function logp_gauss(meas::Vector{Float64},preds::Vector{Float64},sigma::Float64)
     n = length(preds)
@@ -31,6 +30,7 @@ function logp_gauss(meas::Vector{Float64},preds::Vector{Float64},sigma::Float64)
 end
 
 """
+    logp_rician(measurements, predictions, sigma)
 logpdf with Rician noise model
 sigma is the standard deviation of the Gaussian noise underlying the Rician noise
 """
@@ -453,6 +453,7 @@ function update!(model::BiophysicalModel,source::BiophysicalModel,fields::Tuple{
 end
 
 """
+    getsubfiled(model, fieldname)
 Get field/subfield values from a model object that can be used to update fields
 """ 
 function getsubfield(model::BiophysicalModel,field::String)
