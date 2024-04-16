@@ -28,6 +28,8 @@ jobs:
           - 'nightly'
         os:
           - ubuntu-latest
+          - macOS-latest
+          - windows-latest
         arch:
           - x64
     steps:
@@ -39,5 +41,6 @@ jobs:
       - uses: julia-actions/cache@v1
       - uses: julia-actions/julia-buildpkg@v1
       - uses: julia-actions/julia-runtest@v1
-        env:
-           JULIA_PKG_SERVER: ""
+        with:
+          coverage: ${{ matrix.version == '1.8' && matrix.os == 'ubuntu-latest' }}
+    
