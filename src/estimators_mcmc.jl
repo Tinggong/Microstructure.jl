@@ -94,11 +94,10 @@ function draw_samples(sampler::Sampler,noise::Noisemodel=Noisemodel())
     pertubations = [Vector{Any}(undef,sampler.nsamples) for i in 1:(1+length(sampler.params))::Int]
     
     @inbounds for (i,para) in enumerate(sampler.params)
-       
-        if para != "fracs"
-            pertubations[i] = rand(sampler.proposal[i],sampler.nsamples)
+        pertubation = rand(sampler.proposal[i],sampler.nsamples)
+        if pertubation isa Vector
+            pertubations[i] = pertubation
         else
-            pertubation = rand(sampler.proposal[i],sampler.nsamples)
             pertubations[i] = [vec(pertubation[:,i]) for i in 1:sampler.nsamples]
         end
     end 
@@ -113,17 +112,12 @@ function draw_samples(sampler::Sampler,noise::Noisemodel,rng::Int64)
     pertubations = Dict()
 
     @inbounds for (i,para) in enumerate(sampler.params)
-       
-        if para != "fracs"
-            push!(pertubations,para=>rand(sampler.proposal[i],sampler.nsamples))
+        # pertubation could be a vector or a matrix from multi-variant proposal
+        pertubation = rand(sampler.proposal[i],sampler.nsamples)
+        if pertubation isa Vector
+            push!(pertubations,para => pertubation)
         else
-            if sampler.proposal[i] isa Vector
-                pertubation = rand.(sampler.proposal[i],sampler.nsamples)
-                push!(pertubations, para=> [[pertubation[j][i] for j in eachindex(pertubation)] for i in 1:sampler.nsamples])
-            else
-                pertubation = rand(sampler.proposal[i],sampler.nsamples)
-                push!(pertubations, para=> [vec(pertubation[:,i]) for i in 1:sampler.nsamples])
-            end
+            push!(pertubations, para=> [vec(pertubation[:,i]) for i in 1:sampler.nsamples]) # for vector fracs
         end
     end 
     push!(pertubations,"sigma" => rand(noise.proposal,sampler.nsamples))
@@ -145,7 +139,7 @@ end
 After optimizing sampler parameters for a model, add default sampler for the model here
     an example given here is ExCaliber with two-stage MCMC 
 """
-function Sampler(model::BiophysicalModel,fracdis::String,sub::Bool=false)
+function Sampler(model::BiophysicalModel,sub::Bool=false)
     
     modeltype = typeof(model)
     # tesing
@@ -156,12 +150,8 @@ function Sampler(model::BiophysicalModel,fracdis::String,sub::Bool=false)
         paralinks = ("axon.d0" => "axon.dpara", "extra.dpara" => "axon.dpara")
         # set the range of priors and proposal distributions
         pararange = ((1.0e-7,1.0e-5),(0.01e-9,0.9e-9),(0.0, 1.0),(0.0,1.0))
-        # replace this
-        if fracdis == "mv"
-            proposal = (Normal(0,0.25e-6), Normal(0,0.025e-9), Normal(0,0.05), MvNormal([0.0025 0 0;0 0.0001 0; 0 0 0.0001])) #; (0,0.05),Normal(0,0.01),Normal(0,0.01)]]
-        elseif fracdis == "uv"
-            proposal = (Normal(0,0.25e-6), Normal(0,0.025e-9), Normal(0,0.05),[Normal(0,0.05),Normal(0,0.01),Normal(0,0.01)])
-        end
+        # use MvNormal for proposal of fractions 
+        proposal = (Normal(0,0.25e-6), Normal(0,0.025e-9), Normal(0,0.05), MvNormal([0.0025 0 0;0 0.0001 0; 0 0 0.0001])) #; equal to (Normal(0,0.05),Normal(0,0.01),Normal(0,0.01)) for fracs
         # setup sampler and noise model
         sampler = Sampler(params=paras,prior_range=pararange,proposal=proposal,paralinks=paralinks)
         !sub && return sampler 
@@ -302,7 +292,7 @@ function mcmc!(chain::Vector{Any},estimates::BiophysicalModel,meas::Vector{Float
         
     end
     #update model object as the mean values of selected samples
-    update!(estimates,Tuple(para => mean(chain[para][sampler.burnin:sampler.thinning:end]) for para in sampler.params))
+    update!(estimates,Tuple(sampler.params[j] => mean(chain[j][sampler.burnin:sampler.thinning:end]) for j in 1:N::Int))
     update!(estimates,sampler.paralinks)
 end
 

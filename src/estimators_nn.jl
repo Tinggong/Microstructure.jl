@@ -222,6 +222,9 @@ function test(mlp::Chain{T},data::Array{Float64,2},ntest) where T
     return est, est_std
 end
 
+"""
+    RMSE loss
+"""
 function losses_rmse(y, yy)
     sqrt.(Flux.Losses.mse(y,yy))
 end

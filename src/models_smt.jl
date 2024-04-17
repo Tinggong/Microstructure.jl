@@ -82,7 +82,7 @@ end
 To test multi-TE spherical mean technique for low-b in vivo imaging
 """
 Base.@kwdef mutable struct MTE_SMT <: BiophysicalModel
-    axon::Cylinder = Stick()
+    axon::Stick = Stick()
     extra::Zeppelin = Zeppelin()
     fracs::Float64 = 0.5
     S0norm::Float64 = 2.0
