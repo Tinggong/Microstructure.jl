@@ -1,6 +1,6 @@
 # What is microstructure imaging?
 
-Microstructure imaging allows us to estimate biologically meaningful cellular parameters from MRI data. This is achieved through simplifying the tissue in a voxel as multiple compartments representing different cellular structures, e.g. neurites and cell bodies etc. Each tissue compartment has unique features in determine the MR signals under a measurement protocol, and therefore can be estimated by solving an inverse problem.
+Microstructure imaging allows us to estimate biologically meaningful cellular parameters from MRI data. This is achieved through simplifying the tissue in a voxel as multiple compartments representing different cellular structures, e.g. axons and cell bodies etc. Each tissue compartment has unique features in determine the MR signals under a measurement protocol, and therefore can be estimated by solving an inverse problem.
 
 ## Minimal steps
 Here includes the minimal steps for you to get started with your MRI dataset. Visit tutorial and manual pages for more feature demonstrations. 
