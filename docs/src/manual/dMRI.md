@@ -2,11 +2,11 @@
 
 The page introduces functions for reading dMRI data and protocols for microstructure imaging.
 
-## Read dMRI data and get spherical mean signals & imaging protocols
+### Read dMRI data and get spherical mean signals & imaging protocols
 ```@docs
-Spherical_mean
+spherical_mean
 ```
-## The dMRI and Protocol type
+### The dMRI and Protocol type
 
 ```@docs
 dMRI
@@ -15,8 +15,6 @@ dMRI
 ```@docs
 Protocol
 ```
-
-### some funcitons that could be helpful 
 
 Write image and save protocol
 ```@docs

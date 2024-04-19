@@ -13,7 +13,7 @@ Sampler
 ### 2. Define a noise model
 
 ```@docs
-Noise_model
+Noisemodel
 ```
 
 ### 3. Run MCMC on your model and data

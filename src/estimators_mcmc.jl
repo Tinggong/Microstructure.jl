@@ -3,17 +3,17 @@
 using Random, Distributions, StaticArrays
 
 export Sampler,
-       Noisemodel,
-       mcmc!,
-       subsampler,
-       logp_gauss,
-       logp_rician,
-       update!,
-       increment!,
-       getsubfield,
-       draw_samples,
-       draw_samples!,
-       findsubfield
+    Noisemodel,
+    mcmc!,
+    subsampler,
+    logp_gauss,
+    logp_rician,
+    update!,
+    increment!,
+    getsubfield,
+    draw_samples,
+    draw_samples!,
+    findsubfield
 
 """
     Noisemodel(logpdf::Function, 
@@ -38,7 +38,7 @@ Noisemodel(Microstructure.logp_rician, 0.02, (0.005, 0.1), Normal{Float64}(μ=0.
 Base.@kwdef struct Noisemodel
     logpdf::Function = logp_gauss
     sigma_start::Float64 = 0.01
-    sigma_range::Tuple{Float64, Float64} = (0.005, 0.1)
+    sigma_range::Tuple{Float64,Float64} = (0.005, 0.1)
     proposal::Distribution = Normal(0, 0.005)
 end
 
@@ -93,7 +93,7 @@ dim: 3
 """
 Base.@kwdef struct Sampler
     params::Tuple{Vararg{String}} # parameters to sample
-    prior_range::Tuple{Vararg{Tuple{Float64, Float64}}} # range for priors 
+    prior_range::Tuple{Vararg{Tuple{Float64,Float64}}} # range for priors 
     proposal::Tuple{Vararg{<:Any}} # proposal distributions
     paralinks::Tuple{Vararg{Pair{String}}} = () # parameter links used in modelling
     nsamples::Int64 = 70000
@@ -106,7 +106,7 @@ Draw pertubations used in MCMC
 mutating pertubations 
 """
 function draw_samples!(
-        pertubations::Vector{<:Any}, sampler::Sampler, noise::Noisemodel = Noisemodel()
+    pertubations::Vector{<:Any}, sampler::Sampler, noise::Noisemodel=Noisemodel()
 )
     @inbounds for (i, para) in enumerate(sampler.params)
         if para != "fracs"
@@ -125,9 +125,10 @@ end
 
 Generate pertubations used in MCMC for tissue parameters and sigma using the proposals
 """
-function draw_samples(sampler::Sampler, noise::Noisemodel = Noisemodel())
-    pertubations = [Vector{Any}(undef, sampler.nsamples)
-                    for i in 1:((1 + length(sampler.params))::Int)]
+function draw_samples(sampler::Sampler, noise::Noisemodel=Noisemodel())
+    pertubations = [
+        Vector{Any}(undef, sampler.nsamples) for i in 1:((1 + length(sampler.params))::Int)
+    ]
 
     @inbounds for (i, para) in enumerate(sampler.params)
         pertubation = rand(sampler.proposal[i], sampler.nsamples)
@@ -166,21 +167,21 @@ Define a subsampler sampling a subset of parameters in the sampler
 using index vector for keeping parameters
 """
 function subsampler(
-        sampler::Sampler, index::Vector{Int64}, paralinks::Tuple{Vararg{Pair{String}}} = ()
+    sampler::Sampler, index::Vector{Int64}, paralinks::Tuple{Vararg{Pair{String}}}=()
 )
     params = sampler.params[index]
     prior_range = sampler.prior_range[index]
     proposal = sampler.proposal[index]
     return Sampler(;
-        params = params, prior_range = prior_range, proposal = proposal, paralinks = paralinks
+        params=params, prior_range=prior_range, proposal=proposal, paralinks=paralinks
     )
 end
 
 """
-After optimizing sampler parameters for a model, add default sampler for the model here
-    an example given here is ExCaliber with two-stage MCMC 
+After testing and optimizing sampler parameters for a model, add default sampler for the model for convenience here.
+Examples given here are ExCaliber with two-stage MCMC and MTE_SMT; these sampling parameters are not optimised yet.
 """
-function Sampler(model::BiophysicalModel, sub::Bool = false)
+function Sampler(model::BiophysicalModel)
     modeltype = typeof(model)
     # tesing
     if modeltype == ExCaliber
@@ -195,24 +196,45 @@ function Sampler(model::BiophysicalModel, sub::Bool = false)
             Normal(0, 0.25e-6),
             Normal(0, 0.025e-9),
             Normal(0, 0.05),
-            MvNormal([0.0025 0 0; 0 0.0001 0; 0 0 0.0001])
+            MvNormal([0.0025 0 0; 0 0.0001 0; 0 0 0.0001]),
         ) #; equal to (Normal(0,0.05),Normal(0,0.01),Normal(0,0.01)) for fracs
         # setup sampler and noise model
         sampler = Sampler(;
-            params = paras, prior_range = pararange, proposal = proposal, paralinks = paralinks
+            params=paras, prior_range=pararange, proposal=proposal, paralinks=paralinks
         )
-        !sub && return sampler
         return (sampler, subsampler(sampler, [1, 4], ()))
+
+    elseif modeltype == MTE_SMT
+        params = ("axon.t2", "extra.dperp_frac", "extra.t2", "fracs", "S0norm")
+        prior_range = ((30e-3, 150e-3), (0.0, 1.0), (30e-3, 150e-3), (0.0, 1.0), (1.0, 5.0))
+        proposal = (
+            Normal(0, 10e-3),
+            Normal(0, 0.1),
+            Normal(0, 10e-3),
+            Normal(0, 0.1),
+            Normal(0, 0.25),
+        )
+        paralinks = ()
+        sampler = Sampler(;
+            params=params, prior_range=prior_range, proposal=proposal, paralinks=paralinks
+        )
+        return sampler
+
     elseif modeltype == MTE_SANDI
         # under testing
+
     elseif modeltype == SANDI
         # under testing
+
     else
         error("Model not defined")
     end
 end
 
 """
+Method 1 generates pertubations within function, creates and returns a dict chain, and modify final model estimates in place.
+This method is useful in checking a few voxels, e.g. for quality of fitting, chain dignostics and optimizing sampler for models. 
+    
     mcmc!(
         estimates::BiophysicalModel,
         meas::Vector{Float64},
@@ -221,12 +243,14 @@ end
         noise::Noisemodel = Noisemodel(),
         rng::Int64 = 1
     )
-Method 1 generates pertubations within function, creates and returns a dict chain, and modify final model estimates in place.
-This method is useful in checking a few voxels, e.g. for quality of fitting, chain dignostics and optimizing sampler for models. 
 
 ```julia-repl
 julia> chain = mcmc!(estimates, measurements, protocol, sampler, noise_model, rng)
 ```
+Method 2 takes chain and pertubations as input, mutating chain in place which can be used to calculate finial estimates and uncertainties. 
+This method is used for processing larger dataset, e.g. for whole-barin/slices. 
+This method is used together with multi-threads processing that pre-allocate spaces for caching chains, avoiding creating them for each voxel. 
+This method also reuses pertubations for faster speed, as we usually use a very large number of pertubations (e.g. 70000) to densely sample the proposal distributions. 
 
     mcmc!(
         chain::Vector{Any},
@@ -237,23 +261,18 @@ julia> chain = mcmc!(estimates, measurements, protocol, sampler, noise_model, rn
         pertubations::Vector{Vector{Any}},
         noise::Noisemodel = Noisemodel()
     )
-
-Method 2 takes chain and pertubations as input, mutating chain in place which can be used to calculate finial estimates and uncertainties. 
-This method is used for processing larger dataset, e.g. for whole-barin/slices. 
-This method is used together with multi-threads processing that pre-allocate spaces for caching chains, avoiding creating them for each voxel. 
-This method also reuses pertubations for faster speed, as we usually use a very large number of pertubations (e.g. 70000) to densely sample the proposal distributions. 
-        
+       
 ```julia-repl
 julia> mcmc!(chain, estimates, meas, protocol, sampler, pertubations, noise_model))
 ```
 """
 function mcmc!(
-        estimates::BiophysicalModel,
-        meas::Vector{Float64},
-        protocol::Protocol,
-        sampler::Sampler,
-        noise::Noisemodel = Noisemodel(),
-        rng::Int64 = 1
+    estimates::BiophysicalModel,
+    meas::Vector{Float64},
+    protocol::Protocol,
+    sampler::Sampler,
+    noise::Noisemodel=Noisemodel(),
+    rng::Int64=1,
 )
     Random.seed!(rng)
 
@@ -307,10 +326,9 @@ function mcmc!(
     update!(
         estimates,
         Tuple(
-            para => mean(chain[para][(sampler.burnin):(sampler.thinning):end])
-        for
-        para in sampler.params
-        )
+            para => mean(chain[para][(sampler.burnin):(sampler.thinning):end]) for
+            para in sampler.params
+        ),
     )
     update!(estimates, sampler.paralinks)
 
@@ -319,13 +337,13 @@ end
 
 # method 2.1: mutate vector chain and use provided vector pertubations; this is used in multi-threads processing large dataset
 function mcmc!(
-        chain::Vector{Any},
-        estimates::BiophysicalModel,
-        meas::Vector{Float64},
-        protocol::Protocol,
-        sampler::Sampler,
-        pertubations::Vector{Vector{Any}},
-        noise::Noisemodel = Noisemodel()
+    chain::Vector{Any},
+    estimates::BiophysicalModel,
+    meas::Vector{Float64},
+    protocol::Protocol,
+    sampler::Sampler,
+    pertubations::Vector{Vector{Any}},
+    noise::Noisemodel=Noisemodel(),
 )
 
     # get logp_start from the start model and sigma defined in sampler and noise model object
@@ -375,23 +393,22 @@ function mcmc!(
     update!(
         estimates,
         Tuple(
-            sampler.params[j] => mean(chain[j][(sampler.burnin):(sampler.thinning):end])
-        for
-        j in 1:(N::Int)
-        )
+            sampler.params[j] => mean(chain[j][(sampler.burnin):(sampler.thinning):end]) for
+            j in 1:(N::Int)
+        ),
     )
     return update!(estimates, sampler.paralinks)
 end
 
 # method 2.2: mutate dict chain and use provided pertubations; this is useful when doing two stage mcmc demonstration
 function mcmc!(
-        chain::Dict{Any, Any},
-        estimates::BiophysicalModel,
-        meas::Vector{Float64},
-        protocol::Protocol,
-        sampler::Sampler,
-        pertubations::Dict{Any, Any},
-        noise::Noisemodel = Noisemodel()
+    chain::Dict{Any,Any},
+    estimates::BiophysicalModel,
+    meas::Vector{Float64},
+    protocol::Protocol,
+    sampler::Sampler,
+    pertubations::Dict{Any,Any},
+    noise::Noisemodel=Noisemodel(),
 )
 
     #empty_chain!(chain)
@@ -440,21 +457,20 @@ function mcmc!(
     update!(
         estimates,
         Tuple(
-            para => mean(chain[para][(sampler.burnin):(sampler.thinning):end])
-        for
-        para in sampler.params
-        )
+            para => mean(chain[para][(sampler.burnin):(sampler.thinning):end]) for
+            para in sampler.params
+        ),
     )
     return update!(estimates, sampler.paralinks)
 end
 
 function record_chain!(
-        chain::Dict{String, Vector{Any}},
-        estimates::BiophysicalModel,
-        params::Tuple{Vararg{String}},
-        move::Int64,
-        sigma::Float64,
-        logp::Float64
+    chain::Dict{String,Vector{Any}},
+    estimates::BiophysicalModel,
+    params::Tuple{Vararg{String}},
+    move::Int64,
+    sigma::Float64,
+    logp::Float64,
 )
     # record estimates to chain
     for para in params
@@ -466,13 +482,13 @@ function record_chain!(
 end
 
 function record_chain!(
-        chain::Dict{Any, Any},
-        estimates::BiophysicalModel,
-        params::Tuple{Vararg{String}},
-        i::Int64,
-        move::Int64,
-        sigma::Float64,
-        logp::Float64
+    chain::Dict{Any,Any},
+    estimates::BiophysicalModel,
+    params::Tuple{Vararg{String}},
+    i::Int64,
+    move::Int64,
+    sigma::Float64,
+    logp::Float64,
 )
     for para in params
         chain[para][i] = getsubfield(estimates, para)
@@ -483,13 +499,13 @@ function record_chain!(
 end
 
 function record_chain!(
-        chain::Vector{Any},
-        estimates::BiophysicalModel,
-        params::Tuple{Vararg{String}},
-        i::Int64,
-        move::Int64,
-        sigma::Float64,
-        logp::Float64
+    chain::Vector{Any},
+    estimates::BiophysicalModel,
+    params::Tuple{Vararg{String}},
+    i::Int64,
+    move::Int64,
+    sigma::Float64,
+    logp::Float64,
 )
     for (j, para) in enumerate(params)
         chain[j][i] = getsubfield(estimates, para)
@@ -514,13 +530,13 @@ julia> update!(model_target, model_source, fieldnames)
 ```
 """
 # update parameter and values pairs; allow mixed type in specification
-function update!(model::BiophysicalModel, allfields::Tuple{Vararg{Pair{String, <:Any}}})
+function update!(model::BiophysicalModel, allfields::Tuple{Vararg{Pair{String,<:Any}}})
     for pair in allfields
         update!(model, pair)
     end
 end
 
-function update!(model::BiophysicalModel, pair::Pair{String, Float64})
+function update!(model::BiophysicalModel, pair::Pair{String,Float64})
 
     # find the compartment and corresponding field to update
     ind = findfirst('.', pair[1])
@@ -538,12 +554,12 @@ function update!(model::BiophysicalModel, pair::Pair{String, Float64})
 end
 
 # update only fracs
-function update!(model::BiophysicalModel, pair::Pair{String, Vector{Float64}})
+function update!(model::BiophysicalModel, pair::Pair{String,Vector{Float64}})
     return setfield!(model, Symbol(pair[1]), pair[2])
 end
 
 # update parameters using given parameter links
-function update!(model::BiophysicalModel, pair::Pair{String, String})
+function update!(model::BiophysicalModel, pair::Pair{String,String})
 
     # find the compartment and corresponding field to update
     compname, field = findsubfield(pair[1])
@@ -559,7 +575,7 @@ end
 
 # Updating a model object using values from another object
 function update!(
-        model::BiophysicalModel, source::BiophysicalModel, fields::Tuple{Vararg{String}}
+    model::BiophysicalModel, source::BiophysicalModel, fields::Tuple{Vararg{String}}
 )
     for field in fields
         value = getsubfield(source, field)
@@ -600,7 +616,7 @@ end
     
 Move estimates back to previous location before current pertubation. No bounds checking.
 """
-function decrement!(model::BiophysicalModel, allfields::Tuple{Vararg{Pair{String, <:Any}}})
+function decrement!(model::BiophysicalModel, allfields::Tuple{Vararg{Pair{String,<:Any}}})
     for pair in allfields
         decrement!(model, pair)
     end
@@ -608,7 +624,7 @@ function decrement!(model::BiophysicalModel, allfields::Tuple{Vararg{Pair{String
 end
 
 # Decrement fields
-function decrement!(model::BiophysicalModel, pair::Pair{String, Float64})
+function decrement!(model::BiophysicalModel, pair::Pair{String,Float64})
 
     # find the compartment and corresponding field to update
     ind = findfirst('.', pair[1])
@@ -629,7 +645,7 @@ function decrement!(model::BiophysicalModel, pair::Pair{String, Float64})
     return nothing
 end
 
-function decrement!(model::BiophysicalModel, pair::Pair{String, Vector{Float64}})
+function decrement!(model::BiophysicalModel, pair::Pair{String,Vector{Float64}})
     field = Symbol(pair[1])
     value = getfield(model, field) .- pair[2]
     setfield!(model, field, value)
@@ -649,9 +665,9 @@ Increment model estimates in place and return outliers by checking prior ranges.
 'ranges': prior range.
 """
 function increment!(
-        model::BiophysicalModel,
-        allfields::Tuple{Vararg{Pair{String, <:Any}}},
-        bounds::Tuple{Vararg{Tuple{Float64, Float64}}}
+    model::BiophysicalModel,
+    allfields::Tuple{Vararg{Pair{String,<:Any}}},
+    bounds::Tuple{Vararg{Tuple{Float64,Float64}}},
 )
     outliers = 0
     for (i, pair) in enumerate(allfields)
@@ -662,9 +678,9 @@ end
 
 # for fraction vectors
 function increment!(
-        model::BiophysicalModel,
-        pair::Pair{String, Vector{Float64}},
-        bounds::Tuple{Float64, Float64}
+    model::BiophysicalModel,
+    pair::Pair{String,Vector{Float64}},
+    bounds::Tuple{Float64,Float64},
 )
     field = Symbol(pair[1])
     value = getfield(model, field) .+ pair[2]
@@ -675,8 +691,7 @@ end
 
 # for other fields 
 function increment!(
-        model::BiophysicalModel, pair::Pair{String, Float64}, bounds::Tuple{
-            Float64, Float64}
+    model::BiophysicalModel, pair::Pair{String,Float64}, bounds::Tuple{Float64,Float64}
 )
 
     # find the compartment and corresponding field to updates
@@ -708,11 +723,11 @@ Check if a value is an outlier given a range (lowerbound,upperbound); return tru
 When 'value' is a vector which means it represents fractions, the method checks if any elements 
 or the sum of all the elements contain an outlier; return the number of outliers encounted.
 """
-function outlier_checking(value::Float64, bounds::Tuple{Float64, Float64})
+function outlier_checking(value::Float64, bounds::Tuple{Float64,Float64})
     return (value < bounds[1] || value > bounds[2])
 end
 
-function outlier_checking(fracs::Vector{Float64}, bounds::Tuple{Float64, Float64})
+function outlier_checking(fracs::Vector{Float64}, bounds::Tuple{Float64,Float64})
     s = sum(fracs)
     outliers = outlier_checking(s, bounds)
 

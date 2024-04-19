@@ -7,13 +7,7 @@
 # you can also add your models with desired combinations of compartments here
 
 export model_signals,
-    SANDI, 
-    SANDIdot, 
-    MTE_SANDI, 
-    ExCaliber, 
-    MTE_SMT, 
-    print_model, 
-    BiophysicalModel  #ExCaliber_beta, model_signals!
+    SANDI, SANDIdot, MTE_SANDI, ExCaliber, MTE_SMT, print_model, BiophysicalModel  #ExCaliber_beta, model_signals!
 
 # Models belong to BiophysicalModel type
 abstract type BiophysicalModel end
