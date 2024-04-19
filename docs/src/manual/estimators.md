@@ -1,5 +1,7 @@
 # Estimators 
 
+This page introduces two type of estimators implemented in Microstructure.jl for estimating parameters and uncertainties, including the Markov Chain Monte Carlo (MCMC) sampling method and Monte Carlo dropout using neural networks.
+
 ## MCMC
 
 ### 1. Define a sampler for your model

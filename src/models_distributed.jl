@@ -1,8 +1,1 @@
 # orientation distributed models 
-
-
-
-
-
-
-

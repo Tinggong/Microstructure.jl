@@ -1,5 +1,6 @@
-# Minimal steps
+# What is microstructure imaging?
 
+## Minimal steps
 Here includes the minimal steps for you to get started with your MRI dataset. Visit tutorial and manual pages for more feature demonstrations. 
 
 ### Start julia in terminal with multi-threads 
