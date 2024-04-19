@@ -2,7 +2,7 @@
 
 Microstructure.jl is a Julia toolbox aiming at fast and probabilistic microstructure imaging. It supports flexible and extendable compartment modelling with diffusion MRI and combined diffusion-relaxometry MRI. 
 
-## Installation 
+### Installation 
 To install Microstructure.jl, type ] in Julia to enter package mode and add the package:
 
 ```julia
@@ -16,13 +16,11 @@ Microstructure.jl is under active development and is frequently updated. To ensu
 (@v1.8) pkg> up Microstructrue
 ```
 
-## Feature Summary 
+### Feature Summary 
 - Combined diffusion-relaxometry compartment modelling
 - Flexible in creating models and adjusting assumptions
 - Generic MCMC and neural network estimators
 - Parallel computing 
 
-## Relationship to Other Packages
+### Relationship to Other Packages
 Microstructure.jl focuses on tissue microstructure estimation. If you are also interested in fiber orientation and tractography, please check out FreeSurfer.jl. Microstructure.jl also uses I/O functions from FreeSurfer.jl for reading and writing mri image files. 
-
-## Citation
