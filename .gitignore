@@ -6,7 +6,7 @@ docs/build/
 docs/site/
 
 # testing logo locally
-docs/src/assets
+# docs/src/assets
 
 # these will be demonstrated on the documentation website
 /demos

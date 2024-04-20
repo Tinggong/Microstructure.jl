@@ -20,7 +20,11 @@ makedocs(;
     doctest=false,
     linkcheck=true,
     warnonly=[:docs_block, :missing_docs, :cross_references, :linkcheck],
-    format=Documenter.HTML(; mathengine=mathengine, canonical=""),
+    format = Documenter.HTML(;
+        mathengine=mathengine,
+        sidebar_sitename = false,
+        prettyurls = get(ENV, "CI", nothing) == "true"
+    ),
     pages=[
         "Home" => "index.md",
         "Getting started" => "getting_started.md",
