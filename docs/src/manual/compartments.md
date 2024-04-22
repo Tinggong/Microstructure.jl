@@ -9,7 +9,7 @@ inferencing signals from the compartment model and a imaging protocol. Featuring
 Compartment
 ```
 
-### axonal and dendritic compartments 
+### Axonal and dendritic compartments 
 
 ```@docs
 Cylinder
@@ -19,13 +19,13 @@ Cylinder
 Stick
 ```
 
-### extra-cellular compartment
+### Extra-cellular compartment
 
 ```@docs
 Zeppelin
 ```
 
-### cell body compartment
+### Cell body compartment
 
 ```@docs
 Sphere
@@ -38,7 +38,11 @@ Iso
 ```
 
 ## Compartment signals
+This function implements different methods for different compartment Types to generate compartment signals.
 
 ```@docs
 compartment_signals
 ```
+
+### Citations
+Constructing...

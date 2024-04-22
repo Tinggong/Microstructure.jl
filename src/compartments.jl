@@ -26,7 +26,12 @@ i.e. acquired with single-TE, set the 't2' field to zero to for conventional dMR
 abstract type Compartment end
 
 """
-    Cylinder(da::Float64, dpara::Float64, d0::Float64, t2::Float64)
+    Cylinder(
+        da::Float64, 
+        dpara::Float64, 
+        d0::Float64, 
+        t2::Float64
+        )
 
 Return a Cylinder Type object with the cylinder diameter 'da', parallel diffusivity 'dpara', 
 the intrinsic diffusivity 'd0' and the T2 relaxation time 't2'. 
@@ -62,9 +67,13 @@ Base.@kwdef mutable struct Stick <: Compartment
 end
 
 """
-    Zeppelin(dpara::Float64, dperp_frac::Float64, t2::Float64)
+    Zeppelin(
+        dpara::Float64, 
+        dperp_frac::Float64, 
+        t2::Float64
+        )
 
-Return a Zeppelin Type object with parallel diffusivity 'dpara', 
+Return a Zeppelin Type object with parallel diffusivity 'dpara', axially symmetric 
 perpendicular diffusivity represented as a fraction of the parallel diffusivity 'dperp_frac',
 and the T2 relaxation time 't2'.
 
@@ -81,7 +90,11 @@ Base.@kwdef mutable struct Zeppelin <: Compartment
 end
 
 """
-    Sphere(diff::Float64, size::Float64, t2::Float64)
+    Sphere(
+        diff::Float64, 
+        size::Float64, 
+        t2::Float64
+        )
 
 Return a Sphere Type object with diffusivity within sphere 'diff', spherical radius 'size',
 and T2 relaxation time 't2'.

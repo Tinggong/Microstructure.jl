@@ -2,6 +2,9 @@
 export pre_allocate, empty_chain!, create_chain, threading
 
 """
+This method runs multi-threads MCMC estimation on dMRI data using a specified biophysical model, 
+and save estimated parameters as nifti files.
+
     threading(
         model_start::BiophysicalModel,
         sampler::Sampler,
@@ -12,8 +15,8 @@ export pre_allocate, empty_chain!, create_chain, threading
         savedir::String,
     )
 
-This method runs multi-threads MCMC estimation on dMRI data using a specified biophysical model, 
-and save estimated parameters as nifti files
+
+This method returns mean and standard deviation of estimations from measurements array of size [Nmeas, Nvoxels].
 
     threading(
         model_start::BiophysicalModel,
@@ -23,7 +26,6 @@ and save estimated parameters as nifti files
         noise_model::Noisemodel,
     )
 
-This method returns mean and standard deviation of estimations from measurements array of size [Nmeas, Nvoxels]
 """
 function threading(
     model_start::BiophysicalModel,

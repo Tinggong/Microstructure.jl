@@ -1,5 +1,7 @@
 # Multi threads
 
+Multi-threads processing is recommended when using MCMC estimation. The neural network estimators are relatively fast and take only minutes training on CPU. 
+
 ### Start julia in terminal with multi-threads 
 ```terminal
 ~ % julia --threads auto

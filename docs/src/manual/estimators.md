@@ -4,19 +4,19 @@ This page introduces two type of estimators implemented in Microstructure.jl for
 
 ## MCMC
 
-### 1. Define a sampler for your model
+### Define a sampler for your model
 
 ```@docs
 Sampler
 ```
 
-### 2. Define a noise model
+### Define a noise model
 
 ```@docs
 Noisemodel
 ```
 
-### 3. Run MCMC on your model and data
+### Run MCMC on your model and data
 
 ```@docs
 mcmc!
@@ -24,22 +24,32 @@ mcmc!
 
 ## Neural Networks
 
-### 1. Specify a network model for your task
+### Specify a network model for your task
 
 ```@docs
 NetworkArg
 ```
 
-### 2. Specify training parameters
+### Specify training parameters
 
 ```@docs
 TrainingArg
 ```
 
-### 3. Prepare network and data for training
+### Prepare network and data for training
 
 ```@docs
 prepare_training
+```
+
+"prepare_training" calls two functions to generate task specific MLP and training samples:
+
+```@docs
+create_mlp
+```
+
+```@docs
+generate_samples
 ```
 
 ### 4. Training on generated training samples

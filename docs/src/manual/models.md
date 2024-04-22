@@ -1,5 +1,11 @@
 # Microstructure Models
 
+This page introduces several biophysical models. A biophysical model includes several tissue compartments and other parameters including compartment fractions and signals.
+
+```@docs
+BiophysicalModel
+```
+
 ## dMRI models
 
 ### WM models
@@ -26,8 +32,13 @@ MTE_SMT
 MTE_SANDI
 ```
 
-# Prediction of MRI signals
+## Prediction of MRI signals
+
+This function implements different methods for different BiophysicalModel types.
 
 ```@docs
 model_signals
 ```
+
+### Citations
+Constructing...

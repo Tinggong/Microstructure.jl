@@ -49,7 +49,7 @@ julia> model_start = MTE_SMT(axon = Stick(dpara = 1.7e-9, t2 = 90e-3), extra = Z
 julia> sampler_smt = Sampler(model_start)
 ```
 
-### Estimation
+### MCMC Estimation
 ```julia
 julia> savename = datadir * "/mte_smt."
 julia> threading(model_start, sampler_smt, dMRI, mask, protocol, Noisemodel(), savename)
