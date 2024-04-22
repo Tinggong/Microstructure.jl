@@ -178,10 +178,10 @@ end
         acq_files::String...
     )
 
-Perform direction average on input DWI images 'infile_image' and return MRI object with smt signal and associated imaging protocol.
-'infile_image' is the full path of the DWI image file; 'normalize' indicates if normalisation to the b0 is applied; 'save' indicates 
+Perform direction average on input DWI images "image_file" and return an MRI object with spherical mean signal and associated imaging protocol.
+"image_file" is the full path of the DWI image file; "normalize" indicates if normalisation to the b0 is applied; "save" indicates 
 if save the smt signals to nifti files on the save path as the input data (the protocol is also saved as a text file).
-Finall, variable number of 'acq_files' are text files that tell acquistion parameters of each DWI in the 'infile_image'. 
+Finall, variable number of "acq_files" are text files that tell you acquistion parameters of each DWI in the "image_file'. 
 Accepted file extensions are .bvals/.bvecs/.techo/.tdelta/.tsmalldel.
 
 Besides .bvals/.bvecs for conventional modelling, .tdelta/.tsmalldel files are needed for any models that estimate size, e.g. axon diameter, soma radius.
@@ -216,7 +216,7 @@ end
 """
     dmri_write(dmri::dMRI, datapath::String, filename::String)
 
-Write the nifti volume in a dMRI object to nifti file and associated protocol as b-table text files in the given 'datapath' and 'filename'
+Write the nifti volume in a dMRI object to nifti file and associated protocol as b-table text files in the given "datapath" and "filename".
 """
 function dmri_write(dmri::dMRI, datapath::String, outfile::String)
     mri_write(dmri.nifti, datapath * outfile)

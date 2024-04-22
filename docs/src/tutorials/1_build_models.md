@@ -1,5 +1,7 @@
 # How to build a microstructure model
 
+This page introduces some simply steps for you to observe how tissue microstructrure parameters affect dMRI spherical mean signals using some biphysical models. 
+
 ## 1. diffusion MRI model
 
 Load the module

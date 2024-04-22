@@ -3,7 +3,7 @@ export pre_allocate, empty_chain!, create_chain, threading
 
 """
 This method runs multi-threads MCMC estimation on dMRI data using a specified biophysical model, 
-and save estimated parameters as nifti files.
+and save estimated parameters as nifti files. "savedir" can include both output path and file name prefix
 
     threading(
         model_start::BiophysicalModel,
