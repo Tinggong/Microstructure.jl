@@ -121,11 +121,12 @@ function NetworkArg(
 end
 
 """
-    prepare_trainning(arg::NetworkArg)
+    prepare_training(arg::NetworkArg)
 
-Return (mlp, inputs, labels, gt), where 'mlp' is the network model, 
-'inputs' and 'labels' are arrays of signals and scaled tissue parameters, and
-'gt' is a dict containing the ground truth tissue parameters without applying scaling.
+Return (mlp, inputs, labels, gt); 'mlp' is the multi-layer perceptron network model for the biophysical model; 
+'inputs' and 'labels' are arrays of signals and scaled tissue parameters used for supervised training; and
+'gt' is a dict containing the ground truth tissue parameters without applying scaling. Scaling is applied in the
+training labers to ensure different tissue parameters are roughly in the same range as they are optimized together through MSE loss. 
 """
 function prepare_training(arg::NetworkArg)
     mlp = create_mlp(arg.nin, arg.nout, arg.hidden_layers, arg.dropoutp)
@@ -145,7 +146,12 @@ function prepare_training(arg::NetworkArg)
 end
 
 """
-    create_mlp(ninput, noutput, hiddenlayers, dropoutp)
+    create_mlp(
+        ninput::Int64, 
+        noutput::Int64, 
+        hiddenlayers::Tuple{Vararg{Int64}}, 
+        dropoutp::Float64=0.2
+        )
 
 Return a mlp with 'ninput'/'noutput' as the number of input/output channels, and number of units in each layer specified in 'hiddenlayers'; 
 a dropout layer is inserted before the output layer with dropout probability 'dropoutp'.
@@ -172,7 +178,7 @@ end
         sigma::Float64,
         noise_type::String,
     )
-Generate and return training samples for a model using uniform coverage of tissue parameters and specified noise model
+Generate and return training samples for a model using uniform coverage of tissue parameters and specified noise model and noise level.
 """
 function generate_samples(
     model::BiophysicalModel,
@@ -204,15 +210,18 @@ function generate_samples(
         elseif para == "fracs"
             vecs = rand(Dirichlet(length(model.fracs) + 1, 1), nsample)
             push!(params_labels, vecs[1:(end - 1), :])
-
-            vecs = [vec(vecs[1:(end - 1), i]) for i in 1:nsample]
+            if model.fracs isa Vector
+                vecs = [vecs[1:(end - 1), i] for i in 1:nsample]
+            else
+                vecs = [vecs[1, i] for i in 1:nsample]
+            end
             push!(params_gt, para => vecs)
-        else
-            vecs =
-                scaling[fieldname][1][1] .+
-                (scaling[fieldname][1][2] - scalings[fieldname][1][1]) .*
+        else 
+            vecs = 
+                scaling[para][1][1] .+ 
+                (scaling[para][1][2] - scaling[para][1][1]) .* 
                 rand(Float64, nsample)
-            push!(params_labels, (vecs .* scaling[fieldname][2] .* scaling[fieldname][3])')
+            push!(params_labels, (vecs .* scaling[para][2] .* scaling[para][3])')
             push!(params_gt, para => vecs)
         end
     end
@@ -243,9 +252,12 @@ end
 
 """
     train_loop!(
-        mlp::Chain, arg::TrainingArg, inputs::Array{Float64,2}, labels::Array{Float64,2}
+        mlp::Chain, 
+        arg::TrainingArg, 
+        inputs::Array{Float64,2}, 
+        labels::Array{Float64,2}
     )
-Train and update the 'mlp' and return a Dict of training logs with "train_loss", "train_data_loss" and "val_data_loss" for each epoch.
+Train and update the 'mlp' and return a Dict of training logs with train loss, training data loss and validation data loss for each epoch.
 """
 function train_loop!(
     mlp::Chain{T}, arg::TrainingArg, inputs::Array{Float64,2}, labels::Array{Float64,2}
