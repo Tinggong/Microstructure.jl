@@ -9,13 +9,13 @@ To install Microstructure.jl, open Julia and enter the package mode by typing `]
 
 ```julia
 julia> ]
-(@v1.8) pkg> add Microstructrue
+(@v1.8) pkg> add Microstructure
 ```
 
 Microstructure.jl is under active development and is frequently updated. To ensure you have the latest version, use the following command in the package mode:
 
 ```julia
-(@v1.8) pkg> up Microstructrue
+(@v1.8) pkg> up Microstructure
 ```
 
 ### Usage
