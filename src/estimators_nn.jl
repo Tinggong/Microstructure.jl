@@ -162,7 +162,7 @@ function create_mlp(
     num = (ninput, hiddenlayers...)
     mlp = [Dense(num[i] => num[i + 1], relu) for i in 1:(length(num) - 1)]
 
-    mlp = Chain(mlp..., Dropout(dropoutp), Dense(hiddenlayers[end] => noutput))
+    mlp = Flux.f64(Chain(mlp..., Dropout(dropoutp), Dense(hiddenlayers[end] => noutput)))
 
     return mlp
 end
