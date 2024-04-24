@@ -5,8 +5,7 @@
 
 using LinearAlgebra, SpecialFunctions
 
-export Protocol,
-    Cylinder, 
+export Cylinder, 
     Stick, 
     Zeppelin, 
     Iso, 

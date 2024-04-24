@@ -1,4 +1,4 @@
-<img src="docs/src/assets/logo.png" width=400>
+<img src="docs/src/assets/logo_main.png" width=400>
 
 [![Build Status](https://github.com/Tinggong/Microstructure.jl/actions/workflows/CI.yml/badge.svg?branch=main)](https://github.com/Tinggong/Microstructure.jl/actions/workflows/CI.yml?query=branch%3Amain)
 
