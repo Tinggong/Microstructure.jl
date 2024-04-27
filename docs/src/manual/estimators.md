@@ -22,6 +22,12 @@ Noisemodel
 mcmc!
 ```
 
+Function mcmc! runs on single thread and suitable for testing sampler parameters and inspecting chains for small dataset. After optimizing sampler parameters, if you are processing datasets with many voxels, use the threading function for multi-threads processing. Refer to multi-threads page for more details.
+
+```@docs
+threading
+```
+
 ## Neural Networks
 
 ### Specify a network model for your task

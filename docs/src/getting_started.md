@@ -37,7 +37,7 @@ julia> (dMRI, protocol) = spherical_mean(
 You might also need to read a tissue mask to define the region you want to process:
 
 ```julia
-julia> using FreeSurfer
+julia> using Fibers
 julia> mask = mri_read(datadir * "/mask.nii.gz")
 ```
 

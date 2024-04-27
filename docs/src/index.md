@@ -23,4 +23,4 @@ Microstructure.jl is under active development and is frequently updated. To ensu
 - Parallel computing 
 
 ### Relationship to Other Packages
-Microstructure.jl focuses on tissue microstructure estimation. If you are also interested in fiber orientation and tractography, please check out FreeSurfer.jl. Microstructure.jl also uses I/O functions from FreeSurfer.jl for reading and writing mri image files. 
+Microstructure.jl focuses on tissue microstructure estimation. If you are also interested in fiber orientation and tractography, please check out Fibers.jl. Microstructure.jl also uses I/O functions from Fibers.jl for reading and writing mri image files. 
