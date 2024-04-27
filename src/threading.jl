@@ -7,15 +7,14 @@ and save estimated parameters as nifti files. "savedir" can include both output 
 
     threading(
         model_start::BiophysicalModel,
-        sampler::T,
+        sampler::Union{Sampler,Tuple{Sampler,Sampler}},
         dmri::MRI,
         mask::MRI,
         protocol::Protocol,
         noise_model::Noisemodel,
         savedir::String,
-    ) where {T<:Union{Sampler,Tuple{Sampler,Sampler}}}
-
-
+    ) 
+    
 Methods that return mean and standard deviation of estimations from measurements array of size [Nmeas, Nvoxels].
 
     threading(
@@ -38,14 +37,14 @@ Two-stage MCMC:
 """
 function threading(
     model_start::BiophysicalModel,
-    sampler::T,
+    sampler::Union{Sampler,Tuple{Sampler,Sampler}},
     dmri::MRI,
     mask::MRI,
     protocol::Protocol,
     noise_model::Noisemodel,
     datadir::String,
     rng::Int64=1,
-) where {T<:Union{Sampler,Tuple{Sampler,Sampler}}}
+)
     
     indexing = dropdims(mask.vol; dims=4)
     # put measurments in first dimension for faster iteration
@@ -55,10 +54,12 @@ function threading(
     Random.seed!(rng)
     est, est_std = threading(model_start, sampler, meas, protocol, noise_model)
 
+    sampler isa Tuple ? params = sampler[1].params : params = sampler.params
+
     # save nifti
-    for (ip, para) in enumerate(sampler.params)
+    for (ip, para) in enumerate(params)
         if est[ip][1] isa Vector
-            mri = MRI(mask, length(est[ip][1]))
+            mri = MRI(mask, length(est[ip][1]), Float64)
 
             mri.vol[indexing .> 0, :] .= reduce(vcat, est[ip])
             mri_write(mri, datadir * para * ".mean.nii.gz")
@@ -66,7 +67,7 @@ function threading(
             mri.vol[indexing .> 0, :] .= reduce(vcat, est_std[ip])
             mri_write(mri, datadir * para * ".std.nii.gz")
         else
-            mri = MRI(mask, 1)
+            mri = MRI(mask, 1, Float64)
 
             mri.vol[indexing .> 0] .= est[ip]
             mri_write(mri, datadir * para * ".mean.nii.gz")

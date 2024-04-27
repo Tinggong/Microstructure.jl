@@ -22,4 +22,4 @@ Microstructure.jl is under active development and is frequently updated. To ensu
 Documentation demonstrating various features of the package can be found on the [documentation website](https://tinggong.github.io/Microstructure.jl/dev/). Please note that the documentation website is currently under construction and will be frequently updated.
 
 ### Relationship to Other Packages
-Microstructure.jl focuses on tissue microstructure estimation. If you are also interested in fiber orientation and tractography, consider exploring FreeSurfer.jl. Additional, Microstructure.jl uses I/O functions from FreeSurfer.jl for reading and writing NIfTI image files.
+Microstructure.jl focuses on tissue microstructure estimation. If you are also interested in fiber orientation and tractography, consider exploring Fibers.jl. Additional, Microstructure.jl uses I/O functions from Fibers.jl for reading and writing NIfTI image files.

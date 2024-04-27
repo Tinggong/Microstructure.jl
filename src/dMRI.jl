@@ -1,7 +1,7 @@
 # I/O functions for images and protocols
 # Include functions to perform direction average
 
-using FreeSurfer, DelimitedFiles, Statistics, StaticArrays
+using Fibers, DelimitedFiles, Statistics, StaticArrays
 
 export dMRI,
     Protocol,
@@ -143,8 +143,8 @@ function spherical_mean!(dmri::dMRI)
     dmri.nifti.vol = vol
     dmri.nifti.bvec = zeros(nsets, 3)
     dmri.nifti.nframes = nsets
-    dmri.nifti.niftihdr.dim[5] = nsets
-    return dmri.smt = 1
+    dmri.smt = 1
+    return nothing
 end
 
 function normalize_smt!(dmri::dMRI)
@@ -167,7 +167,8 @@ function normalize_smt!(dmri::dMRI)
     end
 
     dmri.nifti.nframes = nvol
-    return dmri.nifti.niftihdr.dim[5] = nvol
+
+    return nothing
 end
 
 """
@@ -227,7 +228,8 @@ function dmri_write(dmri::dMRI, datapath::String, outfile::String)
 
     prot = Protocol(dmri)
     btable = hcat(prot.bval, prot.techo, prot.tdelta, prot.tsmalldel, prot.gvec)
-    return writedlm(datapath * name * ".btable", btable, ' ')
+    writedlm(datapath * name * ".btable", btable, ' ')
+    return nothing
 end
 
 """
