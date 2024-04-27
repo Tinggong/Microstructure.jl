@@ -125,40 +125,43 @@ end
 
 Generate pertubations used in MCMC for tissue parameters and sigma using the proposals
 """
-function draw_samples(sampler::Sampler, noise::Noisemodel=Noisemodel())
-    pertubations = [
-        Vector{Any}(undef, sampler.nsamples) for i in 1:((1 + length(sampler.params))::Int)
-    ]
+function draw_samples(sampler::Sampler, noise::Noisemodel, container::String)
+    
+    if container == "vec"
+        
+        pertubations = [
+            Vector{Any}(undef, sampler.nsamples) for i in 1:((1 + length(sampler.params))::Int)
+        ]
 
-    @inbounds for (i, para) in enumerate(sampler.params)
-        pertubation = rand(sampler.proposal[i], sampler.nsamples)
-        if pertubation isa Vector
-            pertubations[i] = pertubation
-        else
-            pertubations[i] = [vec(pertubation[:, i]) for i in 1:(sampler.nsamples)]
+        @inbounds for (i, para) in enumerate(sampler.params)
+            pertubation = rand(sampler.proposal[i], sampler.nsamples)
+            if pertubation isa Vector
+                pertubations[i] = pertubation
+            else
+                pertubations[i] = [vec(pertubation[:, i]) for i in 1:(sampler.nsamples)]
+            end
         end
-    end
-    pertubations[end] = rand(noise.proposal, sampler.nsamples)
-
-    return pertubations
-end
-
-function draw_samples(sampler::Sampler, noise::Noisemodel, rng::Int64)
-    Random.seed!(rng)
-    pertubations = Dict()
-
-    @inbounds for (i, para) in enumerate(sampler.params)
-        # pertubation could be a vector or a matrix from multi-variant proposal
-        pertubation = rand(sampler.proposal[i], sampler.nsamples)
-        if pertubation isa Vector
-            push!(pertubations, para => pertubation)
-        else
-            push!(
-                pertubations, para => [vec(pertubation[:, i]) for i in 1:(sampler.nsamples)]
-            ) # for vector fracs
+        pertubations[end] = rand(noise.proposal, sampler.nsamples)
+    
+    elseif container == "dict"
+        
+        pertubations = Dict()
+        @inbounds for (i, para) in enumerate(sampler.params)
+            # pertubation could be a vector or a matrix from multi-variant proposal
+            pertubation = rand(sampler.proposal[i], sampler.nsamples)
+            if pertubation isa Vector
+                push!(pertubations, para => pertubation)
+            else
+                push!(
+                    pertubations, para => [vec(pertubation[:, i]) for i in 1:(sampler.nsamples)]
+                ) # for vector fracs
+            end
         end
+        push!(pertubations, "sigma" => rand(noise.proposal, sampler.nsamples))
+    else 
+        error("use vec or dict")
     end
-    push!(pertubations, "sigma" => rand(noise.proposal, sampler.nsamples))
+
     return pertubations
 end
 
@@ -278,7 +281,7 @@ function mcmc!(
 
     # create chain and pertubations
     chain = create_chain(sampler, "dict")
-    pertubations = draw_samples(sampler, noise, rng)
+    pertubations = draw_samples(sampler, noise, "dict")
 
     # get logp_start from the start model and sigma defined in sampler and noise model object
     sigma = noise.sigma_start
@@ -397,10 +400,11 @@ function mcmc!(
             j in 1:(N::Int)
         ),
     )
-    return update!(estimates, sampler.paralinks)
+    update!(estimates, sampler.paralinks)
+    return nothing
 end
 
-# method 2.2: mutate dict chain and use provided pertubations; this is useful when doing two stage mcmc demonstration
+# method 2.2: mutate dict chain and use provided dict pertubations; this is useful when doing two stage mcmc demonstration
 function mcmc!(
     chain::Dict{Any,Any},
     estimates::BiophysicalModel,
@@ -423,7 +427,7 @@ function mcmc!(
 
         # get the next sample location and check if it is within prior ranges
         outliers = increment!(estimates, pertubation, sampler.prior_range)
-        sigma += pertubations[end][i]
+        sigma += pertubations["sigma"][i]
 
         if iszero(outliers) && !outlier_checking(sigma, noise.sigma_range)
 
@@ -442,13 +446,13 @@ function mcmc!(
                 # move estimates back to previous location
                 decrement!(estimates, pertubation)
                 update!(estimates, sampler.paralinks)
-                sigma -= pertubations[end][i]
+                sigma -= pertubations["sigma"][i]
             end
         else
             move = 0
             # move next back to current location
             decrement!(estimates, pertubation)
-            sigma -= pertubations[end][i]
+            sigma -= pertubations["sigma"][i]
         end
 
         record_chain!(chain, estimates, sampler.params, i, move, sigma, logp_start)
@@ -461,7 +465,8 @@ function mcmc!(
             para in sampler.params
         ),
     )
-    return update!(estimates, sampler.paralinks)
+    update!(estimates, sampler.paralinks)
+    return nothing
 end
 
 function record_chain!(
@@ -478,7 +483,8 @@ function record_chain!(
     end
     push!(chain["sigma"], sigma)
     push!(chain["logp"], logp)
-    return push!(chain["move"], move)
+    push!(chain["move"], move)
+    return nothing
 end
 
 function record_chain!(
@@ -495,7 +501,8 @@ function record_chain!(
     end
     chain["sigma"][i] = sigma
     chain["logp"][i] = logp
-    return chain["move"][i] = move
+    chain["move"][i] = move
+    return nothing
 end
 
 function record_chain!(
@@ -512,7 +519,8 @@ function record_chain!(
     end
     chain[end - 2][i] = sigma
     chain[end - 1][i] = logp
-    return chain[end][i] = move
+    chain[end][i] = move
+    return nothing
 end
 
 """
@@ -534,6 +542,7 @@ function update!(model::BiophysicalModel, allfields::Tuple{Vararg{Pair{String,<:
     for pair in allfields
         update!(model, pair)
     end
+    return nothing
 end
 
 function update!(model::BiophysicalModel, pair::Pair{String,Float64})
@@ -551,11 +560,13 @@ function update!(model::BiophysicalModel, pair::Pair{String,Float64})
     else
         setfield!(model, Symbol(pair[1]), pair[2])
     end
+    return nothing
 end
 
 # update only fracs
 function update!(model::BiophysicalModel, pair::Pair{String,Vector{Float64}})
-    return setfield!(model, Symbol(pair[1]), pair[2])
+    setfield!(model, Symbol(pair[1]), pair[2])
+    return nothing
 end
 
 # update parameters using given parameter links
@@ -570,7 +581,8 @@ function update!(model::BiophysicalModel, pair::Pair{String,String})
 
     # update subfield
     comp = getfield(model, compname)
-    return setfield!(comp, field, value)
+    setfield!(comp, field, value)
+    return nothing
 end
 
 # Updating a model object using values from another object
@@ -581,6 +593,7 @@ function update!(
         value = getsubfield(source, field)
         update!(model, field => value)
     end
+    return nothing
 end
 
 """
