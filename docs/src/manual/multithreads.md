@@ -13,3 +13,9 @@ You can also set enviornment variable by adding `export JULIA_NUM_THREADS=auto` 
 ```@docs
 threading
 ```
+
+Function threading calls pre_allocate and mcmc! for multi-threads processing. When provided sampler is a Tuple containing two Samplers, it uses a two-stage MCMC to get final estimates.
+
+```@docs
+pre_allocate
+```
