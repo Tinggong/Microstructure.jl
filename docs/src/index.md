@@ -24,3 +24,6 @@ Microstructure.jl is under active development and is frequently updated. To ensu
 
 ### Relationship to Other Packages
 Microstructure.jl focuses on tissue microstructure estimation. If you are also interested in fiber orientation and tractography, please check out [Fibers.jl](https://github.com/lincbrain/Fibers.jl). Microstructure.jl also uses I/O functions from Fibers.jl for reading and writing mri image files. 
+
+### Acknowledgements
+Development of this package is supported by the NIH National Institute of Neurologic Disorders and Stroke (grants UM1-NS132358, R01-NS119911, R01-NS127353).
