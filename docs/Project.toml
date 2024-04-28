@@ -1,2 +1,23 @@
 [deps]
 Documenter = "e30172f5-a6a5-5a46-863b-614d45cd2de4"
+DelimitedFiles = "8bb1440f-4735-579b-a4ab-409b98df4dab"
+Distributions = "31c24e10-a181-5473-b8eb-7969acd0382f"
+Fibers = "79c5424f-e3fe-4f6a-a484-e0e793a8858c"
+Flux = "587475ba-b771-5e3f-ad9e-33799f191a9c"
+JLD2 = "033835bb-8acc-5ee8-8aae-3f567f8a3819"
+LinearAlgebra = "37e2e46d-f89d-539d-b4ee-838fcccc9c8e"
+Microstructure = "bb9cb41e-5262-42dc-ac73-4f266bc6ab72"
+Random = "9a3f8284-a2c9-5f02-9a11-845980a1fd5c"
+SpecialFunctions = "276daf66-3868-5448-9aa4-cd146d93841b"
+StaticArrays = "90137ffa-7385-5640-81b9-e52037218182"
+Statistics = "10745b16-79ce-11e8-11f9-7d13ad32a3b2"
+
+[compat]
+Distributions = "0.25"
+Fibers = "1.0"
+Flux = "0.13, 0.14"
+JLD2 = "0.4"
+Microstructure = "0.1"
+SpecialFunctions = "2.3"
+StaticArrays = "1.9"
+julia = "1"
