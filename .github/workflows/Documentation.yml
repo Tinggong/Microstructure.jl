@@ -6,6 +6,7 @@ on:
       - main # update to match your development branch (master, main, dev, trunk, ...)
     paths:
       - 'docs/**'
+      - 'Project.toml'
     tags: '*'
   pull_request:
 
