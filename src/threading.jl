@@ -2,7 +2,7 @@
 export pre_allocate, empty_chain!, create_chain, threading
 
 """
-(1) This method runs multi-threads MCMC estimation on dMRI data using a specified biophysical model, calls the voxel threading 
+This method runs multi-threads MCMC estimation on dMRI data using a specified biophysical model, calls the voxel threading 
 method introduced in (2) and save estimated parameters as nifti files. "savedir" can include both output path and file name prefix.
 Two-stage MCMC sampling methods are run if provided sampler is a Tuple of two samplers, where it will sample all the unknown parameters 
 using the first sampler then sample target tissue parameters in the second sampler while fixing the rest parameters to posterior means in the first MCMC.  
@@ -17,7 +17,7 @@ using the first sampler then sample target tissue parameters in the second sampl
         savedir::String,
     ) 
 
-(2) Methods that return mean and standard deviation of estimations from measurements array of size [Nmeas, Nvoxels] using single-stage or two-stage MCMC.
+Methods that return mean and standard deviation of estimations from measurements array of size [Nmeas, Nvoxels] using single-stage or two-stage MCMC.
 
     threading(
         model_start::BiophysicalModel,
@@ -177,6 +177,9 @@ end
         model::BiophysicalModel, sampler::Sampler, datasize::Tuple{Int64,Int64}
     )
 
+    pre_allocate(
+        model::BiophysicalModel, sampler::Tuple{Sampler,Sampler}, datasize::Tuple{Int64,Int64}
+    )
 Allocating spaces for caching computing results based on 'model', 'sampler' and 'datasize'.
 'datasize' is the size of data (Nmeas, Nvoxels) 
 """

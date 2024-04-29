@@ -28,19 +28,19 @@ makedocs(;
     pages=[
         "Home" => "index.md",
         "Getting started" => "getting_started.md",
-        "Tutorials" => Any[
-            "tutorials/1_build_models.md",
-            "tutorials/2_quality_of_fit.md",
-            "tutorials/3_data_generation.md",
-            "tutorials/4_noise_propagation.md",
-            "tutorials/5_model_selection.md",
-        ],
         "Manual" => Any[
             "manual/dMRI.md",
             "manual/compartments.md",
             "manual/models.md",
             "manual/estimators.md",
             "manual/multithreads.md",
+        ],
+        "Tutorials" => Any[
+            "tutorials/1_build_models.md",
+            "tutorials/2_quality_of_fit.md",
+            "tutorials/3_data_generation.md",
+            "tutorials/4_noise_propagation.md",
+            "tutorials/5_model_selection.md",
         ],
         "guide.md",
     ],
