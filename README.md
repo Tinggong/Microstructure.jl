@@ -2,7 +2,8 @@
 
 [![Build Status](https://github.com/Tinggong/Microstructure.jl/actions/workflows/CI.yml/badge.svg?branch=main)](https://github.com/Tinggong/Microstructure.jl/actions/workflows/CI.yml?query=branch%3Amain)
 
-Microstructure.jl is a Julia package for fast and probabilistic microstructure imaging. It features flexible and extendable compartment modeling with diffusion MRI and combined diffusion-relaxometry MRI. It provides generic estimators including Markov Chain Monte Carlo (MCMC) sampling methods and Monte Carlo dropout with neural networks. 
+Microstructure.jl is a Julia package for fast and probabilistic microstructure imaging. It features flexible and extendable compartment modeling with diffusion MRI and combined diffusion-relaxometry MRI and provides generic estimators including Markov Chain Monte Carlo (MCMC) sampling methods and Monte Carlo dropout with neural networks. 
+
 Microstructure.jl is under active development, testing and optimization and updates will be shared throughout this process. You are welcome to try it out and provide feedback on any issues encountered. Microstructure.jl has a developing [documentation website](https://tinggong.github.io/Microstructure.jl/dev/) introducing functional API and features of the package. More tutorials and recommendations will be coming soon. 
 
 ### Installation 
