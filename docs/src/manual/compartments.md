@@ -28,7 +28,7 @@ Zeppelin
 ### Cell body compartment
 
 ```@docs
-Sphere
+Microstructure.Sphere
 ```
 
 ### CSF and dot compartment
