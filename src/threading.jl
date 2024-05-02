@@ -63,10 +63,10 @@ function threading(
         if est[ip][1] isa Vector
             mri = MRI(mask, length(est[ip][1]), Float64)
 
-            mri.vol[indexing .> 0, :] .= reduce(vcat, est[ip])
+            mri.vol[indexing .> 0, :] .= reduce(hcat, est[ip])'
             mri_write(mri, datadir * para * ".mean.nii.gz")
 
-            mri.vol[indexing .> 0, :] .= reduce(vcat, est_std[ip])
+            mri.vol[indexing .> 0, :] .= reduce(hcat, est_std[ip])'
             mri_write(mri, datadir * para * ".std.nii.gz")
         else
             mri = MRI(mask, 1, Float64)
