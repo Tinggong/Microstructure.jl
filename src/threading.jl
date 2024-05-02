@@ -1,3 +1,4 @@
+using ProgressMeter
 
 export pre_allocate, empty_chain!, create_chain, threading
 
@@ -58,7 +59,7 @@ function threading(
 
     sampler isa Tuple ? params = sampler[1].params : params = sampler.params
 
-    # save nifti
+    print("saving nifti files...")
     for (ip, para) in enumerate(params)
         if est[ip][1] isa Vector
             mri = MRI(mask, length(est[ip][1]), Float64)
@@ -78,7 +79,7 @@ function threading(
             mri_write(mri, datadir * para * ".std.nii.gz")
         end
     end
-
+    print("Complete!")
     return nothing
 end
 
@@ -95,8 +96,9 @@ function threading(
     (measurements, estimates, chains, est, est_std) = pre_allocate(
         model_start, sampler, datasize
     )
-
-    Threads.@threads for iv in 1:(datasize[2]::Int)
+    
+    print("MCMC sampling...")
+    @showprogress Threads.@threads for iv in 1:(datasize[2]::Int)
 
         # for voxels in the same thread, use the allocated space repeatedly
         td = Threads.threadid()
@@ -140,8 +142,9 @@ function threading(
     (measurements, estimates, chains, est, est_std) = pre_allocate(
         model_start, sampler, datasize
     )
-
-    Threads.@threads for iv in 1:(datasize[2]::Int)
+    
+    print("MCMC sampling...")
+    @showprogress Threads.@threads for iv in 1:(datasize[2]::Int)
 
         # for voxels in the same thread, use the allocated space repeatedly
         td = Threads.threadid()
