@@ -1,8 +1,8 @@
 # I/O functions
 
-The page introduces functions for reading dMRI data and protocols for microstructure imaging.
+This page introduces functions for reading dMRI data and protocols for microstructure imaging.
 
-### Read dMRI data and get spherical mean signals & imaging protocols
+### Read from DWI data and get spherical mean signals & imaging protocols
 ```@docs
 spherical_mean
 ```

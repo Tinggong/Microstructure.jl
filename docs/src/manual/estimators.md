@@ -1,6 +1,6 @@
 # Estimators 
 
-This page introduces two type of estimators implemented in Microstructure.jl for estimating parameters and uncertainties: the Markov Chain Monte Carlo (MCMC) sampling method and Monte Carlo dropout using neural networks. While MCMC estimator will take longer computation time, it is recommend for more accrute parameter estimation. The performance of neural network estimator will be closely linked to the parameter distributions in the training samples. Currently, function to generate uniform parameter distributions is provided, which may not be the optimized solutions for every model. However, if you are interested in studying how training samples affects estimation accuracy, you are welcome to try it out and you can generate samples use other distributions. 
+This page introduces two types of estimators implemented in Microstructure.jl for estimating parameters and uncertainties: the Markov Chain Monte Carlo (MCMC) sampling method and Monte Carlo dropout using neural networks. While MCMC estimator will take longer computation time, it is recommend for more accrute parameter estimation. The performance of neural network estimator will be closely linked to the parameter distributions in the training samples. Currently, function to generate uniform parameter distributions is provided, which may not be the optimized solutions for every model. However, if you are interested in studying how training samples affects estimation accuracy, you are welcome to try it out and you can also generate samples use other distributions. 
 
 ## MCMC
 

@@ -29,9 +29,9 @@ abstract type BiophysicalModel end
 
 The soma and neurite density imaging (SANDI) model uses a sphere compartment to model the cell soma, 
 a stick compartment to model the neurite and an isotropic diffusion compartment for the extra-cellular space; 
-It includes all the tissue parameters in each compartment and a 'fracs' vector representing the fraction of 
+It includes all the tissue parameters in each compartment and a `fracs` vector representing the fraction of 
 intra-soma signal and intra-neurite signal (the extra-cellular signal fraction is 1-sum(fracs)).
-For SANDI model, ignore the field of t2 in all compartments and set them to 0
+For SANDI model, ignore the field of `t2` in all compartments and set them to 0.
 """
 Base.@kwdef mutable struct SANDI <: BiophysicalModel
     soma::Sphere = Sphere(; diff=3.0e-9)
@@ -49,9 +49,9 @@ end
         S0norm::Float64
         )
 
-For Multi-echo-SANDI (MTE-SANDI) model, consider the t2 values in all compartments, 
+For Multi-echo-SANDI (MTE-SANDI) model, consider the `t2` values in all compartments, 
 and the fractions estimated will be non-T2-weighted compartment fractions in comparison to the model mentioned above. 
-S0norm is the relaxation-weighting free signal from all compartments S(b=0,t=0) normalised by S(b=0,t=TEmin).
+`S0norm` is the relaxation-weighting free signal from all compartments S(b=0,t=0) normalised by S(b=0,t=TEmin).
 """
 Base.@kwdef mutable struct MTE_SANDI <: BiophysicalModel
     soma::Sphere = Sphere(; diff=3.0e-9)
@@ -117,7 +117,7 @@ end
         S0norm::Float64 = 2.0
         )
     
-This is a model using multi-TE spherical mean technique for low b-value in vivo imaging. Compartmental T2s are considered.
+This is a model using multi-TE spherical mean technique for lower b-value in vivo imaging. Compartmental T2s are considered.
 """
 Base.@kwdef mutable struct MTE_SMT <: BiophysicalModel
     axon::Stick = Stick()

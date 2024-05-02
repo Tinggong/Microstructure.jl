@@ -27,8 +27,8 @@ export NetworkArg,
     )
 
 Return a NetworkArg object with necessary parameters to constructe a neural network model 
-and generate training samples for specifc biophysical model. 
-Network architecture and training samples can be automaticlly determined from the modelling task by using function 
+and generate training samples for specifc biophysical model. Network architecture and training 
+samples can be automaticlly determined from the modelling task by using function
     
     NetworkArg(model, protocol, params, paralinks, tissuetype, sigma, noise_type)
 """
@@ -59,7 +59,10 @@ end
 
 Return TrainingArg Type object with fields related to how network will be trained.
 batch size; loss function; learning rate; number of epoches; validation/training data split;
-patience for train loss plateau, patience for validation loss to increase.
+patience for train loss plateau, patience for validation loss to increase. 
+Patiences are currently not apply when training and validating on generated training samples from uniform parameter distributions, 
+therefore training will stop when reaching the number of epoches. 
+The patience parameter will be considered in the future when training with real data or generated data with other distributions. 
 """
 Base.@kwdef struct TrainingArg
     batchsize::Int64 = 128
@@ -123,10 +126,10 @@ end
 """
     prepare_training(arg::NetworkArg)
 
-Return (mlp, inputs, labels, gt); 'mlp' is the multi-layer perceptron network model for the biophysical model; 
-'inputs' and 'labels' are arrays of signals and scaled tissue parameters used for supervised training; and
-'gt' is a dict containing the ground truth tissue parameters without applying scaling. Scaling is applied in the
-training labers to ensure different tissue parameters are roughly in the same range as they are optimized together through MSE loss. 
+Return (`mlp`, `inputs`, `labels`, `gt`); `mlp` is the multi-layer perceptron network model for the biophysical model; 
+`inputs` and `labels` are arrays of signals and scaled tissue parameters used for supervised training; and
+`gt` is a dict containing the ground truth tissue parameters without applying scaling. Scaling is applied in the
+training labels to ensure different tissue parameters are roughly in the same range as they are optimized together. 
 """
 function prepare_training(arg::NetworkArg)
     mlp = create_mlp(arg.nin, arg.nout, arg.hidden_layers, arg.dropoutp)
@@ -153,8 +156,8 @@ end
         dropoutp::Float64=0.2
         )
 
-Return a mlp with 'ninput'/'noutput' as the number of input/output channels, and number of units in each layer specified in 'hiddenlayers'; 
-a dropout layer is inserted before the output layer with dropout probability 'dropoutp'.
+Return a `mlp` with `ninput`/`noutput` as the number of input/output channels, and number of units in each layer specified in `hiddenlayers`; 
+a dropout layer is inserted before the output layer with dropout probability `dropoutp`.
 """
 function create_mlp(
     ninput::Int64, noutput::Int64, hiddenlayers::Tuple{Vararg{Int64}}, dropoutp::Float64=0.2
@@ -178,7 +181,8 @@ end
         sigma::Float64,
         noise_type::String,
     )
-Generate and return training samples for a model using uniform coverage of tissue parameters and specified noise model and noise level.
+Generate and return training samples for a model using uniform coverage of tissue parameters 
+and specified noise model ("Gaussian" or "Rician") and noise level `sigma`.
 """
 function generate_samples(
     model::BiophysicalModel,
@@ -257,7 +261,7 @@ end
         inputs::Array{Float64,2}, 
         labels::Array{Float64,2}
     )
-Train and update the 'mlp' and return a Dict of training logs with train loss, training data loss and validation data loss for each epoch.
+Train and update the `mlp` and return a Dict of training logs with train loss, training data loss and validation data loss for each epoch.
 """
 function train_loop!(
     mlp::Chain{T}, arg::TrainingArg, inputs::Array{Float64,2}, labels::Array{Float64,2}
@@ -312,7 +316,7 @@ end
 """
     test(mlp::Chain, data::Array{Float64,2}, ntest)
 
-Return mean and standard deviation of estimations by applying a trained mlp to test data for 'ntest' times
+Return mean and standard deviation of estimations by applying a trained `mlp` to test data for `ntest` times
 with dropout layer on.
 """
 function test(mlp::Chain{T}, data::Array{Float64,2}, ntest) where {T}

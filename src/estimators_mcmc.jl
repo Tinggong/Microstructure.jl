@@ -21,8 +21,8 @@ export Sampler,
     sigma_range::Tuple{Float64,Float64}, 
     proposal::Distribution)
 
-Return a Noisemodel object with 'logpdf' Function to calculate log likelihood of measurements (set this between logp_gauss and logp_rician), 
-'sigma_start' as the starting value of noise level, 'sigma_range' as prior range and 'proposal' distribution for MCMC sampling.
+Return a Noisemodel object with `logpdf` Function to calculate log likelihood of measurements (set this between logp_gauss and logp_rician), 
+`sigma_start` as the starting value of noise level, `sigma_range` as prior range and `proposal` distribution for MCMC sampling.
 
 # Examples
 ```julia-repl
@@ -45,7 +45,7 @@ end
 """
     logp_gauss(measurements, predictions, sigma)
 logpdf with Gaussian noise model.
-sigma is the standard deviation of Gaussian noise
+`sigma` is the standard deviation of Gaussian noise
 """
 function logp_gauss(meas::Vector{Float64}, preds::Vector{Float64}, sigma::Float64)
     n = length(preds)
@@ -56,7 +56,7 @@ end
 """
     logp_rician(measurements, predictions, sigma)
 logpdf with Rician noise model
-sigma is the standard deviation of the Gaussian noise underlying the Rician noise
+`sigma` is the standard deviation of the Gaussian noise underlying the Rician noise
 """
 function logp_rician(meas::Vector{Float64}, preds::Vector{Float64}, sigma::Float64)
     return logpdf(Product(Rician.(preds, sigma)), meas)
@@ -254,10 +254,10 @@ This method is useful in checking a few voxels, e.g. for quality of fitting, cha
 ```julia-repl
 julia> chain = mcmc!(estimates, measurements, protocol, sampler, noise_model, rng)
 ```
-Method 2 takes chain and pertubations as input, mutating chain in place which can be used to calculate finial estimates and uncertainties. 
+Method 2 takes `chain` and `pertubations` as input, mutating `chain` in place which can be used to calculate finial estimates and uncertainties. 
 This method is used for processing larger dataset, e.g. for whole-barin/slices. 
 This method is used together with multi-threads processing that pre-allocate spaces for caching chains, avoiding creating them for each voxel. 
-This method also reuses pertubations for faster speed, as we usually use a very large number of pertubations (e.g. 70000) to densely sample the proposal distributions. 
+This method also reuses `pertubations` for faster computation speed; we usually use very large numbers of pertubations (e.g. ~10^4) to densely sample the proposal distributions. 
 
     mcmc!(
         chain::Vector{Any},
@@ -677,9 +677,9 @@ end
     )
 
 Increment model estimates in place and return outliers by checking prior ranges.
-'model': a biophysical model;
-'pairs': paras of fields/subfiedls and values to add; fieldname => value2add;
-'ranges': prior range.
+`model`: a biophysical model;
+`pairs`: paras of fields/subfiedls and values to add; fieldname => value2add;
+`ranges`: prior range.
 """
 function increment!(
     model::BiophysicalModel,
@@ -737,7 +737,7 @@ end
     outlier_checking(value,(lowerbound,upperbound))
 
 Check if a value is an outlier given a range (lowerbound,upperbound); return true if considered outlier.
-When 'value' is a vector which means it represents fractions, the method checks if any elements 
+When `value` is a vector which means it represents fractions, the method checks if any elements 
 or the sum of all the elements contain an outlier; return the number of outliers encounted.
 """
 function outlier_checking(value::Float64, bounds::Tuple{Float64,Float64})

@@ -19,8 +19,8 @@ export Cylinder,
 Compartment Type is an abstract type that includes the Cylinder, Stick, Zeppelin, Sphere and Iso type. 
 A Compartment Type object contains relevant tissue parameters that affect the MRI signals.
 Each type of compartment contain a 't2' field for combined-diffusion-relaxometry imaging. 
-When your data supports only T2-weighted compartment modelling, 
-i.e. acquired with single-TE, set the 't2' field to zero to for conventional dMRI modelling. 
+When your data supports only T2-weighted compartment modelling, i.e. acquired with single-TE, 
+set the 't2' field to zero for conventional dMRI modelling. 
 """
 abstract type Compartment end
 

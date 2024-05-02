@@ -19,8 +19,8 @@ export dMRI,
     techo::Vector{Float64}, 
     smt::Bool)
 
-Return a dMRI Type object with MRI object 'nifti', and additional volume-wise 
-experimental settings 'tdelta', 'tsmalldel', 'techo', and 'smt' for identifing smt signals. 
+Return a dMRI Type object with MRI object `nifti`, and additional volume-wise 
+experimental settings `tdelta`, `tsmalldel`, `techo`, and `smt` for identifing smt signals. 
 """
 mutable struct dMRI
     nifti::MRI
@@ -179,11 +179,11 @@ end
         acq_files::String...
     )
 
-Perform direction average on input DWI images "image_file" and return an MRI object with spherical mean signal and associated imaging protocol.
-"image_file" is the full path of the DWI image file; "normalize" indicates if normalisation to the b0 is applied; "save" indicates 
-if save the smt signals to nifti files on the save path as the input data (the protocol is also saved as a text file).
-Finall, variable number of "acq_files" are text files that tell you acquistion parameters of each DWI in the "image_file'. 
-Accepted file extensions are .bvals/.bvecs/.techo/.tdelta/.tsmalldel.
+Perform direction average on input DWI images `image_file` and return an MRI object with spherical mean signal and associated imaging protocol.
+`image_file` is the full path of the DWI image file; `normalize` indicates whether normalisation to the b0 is applied; `save` indicates 
+whether to save the smt signals and protocol. If saving the files, a nifti file and a text file (.btable) will be saved in the same path as the input data.
+Finall, variable number of `acq_files` are text files that tell you acquistion parameters of each DWI in the `image_file`. 
+Accepted file extensions are .bvals/.bvecs/.techo/.tdelta/.tsmalldel for b-values, gradient directions, echo times, diffusion gradient seperation and duration times.
 
 Besides .bvals/.bvecs for conventional modelling, .tdelta/.tsmalldel files are needed for any models that estimate size, e.g. axon diameter, soma radius.
 .techo is needed if your data is collected with multiple echo-time and you want to do combined-diffusion relaxometry modelling. 
@@ -217,7 +217,7 @@ end
 """
     dmri_write(dmri::dMRI, datapath::String, filename::String)
 
-Write the nifti volume in a dMRI object to nifti file and associated protocol as b-table text files in the given "datapath" and "filename".
+Write the nifti volume in a dMRI object to nifti file and associated protocol as b-table text files in the given `datapath` and `filename`.
 """
 function dmri_write(dmri::dMRI, datapath::String, outfile::String)
     mri_write(dmri.nifti, datapath * outfile)
@@ -241,9 +241,23 @@ end
     gvec::Vector{Float64}
     )
 
-Return a Protocol Type object to hold parameters in acquisition protocol relavent for modelling.
+Return a Protocol Type object to hold parameters in acquisition protocol relavent for modelling 
+including b-values, tcho times, diffusion gradient seperation, duration and strengh. 
 Unit convention: most text files use s/mm^2 for b-values and ms for time while they are converted to SI unit in the Protocol.
 b-values (s/m^2); time (s); size (m); G (T/m) 
+
+    Protocol(
+        filename::String
+    )
+Return a Protocol Type object from a b-table file generated from spherical_mean function.
+    
+    Protocol(
+        bval::Vector{Float64},
+        techo::Vector{Float64},
+        tdelta::Vector{Float64},
+        tsmalldel::Vector{Float64},
+    )
+Calculate `gvec` and return a Ptotocol Type object from provided parameters.
 """
 struct Protocol
     bval::Vector{Float64}

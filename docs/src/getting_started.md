@@ -12,16 +12,14 @@ Here includes the minimal steps for you to get started with your MRI dataset. Vi
 You can also set enviornment variable by adding `export JULIA_NUM_THREADS=auto` in your bash profile, which will use multi-threads automatically when you start julia.
 
 ### Load the package in Julia
-In you julia script or REPL:
+In your julia script or REPL:
 ```julia
 julia> using Microstructure
 ```
 
 ### Read dMRI data and perform spherical mean
 
-Provide full path to dMRI images and names of acquisition files with following extensions:
-    dwiname.bvals, dwiname.bvecs, dwiname.techo, dwiname.tdelta, dwiname.tsmalldel 
-    provide all or a subset of the files depending on the data and model you use. 
+Provide full path to the DWI file and acquisition files with following extensions: dwiname.bvals, dwiname.bvecs, dwiname.techo, dwiname.tdelta and dwiname.tsmalldel. Provide all or a subset of the acquisition files depending on the data and model you use. 
 
 ```julia
 julia> (dMRI, protocol) = spherical_mean(
