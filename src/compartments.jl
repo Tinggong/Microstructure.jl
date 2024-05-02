@@ -16,11 +16,11 @@ export Cylinder,
 # export compartment_signals!, smt_signals!
 
 """
-Compartment Type is an abstract type that includes the Cylinder, Stick, Zeppelin, Sphere and Iso type. 
+Compartment Type is an abstract type that includes the `Cylinder`, `Stick`, `Zeppelin`, `Sphere` and `Iso` type. 
 A Compartment Type object contains relevant tissue parameters that affect the MRI signals.
-Each type of compartment contain a 't2' field for combined-diffusion-relaxometry imaging. 
+Each type of compartment contain a `t2` field for combined-diffusion-T2 imaging. 
 When your data supports only T2-weighted compartment modelling, i.e. acquired with single-TE, 
-set the 't2' field to zero for conventional dMRI modelling. 
+set the `t2` field to zero for conventional dMRI modelling. 
 """
 abstract type Compartment end
 
@@ -32,8 +32,8 @@ abstract type Compartment end
         t2::Float64
         )
 
-Return a Cylinder Type object with the cylinder diameter 'da', parallel diffusivity 'dpara', 
-the intrinsic diffusivity 'd0' and the T2 relaxation time 't2'. 
+Return a Cylinder Type object with the cylinder diameter `da`, parallel diffusivity `dpara`, 
+the intrinsic diffusivity `d0` and the T2 relaxation time `t2`. 
 
 # Examples
 ```julia-repl
@@ -51,7 +51,7 @@ end
 """
     Stick(dpara::Float64, t2::Float64)
 
-Return a Stick Type object with parallel diffusivity 'dpara' and T2 relaxation time 't2'. 
+Return a Stick Type object with parallel diffusivity `dpara` and T2 relaxation time `t2`. 
 The perpendicular diffusivity of a Stick model is zero. 
 
 # Examples
@@ -72,9 +72,9 @@ end
         t2::Float64
         )
 
-Return a Zeppelin Type object with parallel diffusivity 'dpara', axially symmetric 
-perpendicular diffusivity represented as a fraction of the parallel diffusivity 'dperp_frac',
-and the T2 relaxation time 't2'.
+Return a Zeppelin Type object with parallel diffusivity `dpara`, axially symmetric 
+perpendicular diffusivity represented as a fraction of the parallel diffusivity `dperp_frac`,
+and the T2 relaxation time `t2`.
 
 # Examples
 ```julia-repl
@@ -95,8 +95,8 @@ end
         t2::Float64
         )
 
-Return a Sphere Type object with diffusivity within sphere 'diff', spherical radius 'size',
-and T2 relaxation time 't2'.
+Return a Sphere Type object with diffusivity within sphere `diff`, spherical radius `size`,
+and T2 relaxation time `t2`.
 
 # Examples
 ```julia-repl
@@ -113,7 +113,7 @@ end
 """
     Iso(diff::Float64, t2=Float64)
 
-Return an isotropic tensor with diffusivity 'diff' and T2 relaxation time 't2'. 
+Return an isotropic tensor with diffusivity `diff` and T2 relaxation time `t2`. 
 This compartment can be used to represent CSF (diff = free water) or dot compartment (diff = 0). 
 The latter is for immobile water typically seen in ex vivo tissue.
 
@@ -135,8 +135,8 @@ end
 """
     compartment_signals(model::Compartment,protocol::Protocol)
 
-Return compartment signals given a compartment object 'model' and a imaging 'protocol'. 
-'model' can be the Cylinder/Zeppelin/Stick/Sphere/Iso Type. When t2 in compartment 'model' is set as default (0), 
+Return compartment signals given a compartment object `model` and a imaging `protocol`. 
+`model` can be the `Cylinder`/`Zeppelin`/`Stick`/`Sphere`/`Iso` Type. When `t2` in compartment `model` is set as default (0), 
 relaxation-weightings are not considered.
 """
 function compartment_signals(model::Cylinder, prot::Protocol)

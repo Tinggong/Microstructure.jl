@@ -21,7 +21,7 @@ export Sampler,
     sigma_range::Tuple{Float64,Float64}, 
     proposal::Distribution)
 
-Return a Noisemodel object with `logpdf` Function to calculate log likelihood of measurements (set this between logp_gauss and logp_rician), 
+Return a Noisemodel object with `logpdf` Function to calculate log likelihood of measurements (set this between `logp_gauss` and `logp_rician`), 
 `sigma_start` as the starting value of noise level, `sigma_range` as prior range and `proposal` distribution for MCMC sampling.
 
 # Examples
