@@ -39,6 +39,3 @@ This function implements different methods for different BiophysicalModel types.
 ```@docs
 model_signals
 ```
-
-### Citations
-Constructing...

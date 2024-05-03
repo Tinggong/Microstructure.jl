@@ -141,8 +141,9 @@ Return compartment signals given a compartment object `model` and a imaging `pro
 relaxation-weightings are not considered in the signal equation.
 
 ### References
-If you use these compartments to build models, please cite the recommended references. For using any compartment in current release, 
-please cite the following references for expressions of spherical mean/power averaging:
+If you use these compartments to build models, please cite the recommended references. 
+
+# For using any compartment in current release, please cite the following references for expressions of spherical mean/power averaging:
 
 Callaghan, P.T., Jolley, K.W., Lelievre, J., 1979. Diffusion of water in the endosperm tissue of wheat grains as studied by pulsed field gradient nuclear magnetic resonance. Biophys J 28, 133. https://doi.org/10.1016/S0006-3495(79)85164-4
 
@@ -150,7 +151,7 @@ Kroenke, C.D., Ackerman, J.J.H., Yablonskiy, D.A., 2004. On the nature of the NA
 
 Kaden, E., Kruggel, F., Alexander, D.C., 2016. Quantitative mapping of the per-axon diffusion coefficients in brain white matter. Magn Reson Med 75, 1752–1763. https://doi.org/10.1002/MRM.25734
 
-Consider the following reference for overview of all tissue compartments:
+# Consider the following reference for overview of all tissue compartments:
 
 Panagiotaki, E., Schneider, T., Siow, B., Hall, M.G., Lythgoe, M.F., Alexander, D.C., 2012. Compartment models of the diffusion MR signal in brain white matter: A taxonomy and comparison. Neuroimage 59, 2241–2254. 
 
