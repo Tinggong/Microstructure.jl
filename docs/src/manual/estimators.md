@@ -1,8 +1,10 @@
 # Estimators 
 
-This page introduces two types of estimators implemented in Microstructure.jl for estimating parameters and uncertainties: the Markov Chain Monte Carlo (MCMC) sampling method and Monte Carlo dropout using neural networks. While MCMC estimator will take longer computation time, it is recommend for more accrute parameter estimation. The performance of neural network estimator will be closely linked to the parameter distributions in the training samples. Currently, function to generate uniform parameter distributions is provided, which may not be the optimized solutions for every model. However, if you are interested in studying how training samples affects estimation accuracy, you are welcome to try it out and you can also generate samples use other distributions. 
+This page introduces two types of estimators implemented in Microstructure.jl for estimating parameters and uncertainties: the Markov Chain Monte Carlo (MCMC) sampling method and Monte Carlo dropout using neural networks. While MCMC estimator will take longer computation time, it is recommend for more accrute parameter estimation comparing with the neural network estimator currently implemented. The performance of neural network estimator will be closely linked to the parameter distributions in the training samples. Currently, function to generate uniform parameter distributions is provided, which may not be the optimized solutions for every model. However, if you are interested in studying how training samples affects estimation accuracy, you are welcome to try it out and you can also generate samples use other distributions. 
 
 ## MCMC
+
+MCMC methods aim to generate independent samples from the posterior distributions of tissue parameters given certain MRI measurements. You will need to tune the sampler parameters for a specific biophysical model.
 
 ### Define a sampler for your model
 
@@ -25,6 +27,8 @@ mcmc!
 Function mcmc! runs on single thread and suitable for testing sampler parameters and inspecting chains for small dataset. After optimizing sampler parameters, if you are processing datasets with many voxels, use the threading function for multi-threads processing. Refer to multi-threads page for more details.
 
 ## Neural Networks
+
+This module currently includes simple multi-layer perceptrons and training data generation function, which allows supervised training of the MLPs on synthesised data with uniform parameter distributions. 
 
 ### Specify a network model for your task
 
@@ -54,13 +58,13 @@ create_mlp
 generate_samples
 ```
 
-### 4. Training on generated training samples
+### Training on generated training samples
 
 ```@docs
 train_loop!
 ```
 
-### 5. test on you data
+### Test on you data
 
 ```@docs
 test

@@ -272,6 +272,14 @@ This method also reuses `pertubations` for faster computation speed; we usually 
 ```julia-repl
 julia> mcmc!(chain, estimates, meas, protocol, sampler, pertubations, noise_model))
 ```
+
+# References 
+
+For using MCMC in microsturcture imaging, here are some recommended references:
+
+Behrens, T.E.J., Woolrich, M.W., Jenkinson, M., Johansen-Berg, H., Nunes, R.G., Clare, S., Matthews, P.M., Brady, J.M., Smith, S.M., 2003. Characterization and Propagation of Uncertainty in Diffusion-Weighted MR Imaging. Magn Reson Med 50, 1077–1088. https://doi.org/10.1002/MRM.10609
+
+Alexander, D.C., 2008. A General Framework for Experiment Design in Diffusion MRI and Its Application in Measuring Direct Tissue-Microstructure Features. Magn Reson Med 60, 439–448. https://doi.org/10.1002/mrm.21646
 """
 function mcmc!(
     estimates::BiophysicalModel,

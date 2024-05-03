@@ -15,7 +15,11 @@ export model_signals,
     print_model, 
     BiophysicalModel  #ExCaliber_beta, model_signals!
 """
-All models belong to BiophysicalModel type
+All models in this page belong to the BiophysicalModel Type. You can also build your models with desired combinations of compartments using a similar syntax. 
+In each model, all compartmental parameters can be considered "free parameters" and sampled using MCMC. 
+This is designed to offer maximum flexibility in adjusting model assumptions, but it doesn't guarantee reliable estimation of all parameters. 
+It's common that we need to fix or link some tissue parameters based on our data measurement protocols and our tissue parameters of interest.
+Parameter fixing and linking can be achieved by settings in MCMC sampler in the estimator module.
 """
 abstract type BiophysicalModel end
 
@@ -32,6 +36,9 @@ a stick compartment to model the neurite and an isotropic diffusion compartment 
 It includes all the tissue parameters in each compartment and a `fracs` vector representing the fraction of 
 intra-soma signal and intra-neurite signal (the extra-cellular signal fraction is 1-sum(fracs)).
 For SANDI model, ignore the field of `t2` in all compartments and set them to 0.
+
+# Reference
+Palombo, M., Ianus, A., Guerreri, M., Nunes, D., Alexander, D.C., Shemesh, N., Zhang, H., 2020. SANDI: A compartment-based model for non-invasive apparent soma and neurite imaging by diffusion MRI. Neuroimage 215. https://doi.org/10.1016/j.neuroimage.2020.116835
 """
 Base.@kwdef mutable struct SANDI <: BiophysicalModel
     soma::Sphere = Sphere(; diff=3.0e-9)
@@ -52,6 +59,9 @@ end
 For Multi-echo-SANDI (MTE-SANDI) model, consider the `t2` values in all compartments, 
 and the fractions estimated will be non-T2-weighted compartment fractions in comparison to the model mentioned above. 
 `S0norm` is the relaxation-weighting free signal from all compartments S(b=0,t=0) normalised by S(b=0,t=TEmin).
+
+# Reference
+Gong, T., Tax, C.M., Mancini, M., Jones, D.K., Zhang, H., Palombo, M., 2023. Multi-TE SANDI: Quantifying compartmental T2 relaxation times in the grey matter. Toronto.
 """
 Base.@kwdef mutable struct MTE_SANDI <: BiophysicalModel
     soma::Sphere = Sphere(; diff=3.0e-9)
@@ -70,9 +80,16 @@ end
         fracs::Vector{Float64} 
     )
 
-SANDIdot model includes additionally a dot compartment for ex vivo SANDI imaging; the dot compartment is considered as immobile water.
+SANDIdot model includes additionally a dot compartment for SANDI model; the dot compartment is considered as immobile water and is more commonly seen in ex vivo imaging.
 For SANDIdot model, ignore the field of t2 in all compartments and set them to 0. The fraction vector represents fractions of the soma, 
 neurite and dot with the fraction of extra being 1-sum(fracs).
+
+# Reference
+Alexander, D.C., Hubbard, P.L., Hall, M.G., Moore, E.A., Ptito, M., Parker, G.J.M., Dyrby, T.B., 2010. Orientationally invariant indices of axon diameter and density from diffusion MRI. Neuroimage 52, 1374–1389. https://doi.org/10.1016/j.neuroimage.2010.05.043
+
+Panagiotaki, E., Schneider, T., Siow, B., Hall, M.G., Lythgoe, M.F., Alexander, D.C., 2012. Compartment models of the diffusion MR signal in brain white matter: A taxonomy and comparison. Neuroimage 59, 2241–2254. 
+
+Palombo, M., Ianus, A., Guerreri, M., Nunes, D., Alexander, D.C., Shemesh, N., Zhang, H., 2020. SANDI: A compartment-based model for non-invasive apparent soma and neurite imaging by diffusion MRI. Neuroimage 215. https://doi.org/10.1016/j.neuroimage.2020.116835
 """
 Base.@kwdef mutable struct SANDIdot <: BiophysicalModel
     soma::Sphere = Sphere(; diff=2.0e-9)
@@ -93,6 +110,9 @@ end
 
 ExCaliber is a model for axon diameter estimation in ex vivo tissue; the dot compartment is considered.
 The fraction vector represents fractions of the axon, CSF and dot with the fraction of extra being 1-sum(fracs)
+
+# Reference
+Gong, T., Maffei, C., Dann, E., Lee, H.-H., Lee Hansol, Huang, S., Suzanne, H., Yendiki, A., 2024. Imaging the relationship of axon diameter and myelination in macaque and human brain, in: ISMRM.
 """
 Base.@kwdef mutable struct ExCaliber <: BiophysicalModel
     axon::Cylinder = Cylinder()
@@ -117,7 +137,14 @@ end
         S0norm::Float64 = 2.0
         )
     
-This is a model using multi-TE spherical mean technique for lower b-value in vivo imaging. Compartmental T2s are considered.
+This is a model using multi-TE spherical mean technique for lower b-value in vivo imaging. Compartmental T2s are considered. 
+There is not a specific reference for this model yet, but you can refer to previous work related to this topic:
+
+Kaden, E., Kruggel, F., Alexander, D.C., 2016. Quantitative mapping of the per-axon diffusion coefficients in brain white matter. Magn Reson Med 75, 1752–1763. https://doi.org/10.1002/MRM.25734
+
+Veraart, J., Novikov, D.S., Fieremans, E., 2017. TE dependent Diffusion Imaging (TEdDI) distinguishes between compartmental T 2 relaxation times. https://doi.org/10.1016/j.neuroimage.2017.09.030
+
+Gong, T., Tong, Q., He, H., Sun, Y., Zhong, J., Zhang, H., 2020. MTE-NODDI: Multi-TE NODDI for disentangling non-T2-weighted signal fractions from compartment-specific T2 relaxation times. Neuroimage 217. https://doi.org/10.1016/j.neuroimage.2020.116906
 """
 Base.@kwdef mutable struct MTE_SMT <: BiophysicalModel
     axon::Stick = Stick()

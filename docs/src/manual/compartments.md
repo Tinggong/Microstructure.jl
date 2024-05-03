@@ -42,6 +42,3 @@ This function implements different methods for different compartment Types to ge
 ```@docs
 compartment_signals
 ```
-
-### Citations
-Constructing...

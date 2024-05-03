@@ -26,7 +26,7 @@ export NetworkArg,
         dropoutp::Float64 = 0.2
     )
 
-Return a NetworkArg object with necessary parameters to constructe a neural network model 
+Return a `NetworkArg` object with necessary parameters to construct a neural network model 
 and generate training samples for specifc biophysical model. Network architecture and training 
 samples can be automaticlly determined from the modelling task by using function
     
@@ -57,10 +57,10 @@ end
         patience::Tuple{Int64,Int64} 
     )
 
-Return TrainingArg Type object with fields related to how network will be trained.
+Return `TrainingArg` Type object with fields related to how network will be trained.
 batch size; loss function; learning rate; number of epoches; validation/training data split;
 patience for train loss plateau, patience for validation loss to increase. 
-Patiences are currently not apply when training and validating on generated training samples from uniform parameter distributions, 
+Patiences are currently not applied when training and validating on generated training samples from uniform parameter distributions, 
 therefore training will stop when reaching the number of epoches. 
 The patience parameter will be considered in the future when training with real data or generated data with other distributions. 
 """
@@ -182,7 +182,7 @@ end
         noise_type::String,
     )
 Generate and return training samples for a model using uniform coverage of tissue parameters 
-and specified noise model ("Gaussian" or "Rician") and noise level `sigma`.
+and specified noise model (`"Gaussian"` or `"Rician"`) and noise level `sigma`.
 """
 function generate_samples(
     model::BiophysicalModel,
