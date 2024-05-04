@@ -12,7 +12,8 @@ If you are interested, please try it out! The getting started page includes the 
 - Combined diffusion-relaxometry compartment modelling
 - Flexible in creating models and adjusting assumptions
 - Generic MCMC and neural network estimators
-- Parallel computing 
+- Faster MCMC with Parallel computing
+- Compatible with the probabilistic programming language [Turing.jl](https://turinglang.org/dev/)
 
 ### Installation 
 To install Microstructure.jl, type ] in Julia to enter package mode and add the package:
