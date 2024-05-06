@@ -22,7 +22,7 @@ jobs:
       - uses: julia-actions/setup-julia@v1
         with:
           version: '1.8'
-      - uses: julia-actions/cache@v1
+      - uses: julia-actions/cache@v2
       - name: Install dependencies
         run: julia --project=docs/ -e 'using Pkg; Pkg.instantiate(); Pkg.activate("docs"); Pkg.develop(PackageSpec(path=pwd())); Pkg.instantiate()'
       - name: Build and deploy
