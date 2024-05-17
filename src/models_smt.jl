@@ -13,7 +13,9 @@ export model_signals,
     ExCaliber, 
     MTE_SMT, 
     print_model, 
-    BiophysicalModel  #ExCaliber_beta, model_signals!
+    BiophysicalModel,  
+    ExCaliber_beta
+    #model_signals!
 """
 All models in this page belong to the BiophysicalModel Type. You can also build your models with desired combinations of compartments using a similar syntax. 
 In each model, all compartmental parameters can be considered "free parameters" and sampled using MCMC. 
