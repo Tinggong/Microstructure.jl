@@ -77,6 +77,9 @@ end
     NetworkArg(model, protocol,params,paralinks,tissuetype,sigma,noise_type,dropoutp=0.2)
 Use the inputs related to biophysical models to determine network architecture and number of training samples
 return a full defined NetworkArg struct 
+
+Reference for adjusting the number of training samples:
+Shwartz-Ziv, R., Goldblum, M., Bansal, A., Bruss, C.B., LeCun, Y., & Wilson, A.G. (2024). Just How Flexible are Neural Networks in Practice?
 """
 function NetworkArg(
     model::BiophysicalModel,
