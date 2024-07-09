@@ -116,7 +116,7 @@ The fraction vector represents fractions of the axon, CSF and dot with the fract
 # Reference
 Gong, T., Maffei, C., Dann, E., Lee, H.-H., Lee Hansol, Huang, S., Suzanne, H., Yendiki, A., 2024. Imaging the relationship of axon diameter and myelination in macaque and human brain, in: ISMRM.
 """
-Base.@kwdef mutable struct ExCaliber <: BiophysicalModel
+Base.@kwdef mutable struct ExCaliber_beta <: BiophysicalModel
     axon::Cylinder = Cylinder()
     extra::Zeppelin = Zeppelin()
     csf::Iso = Iso(; diff=2.0e-9)
@@ -124,7 +124,7 @@ Base.@kwdef mutable struct ExCaliber <: BiophysicalModel
     fracs::Vector{Float64} = [0.7, 0.1, 0.1]
 end
 
-Base.@kwdef mutable struct ExCaliber_beta <: BiophysicalModel
+Base.@kwdef mutable struct ExCaliber <: BiophysicalModel
     axon::Cylinder = Cylinder()
     extra::Zeppelin = Zeppelin()
     dot::Iso = Iso(; diff=0.0)
@@ -161,7 +161,7 @@ end
 Reture predicted model signals from BiophysicalModel `model` and imaging protocol 'prot'.
     `links` is a optional argument that specify parameter links in the model.
 """
-function model_signals(excaliber::ExCaliber_beta, prot::Protocol)
+function model_signals(excaliber::ExCaliber, prot::Protocol)
     fextra = 1 - sum(excaliber.fracs)
     signals =
         excaliber.fracs[1] .* compartment_signals(excaliber.axon, prot) .+
@@ -169,7 +169,7 @@ function model_signals(excaliber::ExCaliber_beta, prot::Protocol)
     return signals
 end
 
-function model_signals(excaliber::ExCaliber, prot::Protocol)
+function model_signals(excaliber::ExCaliber_beta, prot::Protocol)
     fextra = 1 - sum(excaliber.fracs)
     signals =
         excaliber.fracs[1] .* compartment_signals(excaliber.axon, prot) .+
