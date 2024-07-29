@@ -13,10 +13,11 @@ using Microstructure
 Specify the acquisition parameters and make a protocol. In real case, you can read a protocol from your acquisition text files
 
 ````julia
-bval = [1000, 2500, 5000, 7500, 11100, 18100, 25000, 43000].*1.0e6
-techo = 40.0.*ones(8,).*1e-3
-tdelta = 15.192.*ones(8,).*1e-3
-tsmalldel = 11.0.*ones(8,).*1e-3
+bval = [0, 1000, 2500, 5000, 7500, 11100, 18100, 25000, 43000].*1.0e6
+n = length(bval)
+techo = 40.0.*ones(n,).*1e-3
+tdelta = 15.192.*ones(n,).*1e-3
+tsmalldel = 11.0.*ones(n,).*1e-3
 prot = Protocol(bval,techo,tdelta,tsmalldel)
 ````
 
@@ -42,14 +43,14 @@ This will show the default values if you didn't specify parameters when declare 
 You can specify tissue parameters when declearing a model; fields/subfiedls that are not specified will take the default values
 
 ````julia
-estimates = ExCaliber( axon = Cylinder(da = 4e-6, dpara = 0.7e-9))
+estimates = ExCaliber( axon = Cylinder(da = 4.0e-6, dpara = 0.7e-9))
 ````
 
 You can change the fields/subfields of a decleared model struct by using update! funciton.
 
     a. update a field/subfields
 ````julia
-undate!(estimates, "axon.da" => 5e-6)
+undate!(estimates, "axon.da" => 5.0e-6)
 ````
 
 It's common that we need to link certain tissue parameters in some models as they may not be distinguishable under the experimental condition.
@@ -61,7 +62,7 @@ update!(estimates,"axon.d0" => "axon.dpara")
 
     c. update multiple parameters
 ````julia
-update!(estimates,("axon.da" => 5e-6, "axon.dpara" => 0.5e-9, "axon.d0" => "axon.dpara", "extra.dpara" => "axon.dpara"))
+update!(estimates,("axon.da" => 5.0e-6, "axon.dpara" => 0.5e-9, "axon.d0" => "axon.dpara", "extra.dpara" => "axon.dpara"))
 ````
 
 Now we can use the model and protocol to generate some mri signals

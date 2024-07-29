@@ -20,7 +20,6 @@ Provide full path to the DWI file and acquisition files with following extension
 ```julia
 julia> (dMRI, protocol) = spherical_mean(
                             datadir * "/dwiname.nii.gz", 
-                            normalize=true, 
                             save=true, 
                             datadir * "dwiname.bvals", 
                             datadir * "dwiname.bvecs", 
