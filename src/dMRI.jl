@@ -119,6 +119,12 @@ function spherical_mean!(dmri::dMRI)
     sets = [dmri.nifti.bval dmri.techo dmri.tdelta dmri.tsmalldel]
     combinations = unique(sets; dims=1)
 
+    # sortting to help check signals when bval/techo are not in assending order
+    ind = sortperm(combinations[:,1])
+    combinations = combinations[ind,:]
+    ind = sortperm(combinations[:,2])
+    combinations = combinations[ind,:]
+
     # initialize new volume
     nsets = size(combinations, 1)
     volsize = size(dmri.nifti.vol)
@@ -147,41 +153,41 @@ function spherical_mean!(dmri::dMRI)
     return nothing
 end
 
+"""
+normalize signals with minimal TE and b=0 volume; 
+save the first volume (all 1) for the associated acquistion parameters in the normalizing volume
+"""
 function normalize_smt!(dmri::dMRI)
     if dmri.nifti.bval[1] != 0
         error("First volume is not from b=0")
     end
 
-    dmri.nifti.bval = dmri.nifti.bval[2:end]
-    dmri.techo = dmri.techo[2:end]
-    dmri.tdelta = dmri.tdelta[2:end]
-    dmri.tsmalldel = dmri.tsmalldel[2:end]
-    dmri.nifti.bvec = dmri.nifti.bvec[2:end, :]
-
     nvol = length(dmri.nifti.bval)
     vol_b0 = dmri.nifti.vol[:, :, :, 1]
-    dmri.nifti.vol = dmri.nifti.vol[:, :, :, 2:end]
 
     for i in 1:nvol
         dmri.nifti.vol[:, :, :, i] = dmri.nifti.vol[:, :, :, i] ./ vol_b0
     end
 
-    dmri.nifti.nframes = nvol
-
     return nothing
+end
+
+"""
+Apply universal scaling to smt signals
+"""
+function scale_smt!(dmri::dMRI)
+
 end
 
 """
     spherical_mean(
         image_file::String, 
-        normalize::Bool=true, 
         save::Bool=true, 
         acq_files::String...
     )
 
-Perform direction average on input DWI images `image_file` and return an MRI object with spherical mean signal and associated imaging protocol.
-`image_file` is the full path of the DWI image file; `normalize` indicates whether normalisation to the b0 is applied; `save` indicates 
-whether to save the smt signals and protocol. If saving the files, a nifti file and a text file (.btable) will be saved in the same path as the input data.
+Perform direction average on input DWI images `image_file` and return an MRI object with normalized spherical mean signal and associated imaging protocol.
+`image_file` is the full path of the DWI image file; `save` indicates whether to save the smt and normalized smt image volumes and protocol. If saving the files, nifti and text file (.btable) will be saved in the same path as the input data.
 Finall, variable number of `acq_files` are text files that tell you acquistion parameters of each DWI in the `image_file`. 
 Accepted file extensions are .bvals/.bvecs/.techo/.tdelta/.tsmalldel for b-values, gradient directions, echo times, diffusion gradient seperation and duration times.
 
@@ -191,23 +197,22 @@ The format of a .tdelta/.tsmalldel/.techo file is similar to a .bvals file (a ve
 Unit in the .tdelta/.tsmalldel/.techo file is ms. 
 """
 function spherical_mean(
-    infile_image::String, normalize::Bool=true, save::Bool=true, infiles::String...
+    infile_image::String, save::Bool=true, infiles::String...
 )
     mri = mri_read(infile_image)
     dmri = dmri_read_times(mri, infiles)
+    
     spherical_mean!(dmri)
-
-    if normalize
-        normalize_smt!(dmri)
-    end
-
     if save
         datapath = infile_image[1:findlast(isequal('/'), infile_image)]
-        if normalize
-            dmri_write(dmri, datapath, "diravg_norm.nii.gz")
-        else
-            dmri_write(dmri, datapath, "diravg.nii.gz")
-        end
+        dmri_write(dmri, datapath, "diravg.nii.gz")
+    end
+
+    # default to normalize signals
+    normalize_smt!(dmri)
+    if save
+        datapath = infile_image[1:findlast(isequal('/'), infile_image)]
+        dmri_write(dmri, datapath, "diravg_norm.nii.gz")
     end
 
     prot = Protocol(dmri)

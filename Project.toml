@@ -4,6 +4,7 @@ authors = ["Ting Gong"]
 version = "0.1.5"
 
 [deps]
+Copulas = "ae264745-0b69-425e-9d9d-cf662c5eec93"
 DelimitedFiles = "8bb1440f-4735-579b-a4ab-409b98df4dab"
 Distributions = "31c24e10-a181-5473-b8eb-7969acd0382f"
 Fibers = "79c5424f-e3fe-4f6a-a484-e0e793a8858c"

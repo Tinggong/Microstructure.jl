@@ -47,7 +47,11 @@ end
 logpdf with Gaussian noise model.
 `sigma` is the standard deviation of Gaussian noise
 """
-function logp_gauss(meas::Vector{Float64}, preds::Vector{Float64}, sigma::Float64)
+function logp_gauss(measurements::Vector{Float64}, predictions::Vector{Float64}, sigma::Float64)
+    # test adapted changes when including first b0 measurement
+    preds = @view predictions[2:end]
+    meas = @view measurements[2:end]
+
     n = length(preds)
     return -sum((preds .- meas) .^ 2.0) ./ 2.0 ./ sigma .^ 2.0 .-
            n ./ 2.0 .* log.(2.0 .* pi .* sigma .^ 2.0)
@@ -58,7 +62,11 @@ end
 logpdf with Rician noise model
 `sigma` is the standard deviation of the Gaussian noise underlying the Rician noise
 """
-function logp_rician(meas::Vector{Float64}, preds::Vector{Float64}, sigma::Float64)
+function logp_rician(measurements::Vector{Float64}, predictions::Vector{Float64}, sigma::Float64)
+    # test adapted changes when including first b0 measurement    
+    preds = @view predictions[2:end]
+    meas = @view measurements[2:end]
+    
     return logpdf(Product(Rician.(preds, sigma)), meas)
 end
 
@@ -255,20 +263,20 @@ function Sampler(model::BiophysicalModel)
         return (sampler, subsampler(sampler, [1, 4], ()))
 
     elseif modeltype == MTE_SMT
-        params = ("axon.t2", "extra.dperp_frac", "extra.t2", "fracs", "S0norm")
-        prior_range = ((30e-3, 150e-3), (0.0, 1.0), (30e-3, 150e-3), (0.0, 1.0), (1.0, 5.0))
+        # under testing
+        params = ("axon.t2", "extra.dperp_frac", "extra.t2", "fracs")
+        prior_range = ((30e-3, 150e-3), (0.0, 1.0), (30e-3, 150e-3), (0.0, 1.0))
         proposal = (
             Normal(0, 10e-3),
             Normal(0, 0.1),
             Normal(0, 10e-3),
             Normal(0, 0.1),
-            Normal(0, 0.25),
         )
         paralinks = ()
         sampler = Sampler(;
             params=params, prior_range=prior_range, proposal=proposal, paralinks=paralinks, nsamples = 20000, burnin = 10000
         )
-        return sampler
+        return (sampler, subsampler(sampler, [1, 3, 4], ()))
 
     elseif modeltype == MTE_SANDI
         # under testing

@@ -7,6 +7,9 @@ Microstructure.jl is a Julia package for fast and probabilistic microstructure i
 
 Microstructure.jl is under active development, testing and optimization and updates will be shared throughout this process. You are welcome to try it out and provide feedback on any issues encountered. Microstructure.jl has a developing [documentation website](https://tinggong.github.io/Microstructure.jl/dev/) introducing functional API and features of the package. More tutorials and recommendations will be coming soon. 
 
+**Updates!** We have a [preprint](https://arxiv.org/abs/2407.06379) if you are interested in knowing more:
+Gong, T., & Yendiki, A. (2024). Microstructure. jl: a Julia Package for Probabilistic Microstructure Model Fitting with Diffusion MRI. arXiv preprint arXiv:2407.06379. 
+
 ### Installation 
 To install Microstructure.jl, open Julia and enter the package mode by typing `]`, then add the package:
 

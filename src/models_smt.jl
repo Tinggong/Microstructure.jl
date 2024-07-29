@@ -70,7 +70,6 @@ Base.@kwdef mutable struct MTE_SANDI <: BiophysicalModel
     neurite::Stick = Stick()
     extra::Iso = Iso()
     fracs::Vector{Float64} = [0.4, 0.3]
-    S0norm::Float64  ## if generalize:  S0norm = S(b=0,t=TE)/S(b=0,t=TEmin) = 1 for single-TE imaging; S0 = S(b=0,t=0)/S(b=0,t=TEmin) for multi-TE imaging (1~3)
 end
 
 """
@@ -105,17 +104,26 @@ end
     ExCaliber(
         axon::Cylinder,
         extra::Zeppelin,
-        csf::Iso,
         dot::Iso,
         fracs::Vector{Float64}
         )
 
-ExCaliber is a model for axon diameter estimation in ex vivo tissue; the dot compartment is considered.
-The fraction vector represents fractions of the axon, CSF and dot with the fraction of extra being 1-sum(fracs)
+ExCaliber is a multi-compartment model for estimating axon diameter. It can be used for ex vivo imaging when the diffusivity in the ISO compartment is set to 0 (dot compatment),
+and for in vivo imaging if the diffusivity of the ISO compartment is set to free water in tissue (CSF compartment).  
 
 # Reference
+Fan, Q., Nummenmaa, A., Witzel, T., Ohringer, N., Tian, Q., Setsompop, K., ... & Huang, S. Y. (2020). Axon diameter index estimation independent of fiber orientation distribution using high-gradient diffusion MRI. Neuroimage, 222, 117197.
+
 Gong, T., Maffei, C., Dann, E., Lee, H.-H., Lee Hansol, Huang, S., Suzanne, H., Yendiki, A., 2024. Imaging the relationship of axon diameter and myelination in macaque and human brain, in: ISMRM.
 """
+Base.@kwdef mutable struct ExCaliber <: BiophysicalModel
+    axon::Cylinder = Cylinder()
+    extra::Zeppelin = Zeppelin()
+    dot::Iso = Iso(; diff=0.0)
+    fracs::Vector{Float64} = [0.7, 0.1]
+end
+
+# test model including extra CSF compartment
 Base.@kwdef mutable struct ExCaliber_beta <: BiophysicalModel
     axon::Cylinder = Cylinder()
     extra::Zeppelin = Zeppelin()
@@ -124,25 +132,19 @@ Base.@kwdef mutable struct ExCaliber_beta <: BiophysicalModel
     fracs::Vector{Float64} = [0.7, 0.1, 0.1]
 end
 
-Base.@kwdef mutable struct ExCaliber <: BiophysicalModel
-    axon::Cylinder = Cylinder()
-    extra::Zeppelin = Zeppelin()
-    dot::Iso = Iso(; diff=0.0)
-    fracs::Vector{Float64} = [0.7, 0.1]
-end
-
 """
     MTE_SMT(
         axon::Stick = Stick()
         extra::Zeppelin = Zeppelin()
         fracs::Float64 = 0.5
-        S0norm::Float64 = 2.0
         )
     
 This is a model using multi-TE spherical mean technique for lower b-value in vivo imaging. Compartmental T2s are considered. 
 There is not a specific reference for this model yet, but you can refer to previous work related to this topic:
 
 Kaden, E., Kruggel, F., Alexander, D.C., 2016. Quantitative mapping of the per-axon diffusion coefficients in brain white matter. Magn Reson Med 75, 1752–1763. https://doi.org/10.1002/MRM.25734
+
+Kaden, E., Kelm, N. D., Carson, R. P., Does, M. D., & Alexander, D. C. (2016). Multi-compartment microscopic diffusion imaging. NeuroImage, 139, 346-359.
 
 Veraart, J., Novikov, D.S., Fieremans, E., 2017. TE dependent Diffusion Imaging (TEdDI) distinguishes between compartmental T 2 relaxation times. https://doi.org/10.1016/j.neuroimage.2017.09.030
 
@@ -152,7 +154,6 @@ Base.@kwdef mutable struct MTE_SMT <: BiophysicalModel
     axon::Stick = Stick()
     extra::Zeppelin = Zeppelin()
     fracs::Float64 = 0.5
-    S0norm::Float64 = 2.0
 end
 
 """
@@ -203,8 +204,8 @@ function model_signals(sandi::MTE_SANDI, prot::Protocol)
             sandi.fracs[1] .* compartment_signals(sandi.soma, prot) .+
             sandi.fracs[2] .* compartment_signals(sandi.neurite, prot) .+
             fextra .* compartment_signals(sandi.extra, prot)
-        ) .* sandi.S0norm
-    return signals
+        ) 
+    return signals ./ signals[1]
 end
 
 function model_signals(model::MTE_SMT, prot::Protocol)
@@ -212,8 +213,8 @@ function model_signals(model::MTE_SMT, prot::Protocol)
         (
             model.fracs .* compartment_signals(model.axon, prot) .+
             (1.0 .- model.fracs) .* compartment_signals(model.extra, prot)
-        ) .* model.S0norm
-    return signals
+        ) 
+    return signals ./ signals[1] 
 end
 
 """
