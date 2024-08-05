@@ -6,8 +6,10 @@ using Fibers, DelimitedFiles, Statistics, StaticArrays
 export dMRI,
     Protocol,
     spherical_mean,
+    spherical_mean!,
+    normalize_smt!,
     dmri_write,
-    dMRI_read,
+    dmri_read,
     dmri_read_times,
     dmri_read_times!,
     dmri_read_time
@@ -62,6 +64,11 @@ function dmri_read_times(mri::MRI, infiles::Tuple{Vararg{String}})
     dmri.nifti.bval .= round.(dmri.nifti.bval ./ 50.0) .* 50.0
     dmri.nifti.bval[dmri.nifti.bval .<= 100.0] .= 0.0
 
+    # set delta/smalldel to 0 when b = 0
+    index = iszero.(dmri.nifti.bval)
+    dmri.tdelta[index] .= 0.0
+    dmri.tsmalldel[index] .= 0.0
+
     return dmri
 end
 """
@@ -107,8 +114,7 @@ function dmri_read_time(infile::String)
 end
 
 """
-create new dmri structure after direction averaging 
-func! mutating dmri
+mutating dmri structure after direction averaging 
 """
 function spherical_mean!(dmri::dMRI)
     if dmri.smt == true
