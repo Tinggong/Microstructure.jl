@@ -26,9 +26,9 @@ experimental settings `tdelta`, `tsmalldel`, `techo`, and `smt` for identifing s
 """
 mutable struct dMRI
     nifti::MRI
-    tdelta::Vector{Float32}
-    tsmalldel::Vector{Float32}
-    techo::Vector{Float32}
+    tdelta::Vector{Float64}
+    tsmalldel::Vector{Float64}
+    techo::Vector{Float64}
     smt::Bool
 end
 
@@ -37,9 +37,9 @@ initialize dMRI structure from MRI or Array
 """
 dMRI(mri::MRI) = dMRI(
     mri,
-    Vector{Float32}(zeros(mri.nframes)),
-    Vector{Float32}(zeros(mri.nframes)),
-    Vector{Float32}(zeros(mri.nframes)),
+    Vector{Float64}(zeros(mri.nframes)),
+    Vector{Float64}(zeros(mri.nframes)),
+    Vector{Float64}(zeros(mri.nframes)),
     false,
 )
 

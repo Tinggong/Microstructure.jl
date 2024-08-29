@@ -107,8 +107,8 @@ Base.@kwdef struct Sampler
     proposal::Tuple{Vararg{<:Any}} # proposal distributions
     paralinks::Tuple{Vararg{Pair{String}}} = () # parameter links used in modelling
     nsamples::Int64 
-    burnin::Int64 
-    thinning::Int64 = 100
+    burnin::Int64 = 0
+    thinning::Int64 = 1
 end
 
 """
@@ -237,7 +237,7 @@ end
 After testing and optimizing sampler parameters for a model, add default sampler for the model for convenience here.
 Examples given here are ExCaliber with two-stage MCMC and MTE_SMT; these sampling parameters are not optimised yet.
 """
-function Sampler(model::BiophysicalModel)
+function Sampler(model::BiophysicalModel, nsamples::Int64)
     modeltype = typeof(model)
     # tesing
     if modeltype == ExCaliber
@@ -254,11 +254,11 @@ function Sampler(model::BiophysicalModel)
             Normal(0, 0.05),
             MvNormal([0.0025 0;0 0.0001]), # 3-compartment model with 2 free fraction parameters
         ) #; equal to (Normal(0,0.05),Normal(0,0.01)) for fracs
-        nsamples = 70000
-        burnin = 20000
+        # nsamples = 70000
+        # burnin = 20000
         # setup sampler and noise model
         sampler = Sampler(;
-            params=paras, prior_range=pararange, proposal=proposal, paralinks=paralinks, nsamples = nsamples, burnin = burnin 
+            params=paras, prior_range=pararange, proposal=proposal, paralinks=paralinks, nsamples = nsamples 
         )
         return (sampler, subsampler(sampler, [1, 4], ()))
 
@@ -274,7 +274,7 @@ function Sampler(model::BiophysicalModel)
         )
         paralinks = ()
         sampler = Sampler(;
-            params=params, prior_range=prior_range, proposal=proposal, paralinks=paralinks, nsamples = 20000, burnin = 10000
+            params=params, prior_range=prior_range, proposal=proposal, paralinks=paralinks, nsamples = nsamples
         )
         return (sampler, subsampler(sampler, [1, 3, 4], ()))
 
@@ -392,7 +392,7 @@ function mcmc!(
     update!(
         estimates,
         Tuple(
-            para => mean(chain[para][(sampler.burnin):(sampler.thinning):end]) for
+            para => mean(chain[para][(sampler.burnin+1):(sampler.thinning):end]) for
             para in sampler.params
         ),
     )
@@ -459,7 +459,7 @@ function mcmc!(
     update!(
         estimates,
         Tuple(
-            sampler.params[j] => mean(chain[j][(sampler.burnin):(sampler.thinning):end]) for
+            sampler.params[j] => mean(chain[j][(sampler.burnin+1):(sampler.thinning):end]) for
             j in 1:(N::Int)
         ),
     )
@@ -524,7 +524,7 @@ function mcmc!(
     update!(
         estimates,
         Tuple(
-            para => mean(chain[para][(sampler.burnin):(sampler.thinning):end]) for
+            para => mean(chain[para][(sampler.burnin+1):(sampler.thinning):end]) for
             para in sampler.params
         ),
     )
@@ -589,7 +589,7 @@ function mcmc!(
     update!(
         estimates,
         Tuple(
-            para => mean(chain[para][(sampler.burnin):(sampler.thinning):end]) for
+            para => mean(chain[para][(sampler.burnin+1):(sampler.thinning):end]) for
             para in sampler.params
         ),
     )

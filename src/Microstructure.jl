@@ -8,4 +8,5 @@ include("models_smt.jl")
 include("estimators_mcmc.jl")
 include("estimators_nn.jl")
 include("threading.jl")
+include("diagnostics.jl")
 end
