@@ -62,14 +62,44 @@ function run_diagnostics(
         chain = mcmc!(model_start, meas, protocol, sampler, noise, rng_seed)
 
         for para in sampler.params
-            diagns = ess_rhat(chain[para][(sampler.burnin + 1):end]; split_chains=2)
-            se = mcse(chain[para]; kind=Statistics.mean)
-            estimate = mean(chain[para][(sampler.burnin + 1):(sampler.thinning):end])
+            if chain[para][1] isa Vector
+                fracs = reduce(hcat, chain[para])
+                for i in axes(fracs, 1)
+                    
+                    diagns = ess_rhat(fracs[i, (sampler.burnin + 1):end]; split_chains=2)
+                    se = mcse(fracs[i, (sampler.burnin + 1):end]; kind=Statistics.mean)
+                    estimate = mean(fracs[i, (sampler.burnin + 1):(sampler.thinning):end])
+                    push!(
+                        diagnostics,
+                        (
+                            "f" * string(i),
+                            nsamples,
+                            diagns[:ess],
+                            diagns[:rhat],
+                            se,
+                            estimate,
+                            se / estimate,
+                        ),
+                    )
+                end
+            else
+                diagns = ess_rhat(chain[para][(sampler.burnin + 1):end]; split_chains=2)
+                se = mcse(chain[para][(sampler.burnin + 1):end]; kind=Statistics.mean)
+                estimate = mean(chain[para][(sampler.burnin + 1):(sampler.thinning):end])
 
-            push!(
-                diagnostics,
-                (para, nsamples, diagns[:ess], diagns[:rhat], se, estimate, se / estimate),
-            )
+                push!(
+                    diagnostics,
+                    (
+                        para,
+                        nsamples,
+                        diagns[:ess],
+                        diagns[:rhat],
+                        se,
+                        estimate,
+                        se / estimate,
+                    ),
+                )
+            end
         end
 
         ratio[i] = sum(chain["move"]) / nsamples
@@ -106,16 +136,50 @@ function run_diagnostics(
         mcmc!(chain, model_start, meas, protocol, sampler_sub, pertub, noise)
 
         for para in sampler_full.params
-            diagns = ess_rhat(chain[para][(sampler_full.burnin + 1):end]; split_chains=2)
-            se = mcse(chain[para]; kind=Statistics.mean)
-            estimate = mean(
-                chain[para][(sampler_full.burnin + 1):(sampler_full.thinning):end]
-            )
-
-            push!(
-                diagnostics,
-                (para, nsamples, diagns[:ess], diagns[:rhat], se, estimate, se / estimate),
-            )
+            if chain[para][1] isa Vector
+                fracs = reduce(hcat, chain[para])
+                for i in axes(fracs, 1)
+                    diagns = ess_rhat(
+                        fracs[i, (sampler_full.burnin + 1):end]; split_chains=2
+                    )
+                    se = mcse(fracs[i, (sampler_full.burnin + 1):end]; kind=Statistics.mean)
+                    estimate = mean(
+                        fracs[i, (sampler_full.burnin + 1):(sampler_full.thinning):end]
+                    )
+                    push!(
+                        diagnostics,
+                        (
+                            "f" * string(i),
+                            nsamples,
+                            diagns[:ess],
+                            diagns[:rhat],
+                            se,
+                            estimate,
+                            se / estimate,
+                        ),
+                    )
+                end
+            else
+                diagns = ess_rhat(
+                    chain[para][(sampler_full.burnin + 1):end]; split_chains=2
+                )
+                se = mcse(chain[para][(sampler_full.burnin + 1):end]; kind=Statistics.mean)
+                estimate = mean(
+                    chain[para][(sampler_full.burnin + 1):(sampler_full.thinning):end]
+                )
+                push!(
+                    diagnostics,
+                    (
+                        para,
+                        nsamples,
+                        diagns[:ess],
+                        diagns[:rhat],
+                        se,
+                        estimate,
+                        se / estimate,
+                    ),
+                )
+            end
         end
 
         ratio[i] = sum(chain["move"]) / nsamples
@@ -124,18 +188,19 @@ function run_diagnostics(
 end
 
 """
+
 Visalize diagnostics for model parameter
+
 """
 function plot_diagnostics(diagno::DataFrame)
     
     set_default_plot_size(30cm, 15cm)
     p0 = Gadfly.plot()
-    p1 = Gadfly.plot(diagno,x=:NSamples,y=:ESS,color=:Parameters, Geom.point, Geom.line)
-    p2 = Gadfly.plot(diagno,x=:NSamples,y=:SplitR,color=:Parameters, Geom.point, Geom.line)
-    p3 = Gadfly.plot(diagno,x=:NSamples,y=:MCSE,color=:Parameters, Geom.point, Geom.line)
-    p4 = Gadfly.plot(diagno,x=:NSamples,y=:Estimate,color=:Parameters, Geom.point, Geom.line)
-    p5 = Gadfly.plot(diagno,x=:NSamples,y=:ErrorRatio,color=:Parameters, Geom.point, Geom.line)
-    
-    return gridstack([p1 p2 p0; p3 p4 p5])
+    p1 = Gadfly.plot(diagno; x=:NSamples, y=:ESS, color=:Parameters, Geom.point, Geom.line)
+    p2 = Gadfly.plot(diagno; x=:NSamples, y=:SplitR, color=:Parameters, Geom.point, Geom.line)
+    p3 = Gadfly.plot(diagno; x=:NSamples, y=:MCSE, color=:Parameters, Geom.point, Geom.line)
+    p4 = Gadfly.plot(diagno; x=:NSamples, y=:Estimate, color=:Parameters, Geom.point, Geom.line)
+    p5 = Gadfly.plot(diagno; x=:NSamples, y=:ErrorRatio, color=:Parameters, Geom.point, Geom.line)
 
+    return gridstack([p1 p2 p0; p3 p4 p5])
 end
