@@ -196,11 +196,11 @@ function plot_diagnostics(diagno::DataFrame)
     
     set_default_plot_size(30cm, 15cm)
     p0 = Gadfly.plot()
-    p1 = Gadfly.plot(diagno; x=:NSamples, y=:ESS, color=:Parameters, Geom.point, Geom.line)
-    p2 = Gadfly.plot(diagno; x=:NSamples, y=:SplitR, color=:Parameters, Geom.point, Geom.line)
-    p3 = Gadfly.plot(diagno; x=:NSamples, y=:MCSE, color=:Parameters, Geom.point, Geom.line)
-    p4 = Gadfly.plot(diagno; x=:NSamples, y=:Estimate, color=:Parameters, Geom.point, Geom.line)
-    p5 = Gadfly.plot(diagno; x=:NSamples, y=:ErrorRatio, color=:Parameters, Geom.point, Geom.line)
+    p1 = Gadfly.plot(diagno, x=:NSamples, y=:ESS, color=:Parameters, Geom.point, Geom.line, linestyle=[:dash])
+    p2 = Gadfly.plot(diagno, x=:NSamples, y=:SplitR, color=:Parameters, Geom.point, Geom.line, linestyle=[:dash])
+    p3 = Gadfly.plot(diagno, x=:NSamples, y=:MCSE, color=:Parameters, Geom.point, Geom.line, linestyle=[:dash])
+    p4 = Gadfly.plot(diagno, x=:NSamples, y=:Estimate, color=:Parameters, Geom.point, Geom.line, linestyle=[:dash])
+    p5 = Gadfly.plot(diagno, x=:NSamples, y=:ErrorRatio, color=:Parameters, Geom.point, Geom.line, linestyle=[:dash])
 
     return gridstack([p1 p2 p0; p3 p4 p5])
 end
