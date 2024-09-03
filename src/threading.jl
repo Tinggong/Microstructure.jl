@@ -116,10 +116,10 @@ function threading(
 
         for ip in 1:length(sampler.params)
             est[ip][iv] = mean(
-                chains[td][ip][(sampler.burnin):(sampler.thinning):(sampler.nsamples)]
+                chains[td][ip][(sampler.burnin+1):(sampler.thinning):(sampler.nsamples)]
             )
             est_std[ip][iv] = std(
-                chains[td][ip][(sampler.burnin):(sampler.thinning):(sampler.nsamples)]
+                chains[td][ip][(sampler.burnin+1):(sampler.thinning):(sampler.nsamples)]
             )
         end
     end
@@ -164,10 +164,10 @@ function threading(
 
         for (ip, para) in enumerate(sampler[1].params)
             est[ip][iv] = mean(
-                chains[td][para][(sampler[1].burnin):(sampler[1].thinning):(sampler[1].nsamples)]
+                chains[td][para][(sampler[1].burnin+1):(sampler[1].thinning):(sampler[1].nsamples)]
             )
             est_std[ip][iv] = std(
-                chains[td][para][(sampler[1].burnin):(sampler[1].thinning):(sampler[1].nsamples)]
+                chains[td][para][(sampler[1].burnin+1):(sampler[1].thinning):(sampler[1].nsamples)]
             )
         end
     end

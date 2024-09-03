@@ -98,7 +98,7 @@ dim: 3
 μ: Zeros(3)
 Σ: [0.0025 0.0 0.0; 0.0 0.0001 0.0; 0.0 0.0 0.0001]
 )
-), ("axon.d0" => "axon.dpara", "extra.dpara" => "axon.dpara"), 70000, 20000, 100)
+), ("axon.d0" => "axon.dpara", "extra.dpara" => "axon.dpara"), 70000, 20000, 1)
 ```
 """
 Base.@kwdef struct Sampler
@@ -237,7 +237,7 @@ end
 After testing and optimizing sampler parameters for a model, add default sampler for the model for convenience here.
 Examples given here are ExCaliber with two-stage MCMC and MTE_SMT; these sampling parameters are not optimised yet.
 """
-function Sampler(model::BiophysicalModel, nsamples::Int64)
+function Sampler(model::BiophysicalModel, nsamples::Int64, burnin::Int64=0)
     modeltype = typeof(model)
     # tesing
     if modeltype == ExCaliber
@@ -254,11 +254,10 @@ function Sampler(model::BiophysicalModel, nsamples::Int64)
             Normal(0, 0.05),
             MvNormal([0.0025 0;0 0.0001]), # 3-compartment model with 2 free fraction parameters
         ) #; equal to (Normal(0,0.05),Normal(0,0.01)) for fracs
-        # nsamples = 70000
-        # burnin = 20000
+
         # setup sampler and noise model
         sampler = Sampler(;
-            params=paras, prior_range=pararange, proposal=proposal, paralinks=paralinks, nsamples = nsamples 
+            params=paras, prior_range=pararange, proposal=proposal, paralinks=paralinks, nsamples = nsamples, burnin = burnin 
         )
         return (sampler, subsampler(sampler, [1, 4], ()))
 
@@ -274,7 +273,7 @@ function Sampler(model::BiophysicalModel, nsamples::Int64)
         )
         paralinks = ()
         sampler = Sampler(;
-            params=params, prior_range=prior_range, proposal=proposal, paralinks=paralinks, nsamples = nsamples
+            params=params, prior_range=prior_range, proposal=proposal, paralinks=paralinks, nsamples = nsamples, burnin = burnin
         )
         return (sampler, subsampler(sampler, [1, 3, 4], ()))
 
