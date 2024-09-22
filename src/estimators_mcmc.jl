@@ -229,7 +229,7 @@ function subsampler(
     prior_range = sampler.prior_range[index]
     proposal = sampler.proposal[index]
     return Sampler(;
-        params=params, prior_range=prior_range, proposal=proposal, paralinks=paralinks, nsamples = sampler.nsamples, burnin = sampler.burnin
+        params=params, prior_range=prior_range, proposal=proposal, paralinks=paralinks, nsamples = sampler.nsamples, burnin = sampler.burnin, thinning = sampler.thinning
     )
 end
 
@@ -237,7 +237,7 @@ end
 After testing and optimizing sampler parameters for a model, add default sampler for the model for convenience here.
 Examples given here are ExCaliber with two-stage MCMC and MTE_SMT; these sampling parameters are not optimised yet.
 """
-function Sampler(model::BiophysicalModel, nsamples::Int64, burnin::Int64=0)
+function Sampler(model::BiophysicalModel, nsamples::Int64, burnin::Int64=0, thinning::Int64=1)
     modeltype = typeof(model)
     # tesing
     if modeltype == ExCaliber
@@ -257,7 +257,7 @@ function Sampler(model::BiophysicalModel, nsamples::Int64, burnin::Int64=0)
 
         # setup sampler and noise model
         sampler = Sampler(;
-            params=paras, prior_range=pararange, proposal=proposal, paralinks=paralinks, nsamples = nsamples, burnin = burnin 
+            params=paras, prior_range=pararange, proposal=proposal, paralinks=paralinks, nsamples = nsamples, burnin = burnin, thinning = thinning 
         )
         return (sampler, subsampler(sampler, [1, 4], ()))
 
@@ -273,7 +273,7 @@ function Sampler(model::BiophysicalModel, nsamples::Int64, burnin::Int64=0)
         )
         paralinks = ()
         sampler = Sampler(;
-            params=params, prior_range=prior_range, proposal=proposal, paralinks=paralinks, nsamples = nsamples, burnin = burnin
+            params=params, prior_range=prior_range, proposal=proposal, paralinks=paralinks, nsamples = nsamples, burnin = burnin, thinning = thinning
         )
         return (sampler, subsampler(sampler, [1, 3, 4], ()))
 

@@ -30,7 +30,6 @@ end
     )
 
 Return chain diagnostics tested with different sampling length. This function is useful for optimizing sampler for a given model.
-Currently use one long chain with chain split, which is similar to run multiple chains with different starting point and random draws
 
 # References
 
@@ -188,9 +187,7 @@ function run_diagnostics(
 end
 
 """
-
-Visalize diagnostics for model parameter
-
+Visualize diagnostics for model parameter
 """
 function plot_diagnostics(diagno::DataFrame)
     

@@ -8,7 +8,10 @@ export NetworkArg,
     generate_samples,
     train_loop!,
     test,
-    losses_rmse
+    losses_rmse,
+    losses_corr,
+    losses_rmse_kl,
+    losses_rmse_corr
 
 """
     NetworkArg(
@@ -168,8 +171,7 @@ function create_mlp(
     num = (ninput, hiddenlayers...)
     mlp = [Dense(num[i] => num[i + 1], relu) for i in 1:(length(num) - 1)]
 
-    mlp = Flux.f64(Chain(mlp..., Dropout(dropoutp), Dense(hiddenlayers[end] => noutput)))
-
+    mlp = Flux.f64(Chain(mlp..., Dropout(dropoutp), Dense(hiddenlayers[end] => noutput, sigmoid)))
     return mlp
 end
 
@@ -343,4 +345,20 @@ end
 """
 function losses_rmse(y, yy)
     return sqrt.(Flux.Losses.mse(y, yy))
+end
+
+# test loss
+function losses_corr(y,yy) 
+    n=size(y,1)
+    corr = (n*sum(y.*yy,dims=1) - sum(y,dims=1).*sum(yy,dims=1))./
+        sqrt.((n*sum(y.^2,dims=1)-sum(y,dims=1).^2).*(n*sum(yy.^2,dims=1)-sum(yy,dims=1).^2))
+    return -mean(corr)
+end
+
+function losses_rmse_kl(y, yy)
+    return 0.8*sqrt.(Flux.Losses.mse(y, yy)) + 0.2*Flux.Losses.kldivergence(y,yy)
+end
+
+function losses_rmse_corr(y, yy)
+    return 0.8*losses_rmse(y, yy) + 0.2*losses_corr(y,yy)
 end
