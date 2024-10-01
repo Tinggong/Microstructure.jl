@@ -4,7 +4,6 @@ authors = ["Ting Gong"]
 version = "0.1.6"
 
 [deps]
-Copulas = "ae264745-0b69-425e-9d9d-cf662c5eec93"
 DataFrames = "a93c6f00-e57d-5684-b7b6-d8193f3e46c0"
 DelimitedFiles = "8bb1440f-4735-579b-a4ab-409b98df4dab"
 Distributions = "31c24e10-a181-5473-b8eb-7969acd0382f"
@@ -21,10 +20,14 @@ StaticArrays = "90137ffa-7385-5640-81b9-e52037218182"
 Statistics = "10745b16-79ce-11e8-11f9-7d13ad32a3b2"
 
 [compat]
+DataFrames = "1.6"
+DelimitedFiles = "1.9"
 Distributions = "0.25"
 Fibers = "1.0"
 Flux = "0.14"
+Gadfly = "1.4"
 JLD2 = "0.4"
+MCMCDiagnosticTools = "0.3"
 ProgressMeter = "1.10"
 SpecialFunctions = "2.3"
 StaticArrays = "1.9"
