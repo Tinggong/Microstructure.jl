@@ -15,14 +15,14 @@ To install Microstructure.jl, open Julia and enter the package mode by typing `]
 
 ```julia
 julia> ]
-(@v1.8) pkg> add Microstructure
+(@v1.10) pkg> add Microstructure
 ```
 
 If you want to keep up to date with the developing version I am working on, remove the current installation and add the repository directly:
 
 ```julia
-(@v1.8) pkg> rm Microstructure
-(@v1.8) pkg> add https://github.com/Tinggong/Microstructure.jl.git
+(@v1.10) pkg> rm Microstructure
+(@v1.10) pkg> add https://github.com/Tinggong/Microstructure.jl.git
 ```
 
 ### Relationship to Other Packages

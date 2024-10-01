@@ -1,7 +1,7 @@
 name = "Microstructure"
 uuid = "bb9cb41e-5262-42dc-ac73-4f266bc6ab72"
 authors = ["Ting Gong"]
-version = "0.1.5"
+version = "0.1.6"
 
 [deps]
 Copulas = "ae264745-0b69-425e-9d9d-cf662c5eec93"
