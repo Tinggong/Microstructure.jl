@@ -11,24 +11,18 @@ Microstructure.jl is under active development, testing and optimization and upda
 Gong, T., & Yendiki, A. (2024). Microstructure. jl: a Julia Package for Probabilistic Microstructure Model Fitting with Diffusion MRI. arXiv preprint arXiv:2407.06379. 
 
 ### Installation 
-To install Microstructure.jl, open Julia and enter the package mode by typing `]`, then add the package:
+To install Microstructure.jl, open Julia and enter the package mode by typing `]`, then add the package, which will install the latest released version:
 
 ```julia
 julia> ]
 (@v1.8) pkg> add Microstructure
 ```
 
-You can check if your installation is the latest version by typing `status` in the package mode and upgrade to the latest version using `up` in the package mode:
-
-```julia
-(@v1.8) pkg> up Microstructure
-```
-
-If a newer version isn't being installed using `up`, you can remove current installation and add the latest version by (replace `0.1.4` with latest version number):
+If you want to keep up to date with the developing version I am working on, remove the current installation and add the repository directly:
 
 ```julia
 (@v1.8) pkg> rm Microstructure
-(@v1.8) pkg> add Microstructure@0.1.4
+(@v1.8) pkg> add https://github.com/Tinggong/Microstructure.jl.git
 ```
 
 ### Relationship to Other Packages

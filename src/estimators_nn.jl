@@ -34,8 +34,10 @@ export NetworkArg,
     )
 
 Return a `NetworkArg` object with necessary parameters to construct a neural network model 
-and generate training samples for specifc biophysical model. A test Network architecture and training 
-samples can be automaticlly determined from the modelling task by using function
+and generate training samples for specifc biophysical model. 
+    
+    
+A test network architecture and training samples can be automaticlly determined from the modelling task by using function
     
     NetworkArg(model, protocol, params, prior_range, prior_dist, paralinks, noisetype, sigma_range, sigma_dist)
 """
