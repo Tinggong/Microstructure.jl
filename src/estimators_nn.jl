@@ -1,4 +1,5 @@
 
+using ProgressMeter
 using Flux, Distributions, Random, Statistics
 
 export NetworkArg,
@@ -18,36 +19,42 @@ export NetworkArg,
         model::BiophysicalModel
         protocol::Protocol
         params::Tuple{Vararg{String}}
+        prior_range::Tuple{Vararg{Tuple{Float64,Float64}}} # range for priors 
+        prior_dist::Tuple{Vararg{<:Any}}
         paralinks::Tuple{Vararg{Pair{String,<:String}}} = ()
-        tissuetype::String = "ex_vivo" # "in_vivo"
-        sigma::Float64
-        noise_type::String = "Gaussian" # "Rician"
-        hidden_layers::Tuple{Vararg{Int64}}
+        noise_type::String = "Gaussian" # "Rician"    
+        sigma_range::Tuple{Float64, Float64}
+        sigma_dist::Distribution
         nsamples::Int64
         nin::Int64
         nout::Int64
-        dropoutp::Float64 = 0.2
+        hidden_layers::Tuple{Vararg{Int64}}
+        dropoutp::Union{<:AbstractFloat, Tuple{Vararg{<:AbstractFloat}}}
+        actf::Function
     )
 
 Return a `NetworkArg` object with necessary parameters to construct a neural network model 
-and generate training samples for specifc biophysical model. Network architecture and training 
+and generate training samples for specifc biophysical model. A test Network architecture and training 
 samples can be automaticlly determined from the modelling task by using function
     
-    NetworkArg(model, protocol, params, paralinks, tissuetype, sigma, noise_type)
+    NetworkArg(model, protocol, params, prior_range, prior_dist, paralinks, noisetype, sigma_range, sigma_dist)
 """
 Base.@kwdef struct NetworkArg
     model::BiophysicalModel
     protocol::Protocol
     params::Tuple{Vararg{String}}
+    prior_range::Tuple{Vararg{Tuple{Float64,Float64}}} # range for priors 
+    prior_dist::Tuple{Vararg{<:Any}}
     paralinks::Tuple{Vararg{Pair{String,<:String}}} = ()
-    tissuetype::String = "ex_vivo" # "in_vivo"
-    sigma::Float64
-    noise_type::String = "Gaussian" # "Rician"
-    hidden_layers::Tuple{Vararg{Int64}}
+    noise_type::String = "Gaussian" # "Rician"    
+    sigma_range::Tuple{Float64, Float64}
+    sigma_dist::Distribution
     nsamples::Int64
     nin::Int64
     nout::Int64
-    dropoutp::Float64 = 0.2
+    hidden_layers::Tuple{Vararg{Int64}}
+    dropoutp::Union{<:AbstractFloat, Tuple{Vararg{<:AbstractFloat}}}
+    actf::Function = relu6 # activate function for output layer
 end
 
 """
@@ -78,21 +85,27 @@ end
 
 """
     NetworkArg(model, protocol,params,paralinks,tissuetype,sigma,noise_type,dropoutp=0.2)
-Use the inputs related to biophysical models to determine network architecture and number of training samples
+Use the inputs related to biophysical models to determine network architecture and number of training samples for test
 return a full defined NetworkArg struct 
 
 Reference for adjusting the number of training samples:
 Shwartz-Ziv, R., Goldblum, M., Bansal, A., Bruss, C.B., LeCun, Y., & Wilson, A.G. (2024). Just How Flexible are Neural Networks in Practice?
+
+(Easier task and smaller MLPs have higher effective model complexity (can fit more training samples than network parameters; 
+for more complex tasks and larger MLPs, the number of training samples can be set as similar to the number of network parameters to improve training efficiency)
 """
 function NetworkArg(
     model::BiophysicalModel,
     protocol::Protocol,
     params::Tuple{Vararg{String}},
-    paralinks::Tuple{Vararg{Pair{String}}},
-    tissuetype::String,
-    sigma::Float64,
-    noise_type::String="Gaussian",
+    prior_range::Tuple{Vararg{Tuple{Float64,Float64}}}, 
+    prior_dist::Tuple{Vararg{<:Any}},
+    paralinks::Tuple{Vararg{Pair{String,<:String}}},
+    noise_type::String,   
+    sigma_range::Tuple{Float64, Float64},
+    sigma_dist::Distribution,
     dropoutp=0.2,
+    actf = relu6, 
 )
     nin = length(protocol.bval)
     nout = 0
@@ -115,15 +128,18 @@ function NetworkArg(
         model,
         protocol,
         params,
+        prior_range,
+        prior_dist,
         paralinks,
-        tissuetype,
-        sigma,
         noise_type,
-        hidden_layers,
+        sigma_range,
+        sigma_dist,
         nsamples,
         nin,
         nout,
+        hidden_layers,
         dropoutp,
+        actf,
     )
 
     return arg
@@ -137,18 +153,21 @@ Return (`mlp`, `inputs`, `labels`, `gt`); `mlp` is the multi-layer perceptron ne
 `gt` is a dict containing the ground truth tissue parameters without applying scaling. Scaling is applied in the
 training labels to ensure different tissue parameters are roughly in the same range as they are optimized together. 
 """
-function prepare_training(arg::NetworkArg)
-    mlp = create_mlp(arg.nin, arg.nout, arg.hidden_layers, arg.dropoutp)
+function prepare_training(arg::NetworkArg, rng_seed::Int)
+    mlp = create_mlp(arg.nin, arg.nout, arg.hidden_layers, arg.dropoutp, arg.actf)
 
     (inputs, labels, gt) = generate_samples(
         arg.model,
         arg.protocol,
         arg.params,
+        arg.prior_range,
+        arg.prior_dist,
         arg.nsamples,
         arg.paralinks,
-        arg.tissuetype,
-        arg.sigma,
+        arg.sigma_range,
+        arg.sigma_dist,
         arg.noise_type,
+        rng_seed,
     )
 
     return mlp, inputs, labels, gt
@@ -156,22 +175,39 @@ end
 
 """
     create_mlp(
-        ninput::Int64, 
-        noutput::Int64, 
-        hiddenlayers::Tuple{Vararg{Int64}}, 
-        dropoutp::Float64=0.2
+        ninput::Int, 
+        noutput::Int, 
+        hiddenlayers::Tuple{Vararg{Int}}, 
+        dropoutp::Union{<:AbstractFloat,Tuple{Vararg{<:AbstractFloat}}}
         )
 
 Return a `mlp` with `ninput`/`noutput` as the number of input/output channels, and number of units in each layer specified in `hiddenlayers`; 
-a dropout layer is inserted before the output layer with dropout probability `dropoutp`.
+'dropoutp' contains the dropout probalibities for dropout layers; it can be a single value (one dropout layer before output) or same length as the hidden layers 
 """
 function create_mlp(
-    ninput::Int64, noutput::Int64, hiddenlayers::Tuple{Vararg{Int64}}, dropoutp::Float64=0.2
+    ninput::Int, noutput::Int, hiddenlayers::Tuple{Vararg{Int}}, dropoutp::Union{<:AbstractFloat,Tuple{Vararg{<:AbstractFloat}}}, out_actf::Function=relu6,
 )
     num = (ninput, hiddenlayers...)
-    mlp = [Dense(num[i] => num[i + 1], relu) for i in 1:(length(num) - 1)]
+    layers_dense = [Dense(num[i] => num[i + 1], relu) for i in 1:(length(num) - 1)]
+    if length(dropoutp) == 1
+    
+        mlp = Chain(layers_dense..., Dropout(Float32.(dropoutp)), 
+            Dense(hiddenlayers[end] => noutput, out_actf))
 
-    mlp = Flux.f64(Chain(mlp..., Dropout(dropoutp), Dense(hiddenlayers[end] => noutput, sigmoid)))
+    elseif length(dropoutp)==length(hiddenlayers)
+        
+        layers_dropout = [Dropout(Float32.(dropoutp[i])) for i in eachindex(dropoutp)]
+        layers = Any[]
+        for i in eachindex(dropoutp)
+            push!(layers, layers_dense[i])
+            push!(layers, layers_dropout[i])
+        end
+        mlp = Chain(layers..., 
+            Dense(hiddenlayers[end] => noutput, out_actf))
+    else 
+        error("Numbers of dropout and hidden layer don't match")
+    end
+
     return mlp
 end
 
@@ -180,44 +216,59 @@ end
         model::BiophysicalModel,
         protocol::Protocol,
         params::Tuple{Vararg{String}},
-        nsample::Int64,
+        prior_range::Tuple{Vararg{Tuple{Float64,Float64}}}, 
+        prior_dist::Tuple{Vararg{<:Any}},
+        nsample::Int,
         paralinks::Tuple{Vararg{Pair{String}}},
-        tissuetype::String,
-        sigma::Float64,
-        noise_type::String,
+        sigma_range::Tuple{Float64, Float64},
+        sigma::Distribution,
+        noise_type::String="Gaussian",
+        rng_seed,
     )
-Generate and return training samples for a model using uniform coverage of tissue parameters 
-and specified noise model (`"Gaussian"` or `"Rician"`) and noise level `sigma`.
+Generate and return training samples for a model using given priors of tissue parameters 
+and specified noise model (`"Gaussian"` or `"Rician"`) and noise level.
 """
 function generate_samples(
     model::BiophysicalModel,
     protocol::Protocol,
     params::Tuple{Vararg{String}},
-    nsample::Int64,
+    prior_range::Tuple{Vararg{Tuple{Float64,Float64}}}, 
+    prior_dist::Tuple{Vararg{<:Any}},
+    nsample::Int,
     paralinks::Tuple{Vararg{Pair{String}}},
-    tissuetype::String,
-    sigma::Float64,
+    sigma_range::Tuple{Float64, Float64},
+    sigma_dist::Distribution,
     noise_type::String="Gaussian",
+    rng_seed::Int=1,
 )
     params_labels = []
     params_gt = Dict()
-    scaling = Microstructure.scalings[tissuetype]
-    for para in params
+    Random.seed!(rng_seed)
+    
+    for (p, para) in enumerate(params)
         if !hasfield(typeof(model), Symbol(para))
-            (~, subfield) = Microstructure.findsubfield(para)
-            subfieldname = String(subfield)
-            vecs =
-                scaling[subfieldname][1][1] .+
-                (scaling[subfieldname][1][2] - scaling[subfieldname][1][1]) .*
-                rand(Float64, nsample)
+            
+            if isnothing(prior_dist[p])
+                vecs =
+                    prior_range[p][1] .+
+                    (prior_range[p][2] - prior_range[p][1]) .*
+                    rand(Float64, nsample)
+            else
+                vecs = 
+                    rand(truncated(prior_dist[p], 
+                    prior_range[p][1], prior_range[p][2]), 
+                    nsample)
+            end
+
             push!(
                 params_labels,
-                (vecs .* scaling[subfieldname][2] .* scaling[subfieldname][3])',
+                (vecs ./ prior_range[p][2])',
             )
             push!(params_gt, para => vecs)
 
         elseif para == "fracs"
-            vecs = rand(Dirichlet(length(model.fracs) + 1, 1), nsample)
+            
+            vecs = rand(prior_dist[p], nsample)
             push!(params_labels, vecs[1:(end - 1), :])
             if model.fracs isa Vector
                 vecs = [vecs[1:(end - 1), i] for i in 1:nsample]
@@ -225,15 +276,9 @@ function generate_samples(
                 vecs = [vecs[1, i] for i in 1:nsample]
             end
             push!(params_gt, para => vecs)
-        else 
-            vecs = 
-                scaling[para][1][1] .+ 
-                (scaling[para][1][2] - scaling[para][1][1]) .* 
-                rand(Float64, nsample)
-            push!(params_labels, (vecs .* scaling[para][2] .* scaling[para][3])')
-            push!(params_gt, para => vecs)
         end
     end
+
     params_labels = reduce(vcat, params_labels)
 
     # simulate signals
@@ -246,17 +291,26 @@ function generate_samples(
     end
 
     # add gaussian noise to get training inputs
-    if noise_type == "Gaussian"
-        signals .= signals .+ rand(Normal(0, sigma), nvol, nsample)
-    elseif noise_type == "Rician"
-        signals .=
-            sqrt.(
-                (signals .+ rand(Normal(0, sigma), nvol, nsample)) .^ 2.0 .+
-                rand(Normal(0, sigma), nvol, nsample) .^ 2.0
-            )
+    noise_level = rand(truncated(sigma_dist, sigma_range[1], sigma_range[2]), nsample)    
+    if (noise_type == "Gaussian") | (noise_type == "gaussian")
+        for i in 1:nsample
+            signals[:, i] .= signals[:,i] .+ rand(Normal(0, noise_level[i]), nvol)
+            signals[:,i] = signals[:,i] ./ signals[1,i]
+        end
+    elseif (noise_type == "Rician") | (noise_type == "rician")
+        for i in 1:nsample
+            signals[:,i] .=
+                sqrt.(
+                    (signals[:,i] .+ rand(Normal(0, noise_level[i]), nvol)) .^ 2.0 .+
+                    rand(Normal(0, noise_level[i]), nvol) .^ 2.0
+                )
+            signals[:,i] = signals[:,i] ./ signals[1,i]  
+        end
+    else
+        error("Noise type not indentified")
     end
 
-    return signals, params_labels, params_gt
+    return Float32.(signals), Float32.(params_labels), params_gt
 end
 
 """
@@ -269,7 +323,7 @@ end
 Train and update the `mlp` and return a Dict of training logs with train loss, training data loss and validation data loss for each epoch.
 """
 function train_loop!(
-    mlp::Chain{T}, arg::TrainingArg, inputs::Array{Float64,2}, labels::Array{Float64,2}
+    mlp::Chain{T}, arg::TrainingArg, inputs::Array{<:AbstractFloat,2}, labels::Array{<:AbstractFloat,2}
 ) where {T}
     opt_state = Flux.setup(Adam(arg.lr), mlp)
 
@@ -289,7 +343,9 @@ function train_loop!(
     data_loss(mlp, dataset) = mean(loss(mlp, data...) for data in dataset)
 
     train_log = Dict("train_loss" => [], "val_data_loss" => [], "train_data_loss" => [])
-    for epoch in 1:(arg.epoch)
+    
+    print("Training ...")
+    @showprogress for epoch in 1:(arg.epoch)
         losses = 0.0
         for (i, data) in enumerate(train_set)
             input, label = data
@@ -309,7 +365,8 @@ function train_loop!(
             end
             Flux.update!(opt_state, mlp, grads[1])
         end
-
+        
+        #println("Epoch #" * string(epoch) * "; training loss: " * string(losses / length(train_set)))
         # Save the epoch train/val loss to log
         push!(train_log["train_loss"], losses / length(train_set))
         push!(train_log["val_data_loss"], data_loss(mlp, val_set))
@@ -319,12 +376,12 @@ function train_loop!(
 end
 
 """
-    test(mlp::Chain, data::Array{Float64,2}, ntest)
+    test(mlp::Chain, data::Array{<:AbstractFloat,2}, ntest)
 
 Return mean and standard deviation of estimations by applying a trained `mlp` to test data for `ntest` times
 with dropout layer on.
 """
-function test(mlp::Chain{T}, data::Array{Float64,2}, ntest) where {T}
+function test(mlp::Chain{T}, data::Array{<:AbstractFloat,2}, ntest) where {T}
     est = []
     est_std = []
     Flux.trainmode!(mlp)
