@@ -39,7 +39,8 @@ julia> mask = mri_read(datadir * "/mask.nii.gz")
 Here, we use a multi-echo spherical mean model which is curently under testing as an example:
 ```julia
 julia> model_start = MTE_SMT(axon = Stick(dpara = 1.7e-9, t2 = 90e-3), extra = Zeppelin(dpara = 1.7e-9, t2 = 60e-3))
-julia> sampler_smt = Sampler(model_start)
+julia> nsample, burnin, thinning = 20000, 1000, 100
+julia> sampler_smt = Sampler(model_start, nsample, burnin, thinning)
 ```
 
 ### MCMC Estimation
