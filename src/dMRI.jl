@@ -83,9 +83,9 @@ function dmri_read_times!(dmri::dMRI, infiles::Tuple{Vararg{String}})
             dmri.tdelta = vec(tab)
         elseif ext == "tsmalldel"
             dmri.tsmalldel = vec(tab)
-        elseif ext == "bvals" | ext == "bval"
+        elseif ext == "bvals" || ext == "bval"
             dmri.nifti.bval = vec(tab)
-        elseif ext == "bvecs" | ext == "bvec"
+        elseif ext == "bvecs" || ext == "bvec"
             dmri.nifti.bvec = tab
         else
             error("Unindentified file extension")
