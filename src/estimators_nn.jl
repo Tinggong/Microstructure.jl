@@ -355,7 +355,7 @@ function train_loop!(
     train_log = Dict("train_loss" => [], "val_data_loss" => [], "train_data_loss" => [])
     
     print("Training on " * string(arg.device) * " ...")
-    for epoch in 1:(arg.epoch)
+    @showprogress for epoch in 1:(arg.epoch)
         losses = 0.0
         for (i, data) in enumerate(train_set)
             input, label = data
