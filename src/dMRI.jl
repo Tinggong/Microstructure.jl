@@ -136,6 +136,11 @@ function spherical_mean!(dmri::dMRI)
     volsize = size(dmri.nifti.vol)
     vol = Array{AbstractFloat}(undef, volsize[1:3]..., nsets)
 
+    # save estimate of SNR map per TE
+    b0ind = iszero.(combinations[:,1])
+    snr = Array{AbstractFloat}(undef, volsize[1:3]..., sum(b0ind))
+    start = 1
+
     # direction average persets
     for i in 1:nsets
         index = []
@@ -145,6 +150,12 @@ function spherical_mean!(dmri::dMRI)
             end
         end
         vol[:, :, :, i] .= mean(dmri.nifti.vol[:, :, :, index]; dims=4)
+        if b0ind[i] == 1
+            snr[:,:,:,start] .= 
+                mean(dmri.nifti.vol[:, :, :, index]; dims=4)./
+                std(dmri.nifti.vol[:, :, :, index]; dims=4)
+            start = start +1
+        end
     end
 
     # update related fields
@@ -153,10 +164,10 @@ function spherical_mean!(dmri::dMRI)
     dmri.tdelta = combinations[:, 3]
     dmri.tsmalldel = combinations[:, 4]
     dmri.nifti.vol = vol
-    dmri.nifti.bvec = zeros(nsets, 3)
+    dmri.nifti.bvec = Matrix{Float32}(undef,0,0)
     dmri.nifti.nframes = nsets
     dmri.smt = 1
-    return nothing
+    return snr
 end
 
 """
@@ -208,10 +219,17 @@ function spherical_mean(
     mri = mri_read(infile_image)
     dmri = dmri_read_times(mri, infiles)
     
-    spherical_mean!(dmri)
+    snr = spherical_mean!(dmri)
     if save
         datapath = infile_image[1:findlast(isequal('/'), infile_image)]
         dmri_write(dmri, datapath, "diravg.nii.gz")
+        
+        new = MRI(mri)
+        new.vol = snr
+        new.nframes = size(snr,4)
+        empty(new.bval)
+        new.bvec = Matrix{Float32}(undef,0,0)
+        mri_write(new, joinpath(datapath, "snr_b0.nii.gz"))
     end
 
     # default to normalize signals
@@ -222,7 +240,7 @@ function spherical_mean(
     end
 
     prot = Protocol(dmri)
-    return dmri.nifti, prot
+    return dmri.nifti, prot, snr
 end
 
 """
