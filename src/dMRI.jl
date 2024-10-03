@@ -62,7 +62,7 @@ function dmri_read_times(mri::MRI, infiles::Tuple{Vararg{String}})
 
     # round b table; .element-wise openration
     dmri.nifti.bval .= round.(dmri.nifti.bval ./ 50.0) .* 50.0
-    dmri.nifti.bval[dmri.nifti.bval .<= 100.0] .= 0.0
+    # dmri.nifti.bval[dmri.nifti.bval .<= 100.0] .= 0.0
 
     # set delta/smalldel to 0 when b = 0
     index = iszero.(dmri.nifti.bval)

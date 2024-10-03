@@ -12,7 +12,8 @@ export NetworkArg,
     losses_rmse,
     losses_corr,
     losses_rmse_kl,
-    losses_rmse_corr
+    losses_rmse_corr,
+    get_backend
 
 """
     NetworkArg(
@@ -44,7 +45,7 @@ Base.@kwdef struct NetworkArg
     params::Tuple{Vararg{String}}
     prior_range::Tuple{Vararg{Tuple{Float64,Float64}}} # range for priors 
     prior_dist::Tuple{Vararg{<:Any}}
-    paralinks::Tuple{Vararg{Pair{String,<:String}}} = ()
+    paralinks::Union{Pair{String},Tuple{Vararg{Pair{String}}}} = ()
     noise_type::String = "Gaussian" # "Rician"    
     sigma_range::Tuple{Float64, Float64}
     sigma_dist::Distribution
@@ -64,6 +65,7 @@ end
         epoch::Int64
         tv_split::Float64
         patience::Tuple{Int64,Int64} 
+        device::Function
     )
 
 Return `TrainingArg` Type object with fields related to how network will be trained.
@@ -80,6 +82,7 @@ Base.@kwdef struct TrainingArg
     epoch::Int64 = 100
     tv_split::Float64 = 0.2
     patience::Tuple{Int64,Int64} = (10, 30)
+    device::Function = cpu
 end
 
 """
@@ -99,7 +102,7 @@ function NetworkArg(
     params::Tuple{Vararg{String}},
     prior_range::Tuple{Vararg{Tuple{Float64,Float64}}}, 
     prior_dist::Tuple{Vararg{<:Any}},
-    paralinks::Tuple{Vararg{Pair{String,<:String}}},
+    paralinks::Union{Pair{String},Tuple{Vararg{Pair{String}}}},
     noise_type::String,   
     sigma_range::Tuple{Float64, Float64},
     sigma_dist::Distribution,
@@ -218,7 +221,7 @@ end
         prior_range::Tuple{Vararg{Tuple{Float64,Float64}}}, 
         prior_dist::Tuple{Vararg{<:Any}},
         nsample::Int,
-        paralinks::Tuple{Vararg{Pair{String}}},
+        paralinks::Union{Pair{String},Tuple{Vararg{Pair{String}}}},
         sigma_range::Tuple{Float64, Float64},
         sigma::Distribution,
         noise_type::String="Gaussian",
@@ -234,7 +237,7 @@ function generate_samples(
     prior_range::Tuple{Vararg{Tuple{Float64,Float64}}}, 
     prior_dist::Tuple{Vararg{<:Any}},
     nsample::Int,
-    paralinks::Tuple{Vararg{Pair{String}}},
+    paralinks::Union{Pair{String},Tuple{Vararg{Pair{String}}}},
     sigma_range::Tuple{Float64, Float64},
     sigma_dist::Distribution,
     noise_type::String="Gaussian",
@@ -267,12 +270,19 @@ function generate_samples(
 
         elseif para == "fracs"
             
-            vecs = rand(prior_dist[p], nsample)
-            push!(params_labels, vecs[1:(end - 1), :])
             if model.fracs isa Vector
+                vecs = rand(prior_dist[p], nsample)
+                push!(params_labels, vecs[1:(end - 1), :])                
                 vecs = [vecs[1:(end - 1), i] for i in 1:nsample]
             else
-                vecs = [vecs[1, i] for i in 1:nsample]
+                if isnothing(prior_dist[p])
+                    vecs = rand(Uniform(prior_range[p][1], prior_range[p][2]), nsample)
+                else
+                    vecs = rand(truncated(prior_dist[p], 
+                    prior_range[p][1], prior_range[p][2]), 
+                    nsample)
+                end
+                push!(params_labels, vecs')
             end
             push!(params_gt, para => vecs)
         end
@@ -324,18 +334,19 @@ Train and update the `mlp` and return a Dict of training logs with train loss, t
 function train_loop!(
     mlp::Chain{T}, arg::TrainingArg, inputs::Array{<:AbstractFloat,2}, labels::Array{<:AbstractFloat,2}
 ) where {T}
+    
+    mlp = mlp |> arg.device
     opt_state = Flux.setup(Adam(arg.lr), mlp)
-
     tv_index = floor(Int64, size(inputs, 2) * arg.tv_split)
 
     val_set = Flux.DataLoader(
         (@views inputs[:, 1:tv_index], @views labels[:, 1:tv_index]);
         batchsize=arg.batchsize,
-    )
+    ) |> arg.device
     train_set = Flux.DataLoader(
         (@views inputs[:, (tv_index + 1):end], @views labels[:, (tv_index + 1):end]);
         batchsize=arg.batchsize,
-    )
+    ) |> arg.device
 
     # function to calculate validation/training data loss
     loss(mlp, x, y) = arg.lossf(mlp(x), y)
@@ -343,15 +354,14 @@ function train_loop!(
 
     train_log = Dict("train_loss" => [], "val_data_loss" => [], "train_data_loss" => [])
     
-    print("Training ...")
-    @showprogress for epoch in 1:(arg.epoch)
+    print("Training on " * string(arg.device) * " ...")
+    for epoch in 1:(arg.epoch)
         losses = 0.0
         for (i, data) in enumerate(train_set)
             input, label = data
             val, grads = Flux.withgradient(mlp) do m
                 # Any code inside here is differentiated.
-                result = m(input)
-                arg.lossf(result, label)
+                arg.lossf(m(input), label)
             end
 
             # add batch loss
@@ -371,6 +381,7 @@ function train_loop!(
         push!(train_log["val_data_loss"], data_loss(mlp, val_set))
         push!(train_log["train_data_loss"], data_loss(mlp, train_set))
     end
+    mlp = mlp |> cpu
     return train_log
 end
 
@@ -417,4 +428,19 @@ end
 
 function losses_rmse_corr(y, yy)
     return 0.8*losses_rmse(y, yy) + 0.2*losses_corr(y,yy)
+end
+
+"""
+Identify from device to use cpu or gpu for training 
+"""
+function get_backend()
+    
+    device = Flux.get_device(; verbose=true)
+    if typeof(device) <: Flux.FluxCPUDevice
+        backend = cpu
+    elseif typeof(device) <: Union{Flux.FluxCUDADevice, Flux.FluxMetalDevice, Flux.FluxAMDGPUDevice}
+        backend = gpu
+    end
+    
+    return backend
 end

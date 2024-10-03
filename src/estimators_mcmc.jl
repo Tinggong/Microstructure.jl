@@ -105,7 +105,7 @@ Base.@kwdef struct Sampler
     params::Tuple{Vararg{String}} # parameters to sample
     prior_range::Tuple{Vararg{Tuple{Float64,Float64}}} # range for priors 
     proposal::Tuple{Vararg{<:Any}} # proposal distributions
-    paralinks::Tuple{Vararg{Pair{String}}} = () # parameter links used in modelling
+    paralinks::Union{Pair{String},Tuple{Vararg{Pair{String}}}} = () # parameter links used in modelling
     nsamples::Int64 
     burnin::Int64 = 0
     thinning::Int64 = 1
