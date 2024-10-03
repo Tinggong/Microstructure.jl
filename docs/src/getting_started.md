@@ -15,23 +15,24 @@ julia> using Microstructure
 
 ### Read dMRI data and perform spherical mean
 
-Provide full path to the DWI file and acquisition files with following extensions: dwiname.bvals, dwiname.bvecs, dwiname.techo, dwiname.tdelta and dwiname.tsmalldel. Provide all or a subset of the acquisition files depending on the data and model you use. 
+Provide full path to the DWI file and acquisition files with following extensions: dwiname.bvals (.bval), dwiname.bvecs (.bvec), dwiname.techo, dwiname.tdelta and dwiname.tsmalldel. Provide all or a subset of the acquisition files depending on the data and model you use. 
 
 ```julia
 julia> (dMRI, protocol) = spherical_mean(
-                            datadir * "/dwiname.nii.gz", 
+                            joinpath(datadir, "dwiname.nii.gz"), 
                             save=true, 
-                            datadir * "dwiname.bvals", 
-                            datadir * "dwiname.bvecs", 
-                            datadir * "dwiname.techo", 
-                            datadir * "dwiname.tdelta", 
-                            datadir * "dwiname.tsmalldel")
+                            joinpath(datadir, "dwiname.bvals"), 
+                            joinpath(datadir, "dwiname.bvecs"), 
+                            joinpath(datadir, "dwiname.techo"), 
+                            joinpath(datadir, "dwiname.tdelta"), 
+                            joinpath(datadir, "dwiname.tsmalldel")
+                            )
 ```
 You might also need to read a tissue mask to define the region you want to process:
 
 ```julia
 julia> using Fibers
-julia> mask = mri_read(datadir * "/mask.nii.gz")
+julia> mask = mri_read(joinpath(datadir, "mask.nii.gz"))
 ```
 
 ### Specify the model we want to use and get a MCMC sampler for it
@@ -45,6 +46,6 @@ julia> sampler_smt = Sampler(model_start, nsample, burnin, thinning)
 
 ### MCMC Estimation
 ```julia
-julia> savename = datadir * "/mte_smt."
+julia> savename = joinpath(datadir, "mte_smt.")
 julia> threading(model_start, sampler_smt, dMRI, mask, protocol, Noisemodel(), savename)
 ```

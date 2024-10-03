@@ -231,7 +231,7 @@ end
 Write the nifti volume in a dMRI object to nifti file and associated protocol as b-table text files in the given `datapath` and `filename`.
 """
 function dmri_write(dmri::dMRI, datapath::String, outfile::String)
-    mri_write(dmri.nifti, datapath * outfile)
+    mri_write(dmri.nifti, joinpath(datapath, outfile))
 
     # find input file name
     idot = findfirst(isequal('.'), outfile)
@@ -239,7 +239,7 @@ function dmri_write(dmri::dMRI, datapath::String, outfile::String)
 
     prot = Protocol(dmri)
     btable = hcat(prot.bval, prot.techo, prot.tdelta, prot.tsmalldel, prot.gvec)
-    writedlm(datapath * name * ".btable", btable, ' ')
+    writedlm(joinpath(datapath, name * ".btable"), btable, ' ')
     return nothing
 end
 
