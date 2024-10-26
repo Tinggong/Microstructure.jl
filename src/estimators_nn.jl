@@ -388,23 +388,26 @@ end
 """
     test(mlp::Chain, data::Array{<:AbstractFloat,2}, ntest)
 
-Return mean and standard deviation of estimations by applying a trained `mlp` to test data for `ntest` times
-with dropout layer on.
+Return probabilistic estimates by applying a trained `mlp` to test data for `ntest` times with dropout layers on.
+
+    test(mlp::Chain, data::Array{<:AbstractFloat,2})
+
+Get deterministic estimates with dropout layers off
+
 """
 function test(mlp::Chain{T}, data::Array{<:AbstractFloat,2}, ntest) where {T}
+    
     est = []
-    est_std = []
     Flux.trainmode!(mlp)
-    for i in 1:size(data, 2)
-        test = mlp(data[:, i])
-        for j in 1:(ntest - 1)
-            test = hcat(test, mlp(data[:, i]))
-        end
-        push!(est, dropdims(mean(test; dims=2); dims=2))
-        push!(est_std, dropdims(std(test; dims=2); dims=2))
+    for j in 1:ntest
+        push!(est, mlp(data))
     end
+    return est
+end
 
-    return est, est_std
+function test(mlp::Chain{T}, data::Array{<:AbstractFloat,2}) where {T}
+    Flux.testmode!(mlp)
+    return mlp(data)
 end
 
 """
