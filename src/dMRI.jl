@@ -13,7 +13,6 @@ export dMRI,
     dmri_read_times,
     dmri_read_times!,
     dmri_read_time
-
 """
     dMRI(nifti::MRI, 
     tdelta::Vector{Float64}, 
@@ -86,7 +85,12 @@ function dmri_read_times!(dmri::dMRI, infiles::Tuple{Vararg{String}})
         elseif ext == "bvals" || ext == "bval"
             dmri.nifti.bval = vec(tab)
         elseif ext == "bvecs" || ext == "bvec"
-            dmri.nifti.bvec = tab
+            n1, n2 = size(tab)
+            if n1 >= n2
+                dmri.nifti.bvec = tab
+            else
+                dmri.nifti.bvec = tab'
+            end
         else
             error("Unindentified file extension")
         end
@@ -164,7 +168,7 @@ function spherical_mean!(dmri::dMRI)
     dmri.tdelta = combinations[:, 3]
     dmri.tsmalldel = combinations[:, 4]
     dmri.nifti.vol = vol
-    dmri.nifti.bvec = Matrix{Float32}(undef,0,0)
+    dmri.nifti.bvec = Matrix{Float64}(undef, nsets, 3)
     dmri.nifti.nframes = nsets
     dmri.smt = 1
     return snr
@@ -256,7 +260,7 @@ function dmri_write(dmri::dMRI, datapath::String, outfile::String)
     name = lowercase(outfile[1:(idot - 1)])
 
     prot = Protocol(dmri)
-    btable = hcat(prot.bval, prot.techo, prot.tdelta, prot.tsmalldel, prot.gvec)
+    btable = hcat(prot.bval, prot.techo, prot.tdelta, prot.tsmalldel, prot.gvec, prot.bvec)
     writedlm(joinpath(datapath, name * ".btable"), btable, ' ')
     return nothing
 end
@@ -268,10 +272,11 @@ end
     tdelta::Vector{Float64}
     tsmalldel::Vector{Float64}
     gvec::Vector{Float64}
+    bvec::Matrix{Float64}
     )
 
 Return a Protocol Type object to hold parameters in acquisition protocol relavent for modelling 
-including b-values, tcho times, diffusion gradient seperation, duration and strengh. 
+including b-values, tcho times, diffusion gradient seperation, duration, strengh and direction. 
 Unit convention: most text files use s/mm^2 for b-values and ms for time while they are converted to SI unit in the Protocol.
 b-values (s/m^2); time (s); size (m); G (T/m) 
 
@@ -287,6 +292,11 @@ Return a Protocol Type object from a b-table file generated from spherical_mean 
         tsmalldel::Vector{Float64},
     )
 Calculate `gvec` and return a Ptotocol Type object from provided parameters.
+
+    Protocol(
+        dmri::dMRI
+    )
+Return a Protocol Type object from a dMRI object.
 """
 struct Protocol
     bval::Vector{Float64}
@@ -294,7 +304,7 @@ struct Protocol
     tdelta::Vector{Float64}
     tsmalldel::Vector{Float64}
     gvec::Vector{Float64}
-    #bvec::AbstractMatrix{Float64}
+    bvec::Matrix{Float64}
     #qvec=gmr.*tsmalldel.*gvec
 end
 
@@ -311,19 +321,22 @@ function Protocol(
     tsmalldel::Vector{Float64},
 )
     gvec = 1.0 ./ gmr ./ tsmalldel .* sqrt.(bval ./ (tdelta .- tsmalldel ./ 3.0))
-    return Protocol(bval, techo, tdelta, tsmalldel, gvec)
+    bvec = zeros(length(bval), 3)
+    return Protocol(bval, techo, tdelta, tsmalldel, gvec, bvec)
 end
 
 """
 Make protocol from a dMRI object
 """
 function Protocol(dmri::dMRI)
-    return Protocol(
+    protocol = Protocol(
         dmri.nifti.bval .* 1.0e6,
         dmri.techo .* 1.0e-3,
         dmri.tdelta .* 1.0e-3,
         dmri.tsmalldel .* 1.0e-3,
     )
+    protocol.bvec .= dmri.nifti.bvec 
+    return protocol
 end
 
 # make protocol from btable file
@@ -342,5 +355,5 @@ function Protocol(infile::String)
 
     # read file and make protocol
     tab = readdlm(infile)
-    return Protocol(tab[:, 1], tab[:, 2], tab[:, 3], tab[:, 4], tab[:, 5])
+    return Protocol(tab[:, 1], tab[:, 2], tab[:, 3], tab[:, 4], tab[:, 5], tab[:, 6:8])
 end
