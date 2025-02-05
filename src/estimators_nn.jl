@@ -8,6 +8,7 @@ export NetworkArg,
     create_mlp,
     generate_samples,
     train_loop!,
+    training,
     test,
     losses_rmse,
     losses_corr,
@@ -330,6 +331,7 @@ end
         labels::Array{Float64,2}
     )
 Train and update the `mlp` and return a Dict of training logs with train loss, training data loss and validation data loss for each epoch.
+This function works on cpu, which is sufficiently fast for most cases.
 """
 function train_loop!(
     mlp::Chain{T}, arg::TrainingArg, inputs::Array{<:AbstractFloat,2}, labels::Array{<:AbstractFloat,2}
@@ -390,9 +392,9 @@ end
         rng_seed::Int
     )
 Train and return the `mlp`, a Dict of training logs with train loss, training data loss and validation data loss for each epoch,
-and the training data the mlp was trained on.
+and the training data the mlp was trained on. This function is for both cpu and gpu training
 """
-function training(arg::TrainingArg, net::NetworkArg, rng_seed::Int) 
+function training(arg::TrainingArg, net::NetworkArg, rng_seed::Int=1) 
     
     # get model and training data
     mlp, inputs, labels, gt = prepare_training(net, rng_seed)

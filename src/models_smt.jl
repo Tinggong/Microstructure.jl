@@ -178,14 +178,14 @@ function model_signals(excaliber::ExCaliber_beta, prot::Protocol)
         excaliber.fracs[2] .* compartment_signals(excaliber.csf, prot) .+ excaliber.fracs[3]
     return signals
 end
-
+# normalizing makes SANDI and SANDIdot compatible for MTE_SANDI and MTE-SANDIdot
 function model_signals(sandi::SANDIdot, prot::Protocol)
     fextra = 1.0 - sum(sandi.fracs)
     signals =
         sandi.fracs[1] .* compartment_signals(sandi.soma, prot) .+
         sandi.fracs[2] .* compartment_signals(sandi.neurite, prot) .+
         fextra .* compartment_signals(sandi.extra, prot) .+ sandi.fracs[3]
-    return signals
+    return signals ./ signals[1]
 end
 
 function model_signals(sandi::SANDI, prot::Protocol)
@@ -194,7 +194,7 @@ function model_signals(sandi::SANDI, prot::Protocol)
         sandi.fracs[1] .* compartment_signals(sandi.soma, prot) .+
         sandi.fracs[2] .* compartment_signals(sandi.neurite, prot) .+
         fextra .* compartment_signals(sandi.extra, prot)
-    return signals
+    return signals ./ signals[1]
 end
 
 function model_signals(sandi::MTE_SANDI, prot::Protocol)

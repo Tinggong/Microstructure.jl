@@ -64,6 +64,10 @@ generate_samples
 train_loop!
 ```
 
+```@docs
+training
+```
+
 ### Test on you data
 
 ```@docs
