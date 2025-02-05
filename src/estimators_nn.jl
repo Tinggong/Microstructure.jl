@@ -335,6 +335,68 @@ function train_loop!(
     mlp::Chain{T}, arg::TrainingArg, inputs::Array{<:AbstractFloat,2}, labels::Array{<:AbstractFloat,2}
 ) where {T}
     
+    opt_state = Flux.setup(Adam(arg.lr), mlp)
+    tv_index = floor(Int64, size(inputs, 2) * arg.tv_split)
+
+    val_set = Flux.DataLoader(
+        (@views inputs[:, 1:tv_index], @views labels[:, 1:tv_index]);
+        batchsize=arg.batchsize,
+    ) 
+    train_set = Flux.DataLoader(
+        (@views inputs[:, (tv_index + 1):end], @views labels[:, (tv_index + 1):end]);
+        batchsize=arg.batchsize,
+    ) 
+
+    # function to calculate validation/training data loss
+    loss(mlp, x, y) = arg.lossf(mlp(x), y)
+    data_loss(mlp, dataset) = mean(loss(mlp, data...) for data in dataset)
+
+    train_log = Dict("train_loss" => [], "val_data_loss" => [], "train_data_loss" => [])
+    
+    print("Training on cpu ...")
+    @showprogress for epoch in 1:(arg.epoch)
+        losses = 0.0
+        for (i, data) in enumerate(train_set)
+            input, label = data
+            val, grads = Flux.withgradient(mlp) do m
+                # Any code inside here is differentiated.
+                arg.lossf(m(input), label)
+            end
+
+            # add batch loss
+            losses += val
+
+            # Detect loss of Inf or NaN. Print a warning, and then skip update!
+            if !isfinite(val)
+                @warn "loss is $val on item $i" epoch
+                continue
+            end
+            Flux.update!(opt_state, mlp, grads[1])
+        end
+        
+        #println("Epoch #" * string(epoch) * "; training loss: " * string(losses / length(train_set)))
+        # Save the epoch train/val loss to log
+        push!(train_log["train_loss"], losses / length(train_set))
+        push!(train_log["val_data_loss"], data_loss(mlp, val_set))
+        push!(train_log["train_data_loss"], data_loss(mlp, train_set))
+    end
+    return train_log
+end
+
+"""
+    training(
+        arg::TrainingArg, 
+        net::NetworkArg, 
+        rng_seed::Int
+    )
+Train and return the `mlp`, a Dict of training logs with train loss, training data loss and validation data loss for each epoch,
+and the training data the mlp was trained on.
+"""
+function training(arg::TrainingArg, net::NetworkArg, rng_seed::Int) 
+    
+    # get model and training data
+    mlp, inputs, labels, gt = prepare_training(net, rng_seed)
+
     mlp = mlp |> arg.device
     opt_state = Flux.setup(Adam(arg.lr), mlp)
     tv_index = floor(Int64, size(inputs, 2) * arg.tv_split)
@@ -382,7 +444,7 @@ function train_loop!(
         push!(train_log["train_data_loss"], data_loss(mlp, train_set))
     end
     mlp = mlp |> cpu
-    return train_log
+    return mlp, train_log, inputs, labels, gt
 end
 
 """
