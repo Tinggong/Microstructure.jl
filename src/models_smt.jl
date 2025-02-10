@@ -15,7 +15,7 @@ export model_signals,
     print_model, 
     BiophysicalModel,  
     ExCaliber_beta
-    #model_signals!
+
 """
 All models in this page belong to the BiophysicalModel Type. You can also build your models with desired combinations of compartments using a similar syntax. 
 In each model, all compartmental parameters can be considered "free parameters" and sampled using MCMC. 
@@ -55,12 +55,10 @@ end
         neurite::Stick
         extra::Iso 
         fracs::Vector{Float64} 
-        S0norm::Float64
         )
 
 For Multi-echo-SANDI (MTE-SANDI) model, consider the `t2` values in all compartments, 
 and the fractions estimated will be non-T2-weighted compartment fractions in comparison to the model mentioned above. 
-`S0norm` is the relaxation-weighting free signal from all compartments S(b=0,t=0) normalised by S(b=0,t=TEmin).
 
 # Reference
 Gong, T., Tax, C.M., Mancini, M., Jones, D.K., Zhang, H., Palombo, M., 2023. Multi-TE SANDI: Quantifying compartmental T2 relaxation times in the grey matter. Toronto.
@@ -162,12 +160,13 @@ end
 Reture predicted model signals from BiophysicalModel `model` and imaging protocol 'prot'.
     `links` is a optional argument that specify parameter links in the model.
 """
+# normalizing to b0 signal makes models compatible for MTE imaging
 function model_signals(excaliber::ExCaliber, prot::Protocol)
     fextra = 1 - sum(excaliber.fracs)
     signals =
         excaliber.fracs[1] .* compartment_signals(excaliber.axon, prot) .+
         fextra .* compartment_signals(excaliber.extra, prot) .+ excaliber.fracs[2]
-    return signals
+    return signals ./ signals[1]
 end
 
 function model_signals(excaliber::ExCaliber_beta, prot::Protocol)
@@ -178,7 +177,7 @@ function model_signals(excaliber::ExCaliber_beta, prot::Protocol)
         excaliber.fracs[2] .* compartment_signals(excaliber.csf, prot) .+ excaliber.fracs[3]
     return signals
 end
-# normalizing makes SANDI and SANDIdot compatible for MTE_SANDI and MTE-SANDIdot
+
 function model_signals(sandi::SANDIdot, prot::Protocol)
     fextra = 1.0 - sum(sandi.fracs)
     signals =
@@ -230,52 +229,6 @@ function print_model(model::BiophysicalModel)
 
         println(field, subfield)
     end
-end
-
-##########################
-# dev
-# test mutating implementation
-function model_signals!(signals::Vector{Float64}, excaliber::ExCaliber, prot::Protocol)
-    signals .= 0.0
-    signals_com = similar(signals)
-    fextra = 1 - sum(excaliber.fracs)
-
-    compartment_signals!(signals_com, excaliber.axon, prot)
-    signals .= signals .+ excaliber.fracs[1] .* signals_com
-
-    compartment_signals!(signals_com, excaliber.extra, prot)
-    signals .= signals .+ fextra .* signals_com
-
-    compartment_signals!(signals_com, excaliber.csf, prot)
-    signals .= signals .+ excaliber.fracs[2] .* signals_com
-
-    signals .= signals .+ excaliber.fracs[3]
-
-    return nothing
-end
-
-# test mutating implementation
-function model_signals!(
-    signals::Vector{Float64},
-    signals_com::Vector{Float64},
-    excaliber::ExCaliber,
-    prot::Protocol,
-)
-    signals .= 0.0
-    fextra = 1 - sum(excaliber.fracs)
-
-    compartment_signals!(signals_com, excaliber.axon, prot)
-    signals .= signals .+ excaliber.fracs[1] .* signals_com
-
-    compartment_signals!(signals_com, excaliber.extra, prot)
-    signals .= signals .+ fextra .* signals_com
-
-    compartment_signals!(signals_com, excaliber.csf, prot)
-    signals .= signals .+ excaliber.fracs[2] .* signals_com
-
-    signals .= signals .+ excaliber.fracs[3]
-
-    return nothing
 end
 
 # update parameter links and get model signals
