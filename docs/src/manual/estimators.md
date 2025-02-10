@@ -30,25 +30,33 @@ Function mcmc! runs on single thread and suitable for testing sampler parameters
 
 This module currently includes simple multi-layer perceptrons and training data generation function, which allows supervised training of the MLPs on synthesised data with given training parameter distributions. 
 
-### Specify a network model for your task
+### 1. Specify a network model for your task
 
 ```@docs
 NetworkArg
 ```
 
-### Specify training parameters
+### 2. Specify training parameters
 
 ```@docs
 TrainingArg
 ```
 
-### Prepare network and data for training
+### 3. Train a network with specified network and training parameters
 
 ```@docs
-prepare_training
+training
 ```
 
-"prepare_training" calls two functions to generate task specific MLP and training samples:
+### 4. Apply trained model to your test data
+
+```@docs
+test
+```
+
+### Other useful functions
+
+Generate task specific MLP and training samples:
 
 ```@docs
 create_mlp
@@ -58,20 +66,8 @@ create_mlp
 generate_samples
 ```
 
-### Training on generated training samples
+Training on given model and training samples
 
 ```@docs
 train_loop!
 ```
-
-```@docs
-training
-```
-
-### Test on you data
-
-```@docs
-test
-```
-
-
