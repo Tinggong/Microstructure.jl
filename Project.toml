@@ -1,7 +1,7 @@
 name = "Microstructure"
 uuid = "bb9cb41e-5262-42dc-ac73-4f266bc6ab72"
 authors = ["Ting Gong"]
-version = "0.1.7"
+version = "0.1.8"
 
 [deps]
 DataFrames = "a93c6f00-e57d-5684-b7b6-d8193f3e46c0"
@@ -24,7 +24,7 @@ DataFrames = "1.6"
 DelimitedFiles = "1.9"
 Distributions = "0.25"
 Fibers = "1.0"
-Flux = "0.14"
+Flux = "0.16.3"
 Gadfly = "1.4"
 JLD2 = "0.4"
 MCMCDiagnosticTools = "0.3"
