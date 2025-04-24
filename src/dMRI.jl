@@ -18,10 +18,12 @@ export dMRI,
     tdelta::Vector{Float64}, 
     dsmalldel::Vector{Float64}, 
     techo::Vector{Float64}, 
-    smt::Bool)
+    smt::Bool,
+    nmeas::Vector{Int})
 
 Return a dMRI Type object with MRI object `nifti`, and additional volume-wise 
-experimental settings `tdelta`, `tsmalldel`, `techo`, and `smt` for identifing smt signals. 
+experimental settings `tdelta`, `tsmalldel`, `techo`, `smt` for identifing smt signals,
+and `nmeas` for the number of measurements. 
 """
 mutable struct dMRI
     nifti::MRI
@@ -271,10 +273,11 @@ end
     tsmalldel::Vector{Float64}
     gvec::Vector{Float64}
     bvec::Matrix{Float64}
+    nmeas::Vector{Float64}
     )
 
 Return a Protocol Type object to hold parameters in acquisition protocol relavent for modelling 
-including b-values, tcho times, diffusion gradient seperation, duration, strengh and direction. 
+including b-values, tcho times, diffusion gradient seperation, duration, strengh, direction and the number of measurements. 
 Unit convention: most text files use s/mm^2 for b-values and ms for time while they are converted to SI unit in the Protocol.
 b-values (s/m^2); time (s); size (m); G (T/m) 
 
@@ -289,7 +292,7 @@ Return a Protocol Type object from a b-table file generated from spherical_mean 
         tdelta::Vector{Float64},
         tsmalldel::Vector{Float64},
     )
-Calculate `gvec` and return a Ptotocol Type object from provided parameters.
+Calculate `gvec` and return a Ptotocol Type object from provided parameters; other fields are not useful
 
     Protocol(
         dmri::dMRI
@@ -318,10 +321,10 @@ function Protocol(
     techo::Vector{Float64},
     tdelta::Vector{Float64},
     tsmalldel::Vector{Float64},
-    nmeas::Vector{Int},
 )
     gvec = 1.0 ./ gmr ./ tsmalldel .* sqrt.(bval ./ (tdelta .- tsmalldel ./ 3.0))
     bvec = zeros(length(bval), 3)
+    nmeas = Int.(ones(length(bval)))
     return Protocol(bval, techo, tdelta, tsmalldel, gvec, bvec, nmeas)
 end
 
