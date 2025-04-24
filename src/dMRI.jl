@@ -29,6 +29,7 @@ mutable struct dMRI
     tsmalldel::Vector{Float64}
     techo::Vector{Float64}
     smt::Bool
+    nmeas::Vector{Int}
 end
 
 """
@@ -40,6 +41,7 @@ dMRI(mri::MRI) = dMRI(
     Vector{Float64}(zeros(mri.nframes)),
     Vector{Float64}(zeros(mri.nframes)),
     false,
+    Vector{Int}(ones(mri.nframes))
 )
 
 """
@@ -146,6 +148,7 @@ function spherical_mean!(dmri::dMRI)
     start = 1
 
     # direction average persets
+    nmeas = Int.(ones(nsets))
     for i in 1:nsets
         index = []
         for j in 1:volsize[4]
@@ -154,6 +157,7 @@ function spherical_mean!(dmri::dMRI)
             end
         end
         vol[:, :, :, i] .= mean(dmri.nifti.vol[:, :, :, index]; dims=4)
+        nmeas[i] = length(index)
         if b0ind[i] == 1
             snr[:,:,:,start] .= 
                 mean(dmri.nifti.vol[:, :, :, index]; dims=4)./
@@ -171,6 +175,7 @@ function spherical_mean!(dmri::dMRI)
     dmri.nifti.bvec = Matrix{Float64}(undef, nsets, 3)
     dmri.nifti.nframes = nsets
     dmri.smt = 1
+    dmri.nmeas = nmeas
     return snr
 end
 
@@ -191,13 +196,6 @@ function normalize_smt!(dmri::dMRI)
     end
 
     return nothing
-end
-
-"""
-Apply universal scaling to smt signals
-"""
-function scale_smt!(dmri::dMRI)
-
 end
 
 """
@@ -260,7 +258,7 @@ function dmri_write(dmri::dMRI, datapath::String, outfile::String)
     name = lowercase(outfile[1:(idot - 1)])
 
     prot = Protocol(dmri)
-    btable = hcat(prot.bval, prot.techo, prot.tdelta, prot.tsmalldel, prot.gvec, prot.bvec)
+    btable = hcat(prot.bval, prot.techo, prot.tdelta, prot.tsmalldel, prot.gvec, prot.bvec, prot.nmeas)
     writedlm(joinpath(datapath, name * ".btable"), btable, ' ')
     return nothing
 end
@@ -305,6 +303,7 @@ struct Protocol
     tsmalldel::Vector{Float64}
     gvec::Vector{Float64}
     bvec::Matrix{Float64}
+    nmeas::Vector{Int}
     #qvec=gmr.*tsmalldel.*gvec
 end
 
@@ -319,10 +318,11 @@ function Protocol(
     techo::Vector{Float64},
     tdelta::Vector{Float64},
     tsmalldel::Vector{Float64},
+    nmeas::Vector{Int},
 )
     gvec = 1.0 ./ gmr ./ tsmalldel .* sqrt.(bval ./ (tdelta .- tsmalldel ./ 3.0))
     bvec = zeros(length(bval), 3)
-    return Protocol(bval, techo, tdelta, tsmalldel, gvec, bvec)
+    return Protocol(bval, techo, tdelta, tsmalldel, gvec, bvec, nmeas)
 end
 
 """
@@ -334,6 +334,7 @@ function Protocol(dmri::dMRI)
         dmri.techo .* 1.0e-3,
         dmri.tdelta .* 1.0e-3,
         dmri.tsmalldel .* 1.0e-3,
+        dmri.nmeas,
     )
     protocol.bvec .= dmri.nifti.bvec 
     return protocol
@@ -355,5 +356,5 @@ function Protocol(infile::String)
 
     # read file and make protocol
     tab = readdlm(infile)
-    return Protocol(tab[:, 1], tab[:, 2], tab[:, 3], tab[:, 4], tab[:, 5], tab[:, 6:8])
+    return Protocol(tab[:, 1], tab[:, 2], tab[:, 3], tab[:, 4], tab[:, 5], tab[:, 6:8], tab[:, 9])
 end
