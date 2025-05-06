@@ -337,9 +337,9 @@ function Protocol(dmri::dMRI)
         dmri.techo .* 1.0e-3,
         dmri.tdelta .* 1.0e-3,
         dmri.tsmalldel .* 1.0e-3,
-        dmri.nmeas,
     )
     protocol.bvec .= dmri.nifti.bvec 
+    protocol.nmeas .= dmri.nmeas
     return protocol
 end
 

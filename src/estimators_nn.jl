@@ -579,7 +579,7 @@ function save_nn_maps(
             j = j + 1
 
         elseif getfield(netarg.model, Symbol(para)) isa Vector
-            nf = length(getfield(model, Symbol(para)))
+            nf = length(getfield(netarg.model, Symbol(para)))
             mri = MRI(mask, nf, Float32)
 
             mri.vol[indexing .> 0, :] = est[j:(j + nf - 1), :]' .* netarg.prior_range[i][2]
