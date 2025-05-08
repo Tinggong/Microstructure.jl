@@ -35,6 +35,14 @@ makedocs(;
             "manual/estimators.md",
             "manual/multithreads.md",
         ],
+        "Demos in preprint" => Any[
+            "guide/0_intro.md",
+            "guide/1_sensitivity_range.md",
+            "guide/2_two_stage_MCMC.md",   
+            "guide/3_fitting_eval.md", 
+            "guide/4_smt.md",   
+            "guide/5_sandi.md",                  
+        ],        
         "Tutorials" => Any[
             "tutorials/1_build_models.md",
             "tutorials/2_quality_of_fit.md",
