@@ -14,7 +14,9 @@ export model_signals,
     MTE_SMT, 
     print_model, 
     BiophysicalModel,  
-    ExCaliber_beta
+    MultiTensor1,
+    MultiTensor2,
+    MultiTensor3
 
 """
 All models in this page belong to the BiophysicalModel Type. You can also build your models with desired combinations of compartments using a similar syntax. 
@@ -110,24 +112,15 @@ ExCaliber is a multi-compartment model for estimating axon diameter. It can be u
 and for in vivo imaging if the diffusivity of the ISO compartment is set to free water in tissue (CSF compartment).  
 
 # Reference
-Fan, Q., Nummenmaa, A., Witzel, T., Ohringer, N., Tian, Q., Setsompop, K., ... & Huang, S. Y. (2020). Axon diameter index estimation independent of fiber orientation distribution using high-gradient diffusion MRI. Neuroimage, 222, 117197.
+Gong, T., Maffei, C., Dann, E., Lee, H.-H., Lee, H., Augustinack, J.C., Huang, S.Y., Haber, S.N., Yendiki, A., 2025. Interplay between MRI-based axon diameter and myelination estimates in macaque and human brain. Imaging Neuroscience. https://doi.org/10.1162/IMAG_A_00576
 
-Gong, T., Maffei, C., Dann, E., Lee, H.-H., Lee Hansol, Huang, S., Suzanne, H., Yendiki, A., 2024. Imaging the relationship of axon diameter and myelination in macaque and human brain, in: ISMRM.
+Fan, Q., Nummenmaa, A., Witzel, T., Ohringer, N., Tian, Q., Setsompop, K., ... & Huang, S. Y. (2020). Axon diameter index estimation independent of fiber orientation distribution using high-gradient diffusion MRI. Neuroimage, 222, 117197.
 """
 Base.@kwdef mutable struct ExCaliber <: BiophysicalModel
     axon::Cylinder = Cylinder()
     extra::Zeppelin = Zeppelin()
     dot::Iso = Iso(; diff=0.0)
     fracs::Vector{Float64} = [0.7, 0.1]
-end
-
-# test model including extra CSF compartment
-Base.@kwdef mutable struct ExCaliber_beta <: BiophysicalModel
-    axon::Cylinder = Cylinder()
-    extra::Zeppelin = Zeppelin()
-    csf::Iso = Iso(; diff=2.0e-9)
-    dot::Iso = Iso(; diff=0.0)
-    fracs::Vector{Float64} = [0.7, 0.1, 0.1]
 end
 
 """
@@ -160,7 +153,6 @@ end
 Reture predicted model signals from BiophysicalModel `model` and imaging protocol 'prot'.
     `links` is a optional argument that specify parameter links in the model.
 """
-# normalizing to b0 signal makes models compatible for MTE imaging
 function model_signals(excaliber::ExCaliber, prot::Protocol)
     fextra = 1 - sum(excaliber.fracs)
     signals =
@@ -168,15 +160,7 @@ function model_signals(excaliber::ExCaliber, prot::Protocol)
         fextra .* compartment_signals(excaliber.extra, prot) .+ excaliber.fracs[2]
     return signals ./ signals[1]
 end
-
-function model_signals(excaliber::ExCaliber_beta, prot::Protocol)
-    fextra = 1 - sum(excaliber.fracs)
-    signals =
-        excaliber.fracs[1] .* compartment_signals(excaliber.axon, prot) .+
-        fextra .* compartment_signals(excaliber.extra, prot) .+
-        excaliber.fracs[2] .* compartment_signals(excaliber.csf, prot) .+ excaliber.fracs[3]
-    return signals
-end
+# normalizing to b0 signal makes models compatible for MTE imaging
 
 function model_signals(sandi::SANDIdot, prot::Protocol)
     fextra = 1.0 - sum(sandi.fracs)
@@ -237,4 +221,62 @@ function model_signals(
 )
     PMI.update!(model, links)
     return model_signals(model, prot)
+end
+
+
+#####################################################################################
+# testing multi-tensor data synthesis
+Base.@kwdef mutable struct MultiTensor1 <: BiophysicalModel
+    fascicle1::Tensor
+    extra::Iso # an isotropic compartment for excluding partial volume effects from GM or CSF
+    fracs::AbstractFloat = 0.5
+end
+
+Base.@kwdef mutable struct MultiTensor2 <: BiophysicalModel
+    fascicle1::Tensor
+    fascicle2::Tensor
+    extra::Iso # an isotropic compartment for excluding partial volume effects from GM or CSF
+    fracs::Vector{<:AbstractFloat} = [0.5, 0.3]
+end
+
+Base.@kwdef mutable struct MultiTensor3 <: BiophysicalModel
+    fascicle1::Tensor
+    fascicle2::Tensor
+    fascicle3::Tensor
+    extra::Iso # an isotropic compartment for excluding partial volume effects from GM or CSF
+    fracs::Vector{<:AbstractFloat} = [0.5, 0.2, 0.2]
+end
+
+function model_signals(model::MultiTensor3, prot::Protocol)
+    fextra = 1.0 - sum(model.fracs)
+    signals =
+        (
+            model.fracs[1] .* compartment_signals(model.fascicle1, prot) .+
+            model.fracs[2] .* compartment_signals(model.fascicle2, prot) .+
+            model.fracs[3] .* compartment_signals(model.fascicle3, prot) .+
+
+            fextra .* compartment_signals(model.extra, prot)
+        ) 
+    return signals ./ signals[1]
+end
+
+function model_signals(model::MultiTensor2, prot::Protocol)
+    fextra = 1.0 - sum(model.fracs)
+    signals =
+        (
+            model.fracs[1] .* compartment_signals(model.fascicle1, prot) .+
+            model.fracs[2] .* compartment_signals(model.fascicle2, prot) .+
+            fextra .* compartment_signals(model.extra, prot)
+        ) 
+    return signals ./ signals[1]
+end
+
+function model_signals(model::MultiTensor1, prot::Protocol)
+    fextra = 1.0 - sum(model.fracs)
+    signals =
+        (
+            model.fracs[1] .* compartment_signals(model.fascicle1, prot) .+
+            fextra .* compartment_signals(model.extra, prot)
+        ) 
+    return signals ./ signals[1]
 end

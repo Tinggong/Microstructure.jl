@@ -12,7 +12,8 @@ export Cylinder,
     Sphere, 
     compartment_signals, 
     Compartment, 
-    smt_signals
+    smt_signals,
+    Tensor
 # export compartment_signals!, smt_signals!
 
 """
@@ -304,7 +305,70 @@ function smt_signals(prot::Protocol, dpara::Float64, dperp::Float64)
     return signals
 end
 
-###################### to add orientated tissue compartments #####################################
+###################### to add orientated tissue compartments to test #####################################
+"""
+A tensor compartment 
+"""
+Base.@kwdef mutable struct Tensor <: Compartment
+    dir_polar::Float64        # constrain this to [0, pi/2] so the orientations are towards one of the hemisphere
+    dir_azimuth::Float64      # within [0, 2*pi]
+    λ1::Float64 = 1.7e-9      # lambda 1
+    λ2_frac::Float64 = 0.1    # lambda 2 to 1 fraction
+    λ3_frac::Float64 = 0.1    # lambda 3 to 1 fraction
+    t2::Float64 = 0.0         # t2 of the tensor compartment
+end
 
+function compartment_signals(model::Tensor, protocol::Protocol)
 
+    # get rotation matrix based on tensor orientation
+    R = rotation(model.dir_polar, model.dir_azimuth)
 
+    # diffusivities of the tensor
+    D = [bundle.λ1 0 0
+    0 bundle.λ1*bundle.λ2_frac 0
+    0 0 bundle.λ1*bundle.λ3_frac]
+   
+    # get the diffusion tensor 
+    DT = R*D*R'
+
+    iszero(model.t2) && return dt_signals(DT, protocol) # t2 not considered
+    return dt_signals(DT, protocol) .* exp.(-prot.techo ./ model.t2)
+end 
+
+"""
+Return rotation matrix for rotating x vector ([pi/2, 0]/[1, 0, 0]) to the given orienation
+"""    
+function rotation(polar::AbstractFloat, azimuth::AbstractFloat)
+        
+    ϕ = polar - pi/2
+    θ = azimuth 
+
+    Ry = [cos(ϕ) 0 sin(ϕ)
+        0 1 0
+        -sin(ϕ) 0 cos(ϕ)]
+        
+    Rz = [cos(θ) -sin(θ) 0
+        sin(θ) cos(θ) 0 
+        0 0 1]
+    
+    return Ry*Rz 
+end 
+
+"""
+Return diffusion tensor signals
+"""
+function dt_signals(dt::Matrix{<:AbstractFloat}, prot::Protocol)
+
+    signals = exp.(.- prot.bval .* (
+                    prot.bvec[:,1].^2.0 .* dt[1,1]
+                    .+ prot.bvec[:,2].^2.0 .* dt[2,2]
+                    .+ prot.bvec[:,3].^2.0 .* dt[3,3]
+                    .+ 2.0 .* prot.bvec[:,1].* prot.bvec[:,2] .* dt[1,2]
+                    .+ 2.0 .* prot.bvec[:,1].* prot.bvec[:,3] .* dt[1,3]
+                    .+ 2.0 .* prot.bvec[:,2].* prot.bvec[:,3] .* dt[2,3]
+                    ))
+
+    signals[findall(iszero, prot.bval)] .= 1.0
+    
+    return signals 
+end
