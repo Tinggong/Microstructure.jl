@@ -1,0 +1,129 @@
+<!DOCTYPE html>
+<html lang="en"><head><meta charset="UTF-8"/><meta name="viewport" content="width=device-width, initial-scale=1.0"/><title>SMT · Microstructure.jl</title><meta name="title" content="SMT · Microstructure.jl"/><meta property="og:title" content="SMT · Microstructure.jl"/><meta property="twitter:title" content="SMT · Microstructure.jl"/><meta name="description" content="Documentation for Microstructure.jl."/><meta property="og:description" content="Documentation for Microstructure.jl."/><meta property="twitter:description" content="Documentation for Microstructure.jl."/><script data-outdated-warner src="../../assets/warner.js"></script><link href="https://cdnjs.cloudflare.com/ajax/libs/lato-font/3.0.0/css/lato-font.min.css" rel="stylesheet" type="text/css"/><link href="https://cdnjs.cloudflare.com/ajax/libs/juliamono/0.050/juliamono.min.css" rel="stylesheet" type="text/css"/><link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.2/css/fontawesome.min.css" rel="stylesheet" type="text/css"/><link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.2/css/solid.min.css" rel="stylesheet" type="text/css"/><link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.2/css/brands.min.css" rel="stylesheet" type="text/css"/><link href="https://cdnjs.cloudflare.com/ajax/libs/KaTeX/0.16.8/katex.min.css" rel="stylesheet" type="text/css"/><script>documenterBaseURL="../.."</script><script src="https://cdnjs.cloudflare.com/ajax/libs/require.js/2.3.6/require.min.js" data-main="../../assets/documenter.js"></script><script src="../../search_index.js"></script><script src="../../siteinfo.js"></script><script src="../../../versions.js"></script><link class="docs-theme-link" rel="stylesheet" type="text/css" href="../../assets/themes/catppuccin-mocha.css" data-theme-name="catppuccin-mocha"/><link class="docs-theme-link" rel="stylesheet" type="text/css" href="../../assets/themes/catppuccin-macchiato.css" data-theme-name="catppuccin-macchiato"/><link class="docs-theme-link" rel="stylesheet" type="text/css" href="../../assets/themes/catppuccin-frappe.css" data-theme-name="catppuccin-frappe"/><link class="docs-theme-link" rel="stylesheet" type="text/css" href="../../assets/themes/catppuccin-latte.css" data-theme-name="catppuccin-latte"/><link class="docs-theme-link" rel="stylesheet" type="text/css" href="../../assets/themes/documenter-dark.css" data-theme-name="documenter-dark" data-theme-primary-dark/><link class="docs-theme-link" rel="stylesheet" type="text/css" href="../../assets/themes/documenter-light.css" data-theme-name="documenter-light" data-theme-primary/><script src="../../assets/themeswap.js"></script></head><body><div id="documenter"><nav class="docs-sidebar"><a class="docs-logo" href="../../"><img class="docs-light-only" src="../../assets/logo.png" alt="Microstructure.jl logo"/><img class="docs-dark-only" src="../../assets/logo-dark.png" alt="Microstructure.jl logo"/></a><button class="docs-search-query input is-rounded is-small is-clickable my-2 mx-auto py-1 px-2" id="documenter-search-query">Search docs (Ctrl + /)</button><ul class="docs-menu"><li><a class="tocitem" href="../../">Home</a></li><li><a class="tocitem" href="../../getting_started/">Getting started</a></li><li><span class="tocitem">Manual</span><ul><li><a class="tocitem" href="../../manual/dMRI/">I/O functions</a></li><li><a class="tocitem" href="../../manual/compartments/">Tissue Compartments</a></li><li><a class="tocitem" href="../../manual/models/">Microstructure Models</a></li><li><a class="tocitem" href="../../manual/estimators/">Estimators</a></li><li><a class="tocitem" href="../../manual/multithreads/">Multi threads</a></li></ul></li><li><span class="tocitem">Demos in preprint</span><ul><li><a class="tocitem" href="../0_intro/">Introduction to Microstructure.jl</a></li><li><a class="tocitem" href="../1_sensitivity_range/">Sensitivity range of axon diameter index</a></li><li><a class="tocitem" href="../2_two_stage_MCMC/">Two-stage MCMC</a></li><li><a class="tocitem" href="../3_fitting_eval/">Fitting evaluation</a></li><li class="is-active"><a class="tocitem" href>SMT</a><ul class="internal"><li><a class="tocitem" href="#Datasets"><span>Datasets</span></a></li><li><a class="tocitem" href="#Experiments"><span>Experiments</span></a></li><li><a class="tocitem" href="#Results"><span>Results</span></a></li><li><a class="tocitem" href="#References"><span>References</span></a></li></ul></li><li><a class="tocitem" href="../5_sandi/">SANDI</a></li></ul></li><li><span class="tocitem">Tutorials</span><ul><li><a class="tocitem" href="../../tutorials/1_build_models/">How to build a microstructure model</a></li><li><a class="tocitem" href="../../tutorials/2_quality_of_fit/">How to check quality of fitting and mcmc samples</a></li><li><a class="tocitem" href="../../tutorials/3_data_generation/">How to generate training datasets</a></li><li><a class="tocitem" href="../../tutorials/4_noise_propagation/">How to evaluate accuracy and precision</a></li><li><a class="tocitem" href="../../tutorials/5_model_selection/">Which model to use</a></li></ul></li><li><a class="tocitem" href="../">Developer guide</a></li></ul><div class="docs-version-selector field has-addons"><div class="control"><span class="docs-label button is-static is-size-7">Version</span></div><div class="docs-selector control is-expanded"><div class="select is-fullwidth is-size-7"><select id="documenter-version-selector"></select></div></div></div></nav><div class="docs-main"><header class="docs-navbar"><a class="docs-sidebar-button docs-navbar-link fa-solid fa-bars is-hidden-desktop" id="documenter-sidebar-button" href="#"></a><nav class="breadcrumb"><ul class="is-hidden-mobile"><li><a class="is-disabled">Demos in preprint</a></li><li class="is-active"><a href>SMT</a></li></ul><ul class="is-hidden-tablet"><li class="is-active"><a href>SMT</a></li></ul></nav><div class="docs-right"><a class="docs-navbar-link" href="https://github.com/Tinggong/Microstructure.jl" title="View the repository on GitHub"><span class="docs-icon fa-brands"></span><span class="docs-label is-hidden-touch">GitHub</span></a><a class="docs-navbar-link" href="https://github.com/Tinggong/Microstructure.jl/blob/main/docs/src/guide/4_smt.md" title="Edit source on GitHub"><span class="docs-icon fa-solid"></span></a><a class="docs-settings-button docs-navbar-link fa-solid fa-gear" id="documenter-settings-button" href="#" title="Settings"></a><a class="docs-article-toggle-button fa-solid fa-chevron-up" id="documenter-article-toggle-button" href="javascript:;" title="Collapse all docstrings"></a></div></header><article class="content" id="documenter-page"><h1 id="guide-smt"><a class="docs-heading-anchor" href="#guide-smt">SMT</a><a id="guide-smt-1"></a><a class="docs-heading-anchor-permalink" href="#guide-smt" title="Permalink"></a></h1><p>For a neural network estimator, the prior distribution of tissue parameters used for training the model will affect the posterior distributions of parameter estimates. Ideally an uninformative prior such as those used in the MCMC sampler will ensure that the estimates are less biased by prior knowledge and thus truly reflect biological properties. However, due to practical difficulties in parameter estimation, e.g., with limited data and low SNR, previous studies have used strategies such as fixing certain parameters and using narrower priors to increase the robustness of estimates. The Microstructure.jl package is designed to investigate these strategies flexibly, as the parameters to estimate in a model and the prior ranges and prior distributions are input arguments for training MLP models. It generates fitting evaluations for a fitting strategy given the protocol and SNR level in the data.  </p><p>This tutorial uses the SMT model (Kaden et al., 2016) for demonstration.</p><h2 id="Datasets"><a class="docs-heading-anchor" href="#Datasets">Datasets</a><a id="Datasets-1"></a><a class="docs-heading-anchor-permalink" href="#Datasets" title="Permalink"></a></h2><p>We used the minimally preprocessed datasets from the WashU/UMinn young adult Human Connectome Project (HCP) (Glasser et al., 2013; Van Essen et al., 2012) to demonstrate the fitting of a Stick-Zeppelin model appropriate for WM with the SMT. The HCP data were acquired at a 1.25 mm isotropic resolution with diffusion weightings of b=1000, 2000, and 3000 <span>$s/mm^2$</span>, 90 directions per shell and 18 b=0 s/mm2 images interspersed uniformly between the DWIs, resulting in a total of 288 measurements. We used datasets from 6 subjects for evaluating the variation of estimates. </p><h2 id="Experiments"><a class="docs-heading-anchor" href="#Experiments">Experiments</a><a id="Experiments-1"></a><a class="docs-heading-anchor-permalink" href="#Experiments" title="Permalink"></a></h2><p>The SMT model with single TE data is characterized by the intra-axonal signal fraction <span>$f_{ia}$</span>, intra-axonal parallel diffusivity <span>$D_∥^{ia}$</span>, extra-cellular parallel diffusivity <span>$D_∥^{ec}$</span> and extra-cellular perpendicular diffusivity <span>$D_⊥^{ec}$</span>. This two-compartment SMT model (Kaden et al., 2016) originally assumed <span>$D_∥^{ec}=D_∥^{ia}=D_∥$</span>  and linked <span>$D_⊥^{ec}$</span> through a model of tortuosity as <span>$D_⊥^{ec} = (1- f_{ia}) D_∥^{ec}$</span>, thus reduced the model parameters to <span>$f_{ia}$</span> and <span>$D_∥$</span>. Here, we removed the tortuosity assumption and estimated <span>$f_{ia}$</span>, <span>$D_∥$</span>  and <span>$D_⊥^{ec}$</span> from all three b-shells of the HCP data; <span>$D_⊥^{ec}$</span> was represented as <span>$D_∥^{ec} = D_∥$</span> multiplied by a fraction between [0, 1]. </p><p>We generated 30,000 training samples with tissue parameters sampled from prior ranges of [0, 1] for <span>$f_{ia}$</span> and the <span>$D_⊥^{ec} / D_∥$</span> fraction, and [1, 3] <span>$𝜇m^2/ms$</span> for <span>$D_∥$</span>. We used uniform distributions for sampling the <span>$f_{ia}$</span> and the <span>$D_⊥^{ec} / D_∥$</span> fraction. We tested both a uniform and a more informative Gaussian distribution for the <span>$D_∥$</span>, with a mean value of 2 <span>$𝜇m^2/ms$</span> that is appropriate for WM tissue. We generated signals for the training samples using the forward model and the HCP imaging protocol and added Gaussian noise to the signals to generate noisy measurements.  </p><h3 id="Code-example"><a class="docs-heading-anchor" href="#Code-example">Code example</a><a id="Code-example-1"></a><a class="docs-heading-anchor-permalink" href="#Code-example" title="Permalink"></a></h3><p>The following code trains network on synthetic data with HCP protocol. We can visualize the training log before further evaluation of parameters:</p><pre><code class="language-julia hljs">using Fibers, Microstructure
+using Distributions, Random
+using Plots
+using Flux
+
+# include utility functions for plotting
+srcpath = dirname(pathof(Microstructure))
+include(joinpath(srcpath, &quot;../utils/utils.jl&quot;))
+
+# set the path to save generated figures
+figdir = &quot;/Users/tgong/Work/Projects/Microstructure.jl/demos/Toolbox/figures/&quot;
+dpi = 600  # figure resoluton
+info = &quot;gaussian&quot; # used in file name for saving; the case of using Gaussian prior
+
+# %% read the data acquistion protocol to generate training data
+datadir = &quot;/Users/tgong/Work/Database/HCP/905147&quot;
+protocol = Protocol(joinpath(datadir, &quot;diravg_norm.btable&quot;))
+
+### Setup model and nn estimator
+# t2 is set to default as 0, so single-TE model will be used
+model = MTE_SMT( 
+    axon = Stick(dpara = 2.0e-9, t2 = 0.0),
+    extra = Zeppelin(dpara = 2.0e-9, dperp_frac = 0.5, t2 = 0.0),
+    fracs = 0.5,
+    )
+
+# parameters to estimate
+params = (&quot;fracs&quot;, &quot;axon.dpara&quot;, &quot;extra.dperp_frac&quot;)
+prior_range = ((0.0, 1.0), (1.0e-9, 3.0e-9), (0.0, 1.0))
+
+# Gaussian prior for &quot;axon.dpara&quot;
+prior_dist = (nothing, Normal(2.0e-9, 0.3e-9), nothing)
+
+paralinks = (&quot;extra.dpara&quot; =&gt; &quot;axon.dpara&quot;)
+
+# The level of the noise
+noise_type = &quot;Gaussian&quot;
+sigma_range = (0.002, 0.02)
+sigma_dist = Normal(0.01, 0.002)
+
+nsamples = 30000
+nin = 4
+nout = 3
+hidden_layers = (32, 32, 32)
+dropoutp = (0.1, 0.1, 0.1)
+
+netarg = NetworkArg(
+    model,
+    protocol,
+    params,
+    prior_range,
+    prior_dist,
+    paralinks,
+    noise_type,
+    sigma_range,
+    sigma_dist,
+    nsamples,
+    nin,
+    nout,
+    hidden_layers,
+    dropoutp,
+    relu6,
+)
+trainarg = TrainingArg(batchsize = 128, lossf=losses_rmse, device = cpu)
+
+# get mlp and training data
+mlp, logs, inputs, labels = training(trainarg, netarg)
+
+# visualize training log
+p = logs_plt(logs, trainarg)</code></pre><img src="../assets/package_demo/Training_log_plot_smt.png" width=500 /> <p>We can then get the estimates on the synthetic data and use utility function to visualize the evaluation results:</p><pre><code class="language-julia hljs"># get probabilistic estimates for the training data for evaluation
+ntest = 100    # the number of test times
+posteriors = test(mlp, inputs, ntest) # posterior samples
+est = mean(posteriors)      # mean
+est_std = std(posteriors)   # standard deviation 
+
+# get evaluation plot for each parameters in the model 
+evalplots_mean, evalplots_std, para_range = eval_plt(netarg, est, est_std, labels)
+
+# plotting evaluation 
+titles = [L&quot;f_{ia}&quot; L&quot;D_{\parallel}&quot; L&quot;D_{\perp}^{ec}&quot;]
+Plots.plot(
+    evalplots_mean[&quot;fracs1&quot;],
+    evalplots_mean[&quot;axon.dpara&quot;],
+    evalplots_mean[&quot;extra.dperp&quot;];
+    layout=(1, 3),
+    size=(900, 200),
+    legend=:none,
+    margin=5mm,
+    xguidefontsize=8,
+    yguidefontsize=10,
+    titles=titles,
+    xlabel=[L&quot;GT &quot; L&quot;GT\ [{\mu}m^2/ms]&quot; L&quot;GT\ [{\mu}m^2/ms]&quot;],
+    ylabel=L&quot;Estimates: Mean&quot;,
+)
+
+savefig(joinpath(figdir, &quot;Eval_smt_3p_&quot; * info * &quot;_mean.pdf&quot;))
+
+Plots.plot(
+    evalplots_std[&quot;fracs1&quot;],
+    evalplots_std[&quot;axon.dpara&quot;],
+    evalplots_std[&quot;extra.dperp&quot;];
+    layout=(1, 3),
+    size=(900, 200),
+    legend=:none,
+    margin=5mm,
+    xguidefontsize=8,
+    yguidefontsize=10,
+    titles=titles,
+    xlabel=[L&quot;GT &quot; L&quot;GT\ [{\mu}m^2/ms]&quot; L&quot;GT\ [{\mu}m^2/ms]&quot;],
+    ylabel=L&quot;Std/Prior\ Range&quot;,
+)
+
+savefig(joinpath(figdir, &quot;Eval_smt_3p_&quot; * info * &quot;_std.pdf&quot;))</code></pre><p>To apply the trained mlp to real data, we can use the <code>nn_estimate</code> function:</p><pre><code class="language-julia hljs"># apply trained mlp to real data
+subjs = (&quot;905147&quot;, &quot;971160&quot;, &quot;983773&quot;, &quot;984472&quot;, &quot;992774&quot;, &quot;994273&quot;)
+modelname = &quot;smt.3p.&quot; * info * &quot;.&quot;  # savename
+
+for subj in subjs
+
+    # read data and mask
+    datadir = joinpath(&quot;/Users/tgong/Work/Database/HCP&quot;, subj)
+    dmri = mri_read(joinpath(datadir, &quot;diravg_norm.nii.gz&quot;))
+    mask = mri_read(joinpath(datadir, &quot;nodif_brain_mask.nii&quot;))
+
+    # apply mlp to the data and save estimated parameter maps as nifti
+    savedir = joinpath(datadir, &quot;SMT&quot;)
+    mkpath(savedir)
+    nn_estimate(dmri, mask, mlp, netarg, ntest, savedir, modelname)
+end</code></pre><h2 id="Results"><a class="docs-heading-anchor" href="#Results">Results</a><a id="Results-1"></a><a class="docs-heading-anchor-permalink" href="#Results" title="Permalink"></a></h2><p><strong>Evaluation on synthetic data.</strong> The Gaussian prior for <code>D_∥</code>, with a mean value representative of WM tissue, improved the precision and reduced the uncertainty for the diffusivity measures. The estimation accuracy of <code>f_{ia}</code> was not affected much by the prior distributions of diffusivities. </p><embed src="../assets/package_demo/Figure8_SMT_eval.pdf" width="800px" height="300px" /><p>Effect of prior distribution on SMT model fitting with neural network estimator. Data were synthesized assuming the acquisition parameters of the HCP protocol and either uniform (A) or Gaussian (B) prior distribution for <span>$D_∥$</span>. Samples of <span>$D_⊥^{ec}$</span> were generated by multiplying <span>$D_∥$</span> by random, uniformly distributed numbers between [0, 1].  (a) 2D histograms of ground truth (GT) values vs. estimates (posterior mean); (b) 2D histogram of GT vs. the ratio of the standard deviation (Std) of the posterior over the prior range; (c) distributions of parameters in the training samples/ground truth parameters. </p><p><strong>Parameter map from one example subject.</strong> The high uncertainty of <span>$f_{ia}$</span> caused by CSF contamination is highlighted by the high standard deviations in the posteriors. The reduced uncertainty of <span>$D_∥$</span> resulting from using a Gaussian prior is also evident from the uncertainty map. Distributions of parameter estimates in the WM from 6 subjects show high consistency. </p><embed src="../assets/package_demo/Figure9_SMT_map.pdf" width="800px" height="400px" /><p>SMT model fitting on in vivo human data. The trained models with (A) uniform and (B) Gaussian priors were used for inference on 6 randomly selected datasets from the WashU/UMinn young adult HCP. (a) Mean and standard deviation maps for estimates of different microstructural parameters from one subject. The high uncertainty caused by CSF contamination in <span>$f_{ia}$</span> is highlighted by the white arrows in both (A) and (B). The reduced uncertainty of <span>$D_{∥}$</span> when using a Gaussian prior is highlighted by the orange arrows. (b) Probability density of the estimates in WM shows high overlap across 6 subjects. </p><h2 id="References"><a class="docs-heading-anchor" href="#References">References</a><a id="References-1"></a><a class="docs-heading-anchor-permalink" href="#References" title="Permalink"></a></h2><p>Kaden, E., Kelm, N.D., Carson, R.P., Does, M.D., Alexander, D.C., 2016. Multi-compartment microscopic diffusion imaging. Neuroimage 139, 346–359. https://doi.org/10.1016/J.NEUROIMAGE.2016.06.002</p><p>Glasser, M.F., Sotiropoulos, S.N., Wilson, J.A., Coalson, T.S., Fischl, B., Andersson, J.L., Xu, J., Jbabdi, S., Webster, M., Polimeni, J.R., Van Essen, D.C., Jenkinson, M., 2013. The minimal preprocessing pipelines for the Human Connectome Project. Neuroimage 80, 105–124. https://doi.org/10.1016/j.neuroimage.2013.04.127</p><p>Van Essen, D.C., Ugurbil, K., Auerbach, E., Barch, D., Behrens, T.E.J., Bucholz, R., Chang, A., Chen, L., Corbetta, M., Curtiss, S.W., Della Penna, S., Feinberg, D., Glasser, M.F., Harel, N., Heath, A.C., Larson-Prior, L., Marcus, D., Michalareas, G., Moeller, S., Oostenveld, R., Petersen, S.E., Prior, F., Schlaggar, B.L., Smith, S.M., Snyder, A.Z., Xu, J., Yacoub, E., 2012. The Human Connectome Project: A data acquisition perspective. Neuroimage. https://doi.org/10.1016/j.neuroimage.2012.02.018</p></article><nav class="docs-footer"><a class="docs-footer-prevpage" href="../3_fitting_eval/">« Fitting evaluation</a><a class="docs-footer-nextpage" href="../5_sandi/">SANDI »</a><div class="flexbox-break"></div><p class="footer-message">Powered by <a href="https://github.com/JuliaDocs/Documenter.jl">Documenter.jl</a> and the <a href="https://julialang.org/">Julia Programming Language</a>.</p></nav></div><div class="modal" id="documenter-settings"><div class="modal-background"></div><div class="modal-card"><header class="modal-card-head"><p class="modal-card-title">Settings</p><button class="delete"></button></header><section class="modal-card-body"><p><label class="label">Theme</label><div class="select"><select id="documenter-themepicker"><option value="auto">Automatic (OS)</option><option value="documenter-light">documenter-light</option><option value="documenter-dark">documenter-dark</option><option value="catppuccin-latte">catppuccin-latte</option><option value="catppuccin-frappe">catppuccin-frappe</option><option value="catppuccin-macchiato">catppuccin-macchiato</option><option value="catppuccin-mocha">catppuccin-mocha</option></select></div></p><hr/><p>This document was generated with <a href="https://github.com/JuliaDocs/Documenter.jl">Documenter.jl</a> version 1.11.0 on <span class="colophon-date" title="Saturday 10 May 2025 21:18">Saturday 10 May 2025</span>. Using Julia version 1.10.9.</p></section><footer class="modal-card-foot"></footer></div></div></div></body></html>
