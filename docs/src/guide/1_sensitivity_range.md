@@ -154,7 +154,7 @@ end
 
 ```
 ### Experiments
-We calculate the sensitivity ranges of axon diameter estimation at different high b-values feasible on a 4.7 T preclinical scanner with maximum gradient strength Gmax = 660 mT/m.  We investigate the effects of diffusion time and b-value to sensitivity ranges by using different diffusion times that reach the Gmax with different b-values. We assume that the number of gradient directions is 32 and the ex vivo intrinsic diffusivity is 0.6 𝜇m2/ms. We consider SNR levels of 100, 50 and 30. 
+We calculate the sensitivity ranges of axon diameter estimation at different high b-values feasible on a 4.7 T preclinical scanner with maximum gradient strength Gmax = 660 mT/m.  We investigate the effects of diffusion time and b-value to sensitivity ranges by using different diffusion times that reach the Gmax with different b-values. We assume that the number of gradient directions is 32 and the ex vivo intrinsic diffusivity is 0.6 ``𝜇m^2/ms``. We consider SNR levels of 100, 50 and 30. 
 
 Example for the median diffusion time:
 ```julia
@@ -200,7 +200,7 @@ strength G and thus b-value increases, as seen in Figure 3(A-C) in our preprint.
 to smaller axons, which are most abundant in tissue. However, they also reduce the sensitivity to very
 large axons, e.g. axons with diameter > 7.5 𝜇m for G = 660 mT/m. For the same gradient strength G,
 shorter diffusion time and therefore lower b-value widens the sensitivity range on both sides. For
-example, see G≈ 660 mT/m, b = 25, 43 and 64 in Figure 3(A-C). For the same b-value, shorter diffusion
+example, see G≈ 660 mT/m, b = 25, 43 and 64 ``ms/𝜇m^2`` in Figure 3(A-C). For the same b-value, shorter diffusion
 time and thus higher G lowers the lower bound of axon diameters that can be estimated accurately but
 also reduces sensitivity to larger axons. This analysis suggests that using higher gradient strength and
 shorter diffusion time to achieve lower b-values is preferable, as it achieves a wider sensitivity range that

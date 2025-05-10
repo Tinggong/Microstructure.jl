@@ -20,11 +20,11 @@ Gong, T., & Yendiki, A. (2024). Microstructure. jl: a Julia Package for Probabil
 
 3. **Fitting Synthetic Data for Performance Evaluation**  
    
-   Synthetic datasets with known ground-truth parameters are essential for [evaluate the accuracy and precision](3_fitting_eval.md) of microstructure model estimates for different data acquisition protocols. We demonstrate this process using the two-state MCMC approach for estimating the axon diameter index as an example.
+   Synthetic datasets with known ground-truth parameters are essential for evaluating the accuracy and precision of microstructure model estimates for different data acquisition protocols. See the [Fitting Evaluation](3_fitting_eval.md) page for demonstration of this process using the two-state MCMC approach for estimating the axon diameter index.
 
 4. **Applying Literature Models to Public Data**  
 
-   We apply established microstructure models on publicly available datasets. This tutorial demonstrates how to use neural network estimators for WM and GM models and adapt the prior distributions in training datasets. This includes:  
+   We apply established microstructure models on publicly available datasets. This tutorial demonstrates how to use neural network estimators for WM and GM models and adapt the prior distributions in training datasets. This currently includes:  
    - The [SMT model in white matter](4_smt.md) using HCP data  
    - The [SANDI model in gray matter](5_sandi.md) using Connectome 1 open microstructure data
 
