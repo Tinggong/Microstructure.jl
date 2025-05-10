@@ -30,6 +30,6 @@ Gong, T., & Yendiki, A. (2024). Microstructure. jl: a Julia Package for Probabil
 
 ## Package overview
 ```@raw html
-<embed src="./assets/package_demo/Figure1_overview.pdf" width="800px" height="600px">
+<embed src="../../assets/package_demo/Figure1_overview.pdf" width="800px" height="600px">
 ```
 Overview of the main data types (green boxes) and functions (blue boxes) in each module of Microstructure.jl. The direction of the orange arrow between a green and blue box indicates if a certain type is an input or output to the respective function. 
