@@ -80,7 +80,7 @@ mlp, logs, inputs, labels = training(trainarg, netarg)
 logs_plt(logs, trainarg)
 ```
 ```@raw html
-<img src="../assets/package_demo/Training_log_plot_sandi.png" width=500 /> 
+<img src="../assets/package_demo/Training_log_plot_sandi.png" width=500> 
 ```
 
 Performing fitting evaluation on synthetic data:
@@ -161,7 +161,7 @@ end
 **Fitting evaluation.** While other model parameters can be accurately estimated, the ``D_∥^{in}`` cannot be estimated with the evaluated protocol, and the estimates tend to be biased towards the mean values of the prior distribution.  
 
 ```@raw html
-<embed src="../assets/package_demo/Figure10_SANDI_eval.pdf" width="600px" height="300px" />
+<embed src="../assets/package_demo/Figure10_SANDI_eval.pdf" width="600px" height="300px">
 ```
 
 Fitting evaluations of the SANDI model on synthetic training data with uninformative priors. (a) 2D histograms of ground-truth labels vs. estimates; (b) the 2D histogram of ground-truth labels vs. the standard deviation of posteriors relative to used prior range; (c) the distributions of training labels. The signal fractions of the three tissue compartments are summed to 1 and follow the Dirichlet distribution. This evaluation suggests that the protocol is not sensitive to ``D_∥^{in}``.
@@ -169,7 +169,7 @@ Fitting evaluations of the SANDI model on synthetic training data with uninforma
 **Parameter maps on real dataset.** The uncertainty map of ``f_{in}`` features WM regions in the genu of corpus callosum with very low ``f_{in}`` estimates, which could potentially be outliers. The uncertainty maps of all parameters also feature a GM region with atypical values in the ``f_in``, ``R_s`` and ``D_{ec}``. The distributions of parameters in GM regions including caudate and putamen show high consistency among the 6 scans. 
 
 ```@raw html
-<embed src="../assets/package_demo/Figure11_SANDI_map.pdf" width="600px" height="400px" />
+<embed src="../assets/package_demo/Figure11_SANDI_map.pdf" width="600px" height="400px">
 ```
 
 SANDI model fitting on in vivo human data acquired with ultra-high gradient strength. Only the four parameters that can be estimated robustly are shown here. (a) Parameter maps from one subject. The WM region highlighted by orange arrows in the genu of corpus callosum with low ``f_{in}`` values shows high uncertainty, suggesting potential outlier estimates. The GM region highlighted by white arrows showing atypical values in the ``f_{in}``,  ``R_s`` and ``D_{ec}`` exhibits high uncertainties in all the parameters. (b) Probability density of estimates in GM ROIs (caudate and putamen) from 6 scans.
