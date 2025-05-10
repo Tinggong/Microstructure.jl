@@ -199,7 +199,7 @@ savefig(figdir * "/1_sensitivity_dt15")
 ```
 
 ```@raw html
-<img src="../assets/package_demo/1_sensitivity_dt15.png" width=800> 
+<img src="../../assets/package_demo/1_sensitivity_dt15.png" width=800> 
 ```
 
 ### Results
@@ -215,7 +215,7 @@ shorter diffusion time to achieve lower b-values is preferable, as it achieves a
 covers most axon diameters expected in real tissue.
 
 ```@raw html
-<embed src="../assets/package_demo/Figure3_sensitivity.pdf" width="800px" height="600px">
+<embed src="../../assets/package_demo/Figure3_sensitivity.pdf" width="800px" height="600px">
 ```
 
 

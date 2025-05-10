@@ -202,7 +202,7 @@ As above, we use `chain2` and updated `estimates` to inspect the quality of fitt
 In the first stage, where all five tissue parameters are sampled, we find high uncertainty of estimated intra-axonal fractions. By fixing the parallel diffusivity and extra-cellular perpendicular diffusivity to their posterior means and sampling only the distributions of other 3 tissue parameters, the second MCMC run achieves similar likelihood of measurements, but lower parameter uncertainty and higher accuracy for the axon diameter index and compartment signal fractions.
 
 ```@raw html
-<embed src="../assets/package_demo/Figure5_MCMC.pdf" width="800px" height="400px">
+<embed src="../../assets/package_demo/Figure5_MCMC.pdf" width="800px" height="400px">
 ```
 
 ## References

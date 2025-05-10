@@ -141,7 +141,7 @@ plot(
 savefig(figdir * "/Estimation_3c_fitd0_dt12_snr" * string(snr))
 ```
 ```@raw html
-<img src="../assets/package_demo/Estimation_3c_fitd0_dt12_snr100.png" width=800> 
+<img src="../../assets/package_demo/Estimation_3c_fitd0_dt12_snr100.png" width=800> 
 ```
 
 ## Results
@@ -149,7 +149,7 @@ savefig(figdir * "/Estimation_3c_fitd0_dt12_snr" * string(snr))
 Smaller axons had more precise diameter estimates and more accurate intra-axonal signal fractions than larger axons. However, diameter estimates in the low range were biased in a way that made different diameters more difficult to discriminate. In comparison, the diameters and intra-axonal signal fractions of larger axons were always under-estimated, while the dot signal fractions were more accurate. Among the different diffusion times, the shorter ones (∆ = 12 and 15.2 ms) maintained a consistent trend of axon diameter index estimates within the resolution limit (about 2-8 𝜇m). Comparison of the two SNR levels shows that the lower SNR (SNR = 50) decreased estimation precision for smaller axons but increased the discriminability of axon diameter indices in the low range. The lower SNR also increased bias for larger axons. These findings highlight the importance of performing such evaluations to understand the effects of different acquisition parameters on model fitting. 
 
 ```@raw html
-<embed src="../assets/package_demo/Figure6_ExCaliber_eval_sdt.pdf" width="800px" height="400px">
+<embed src="../../assets/package_demo/Figure6_ExCaliber_eval_sdt.pdf" width="800px" height="400px">
 ```
 Estimates of axon diameters from single diffusion time data when (A) SNR = 100 and (B) SNR = 50 for spherical mean signal. (i) Data generated with 7 values, bmax = 25 ms/𝜇m2 and δ/∆ = 9.6/12 ms; (ii) Data generated with 8 b-values, bmax = 43 ms/𝜇m2 and δ/∆ = 11/15.2 ms; (iii) Data generated with 9 b-values, bmax = 64 ms/𝜇m2 and δ/∆ = 11/21 ms. Parameter estimates from 100 noise realizations are shown as boxplots and ground-truth (GT) parameter values are shown as line plots. 
 
@@ -157,7 +157,7 @@ Estimates of axon diameters from single diffusion time data when (A) SNR = 100 a
 Including data with multiple diffusion times improved the accuracy of axon diameter estimation, with better discriminability between smaller axons and lower biases and variances for larger axons, particularly at high SNR.  However, at lower SNR, there was less to be gained by including multiple diffusion times vs. a single diffusion time, as the differences between signals with different diffusion times were very small. In real datasets, we need to consider if the SNR is sufficient for the differences between signals acquired with different diffusion times to be significant. When using data from all the diffusion times for fitting, both the bias and variance decreased substantially. 
 
 ```@raw html
-<embed src="../assets/package_demo/Figure7_ExCaliber_eval_mdt.pdf" width="800px" height="400px">
+<embed src="../../assets/package_demo/Figure7_ExCaliber_eval_mdt.pdf" width="800px" height="400px">
 ```
 Estimates of axon diameter from multi-diffusion time data when (A) SNR = 100 and (B) SNR = 50 for the spherical mean signal. (i) Data combining two shorter diffusion times: δ/∆ = 9.6/12 ms and δ/∆ = 11/15.2 ms; (ii) Data combing two longer diffusion times δ/∆ = 11/15.2 ms and δ/∆ = 11/21 ms; (iii) Data combining all three diffusion times. Parameter estimates from 100 noise realizations are shown as boxplots and ground-truth parameter values are shown as line plots. 
 
