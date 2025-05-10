@@ -17,6 +17,10 @@ using Distributions, Random
 using JLD2, DelimitedFiles
 using Flux, Plots
 
+# include utility functions for plotting
+srcpath = dirname(pathof(Microstructure))
+include(joinpath(srcpath, "../utils/utils.jl"))
+
 # set the path to save generated figures
 figdir = "/Users/tgong/Work/Projects/Microstructure.jl/demos/Toolbox/figures"
 dpi = 600  # figure resoluton

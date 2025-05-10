@@ -151,8 +151,16 @@ function sensitivity_plot(SNR, d0, bval_mea, tdelta, tsmalldel, n = 32)
     )
     return p
 end
-
 ```
+
+The functions for visualizing sensitivity profiles are included as utility functions outside the package. You can use these functions by including the utility script in the package folder:
+
+```julia
+using Microstructure
+srcpath = dirname(pathof(Microstructure))
+include(joinpath(srcpath, "../utils/utils.jl"))
+```
+
 ### Experiments
 We calculate the sensitivity ranges of axon diameter estimation at different high b-values feasible on a 4.7 T preclinical scanner with maximum gradient strength Gmax = 660 mT/m.  We investigate the effects of diffusion time and b-value to sensitivity ranges by using different diffusion times that reach the Gmax with different b-values. We assume that the number of gradient directions is 32 and the ex vivo intrinsic diffusivity is 0.6 ``𝜇m^2/ms``. We consider SNR levels of 100, 50 and 30. 
 

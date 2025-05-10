@@ -5,7 +5,7 @@ After fitting a microstructure model, it is important to assess the quality of t
 ## Inspecting quality of fitting and posterior samples
 For estimating axon diameter index in ex vivo tissue, previous studies have used only the intra-axonal compartment with very few, ultra-high b-values (>=20 ms/𝜇m2 for ex vivo tissue)(Veraart et al., 2020). We use the multi-compartment model `ExCaliber`, with the additional consideration that a nonnegligible and spatially varying dot signal is present in ex vivo tissue at high b-values and needs to be differentiated from the intra-axonal signals. We therefore model the full signal decay from a range of low and high b-values. The five free parameters in the `ExCaliber` model are the axon diameter index, the intra-axonal parallel diffusivity, the extra-cellular perpendicular diffusivity, and the intra-axonal and dot signal fraction. Parallel diffusivities in the intra-axonal and extra-cellular space are assumed to be equal to the intrinsic diffusivity. 
 
-We first simulate noisy measurements from a typical WM voxel with the ExCaliber model and test protocol:
+We first simulate noisy measurements from a typical WM voxel with the `ExCaliber` model and test protocol:
 ```julia
 # %% packages used in this demo
 using Microstructure
