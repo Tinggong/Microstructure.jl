@@ -302,18 +302,23 @@ function generate_samples(
         signals[:, i] = model_signals(model, protocol)
     end
 
-    # add gaussian noise to get training inputs
+    # the noise level "sigma" is defined by SNRs on b=0 measurements
     noise_level = rand(truncated(sigma_dist, sigma_range[1], sigma_range[2]), nsample)
+
+    # adding noise to rotational invariants according to the number of measurements and the SH order
+    noise_norm = sqrt.((2.0 .* protocol.lmeas .+ 1) .* protocol.nmeas)
+
     if (noise_type == "Gaussian") | (noise_type == "gaussian")
         for i in 1:nsample
-            signals[:, i] .= signals[:, i] .+ rand(Normal(0, noise_level[i]), nvol)
+            signals[:, i] .=
+                signals[:, i] .+ rand(Normal(0, noise_level[i]), nvol) ./ noise_norm
             signals[:, i] = signals[:, i] ./ signals[1, i]
         end
     elseif (noise_type == "Rician") | (noise_type == "rician")
         for i in 1:nsample
             signals[:, i] .= sqrt.(
-                (signals[:, i] .+ rand(Normal(0, noise_level[i]), nvol)) .^ 2.0 .+
-                rand(Normal(0, noise_level[i]), nvol) .^ 2.0,
+                (signals[:, i] .+ rand(Normal(0, noise_level[i]), nvol) ./ noise_norm) .^
+                2.0 .+ (rand(Normal(0, noise_level[i]), nvol)) ./ noise_norm .^ 2.0,
             )
             signals[:, i] = signals[:, i] ./ signals[1, i]
         end
@@ -539,7 +544,7 @@ function nn_estimate(
     est = mean(posteriors)
     est_std = std(posteriors)
 
-    # save maps in standar unit
+    # save maps in microstructure unit
     save_nn_maps(netarg, mask, est, est_std, savedir, modelname)
 end
 
@@ -552,7 +557,7 @@ end
         savedir::String,
         savename::String,
     )
-Save parameter maps
+Save parameter maps in microstructure unit
 """
 function save_nn_maps(
     netarg::NetworkArg,
@@ -563,18 +568,24 @@ function save_nn_maps(
     modelname::String,
 )
 
-    ### scaling with prior maximum 
+    ### scaling with prior maximum and microstructure unit
+    scaling = Microstructure.scalings["in_vivo"]
     indexing = dropdims(mask.vol; dims=4)
 
     j = 1
     for (i, para) in enumerate(netarg.params)
         if !hasfield(typeof(netarg.model), Symbol(para))
+            (~, subfield) = Microstructure.findsubfield(para)
+            subfieldname = String(subfield)
+
             mri = MRI(mask, 1, Float32)
 
-            mri.vol[indexing .> 0] .= est[j, :] .* netarg.prior_range[i][2]
+            mri.vol[indexing .> 0] .=
+                est[j, :] .* netarg.prior_range[i][2] .* scaling[subfieldname][2]
             mri_write(mri, joinpath(savedir, modelname * para * ".mean.nii.gz"))
 
-            mri.vol[indexing .> 0] .= est_std[j, :] .* netarg.prior_range[i][2]
+            mri.vol[indexing .> 0] .=
+                est_std[j, :] .* netarg.prior_range[i][2] .* scaling[subfieldname][2]
             mri_write(mri, joinpath(savedir, modelname * para * ".std.nii.gz"))
             j = j + 1
 
@@ -600,6 +611,43 @@ function save_nn_maps(
             mri_write(mri, joinpath(savedir, modelname * para * ".std.nii.gz"))
             j = j + 1
         end
+    end
+
+    if ("extra.dperp_frac" in netarg.params)
+        mean_frac = mri_read(joinpath(savedir, modelname * "extra.dperp_frac.mean.nii.gz"))
+        std_frac = mri_read(joinpath(savedir, modelname * "extra.dperp_frac.std.nii.gz"))
+
+        if ("extra.dpara" in netarg.params)
+            mean_dpara = mri_read(joinpath(savedir, modelname * "extra.dpara.mean.nii.gz"))
+            std_dpara = mri_read(joinpath(savedir, modelname * "extra.dpara.std.nii.gz"))
+
+            mean_frac.vol = mean_frac.vol .* mean_dpara.vol
+            std_frac.vol = sqrt.(
+                std_dpara.vol .^ 2.0 .* std_frac.vol .^ 2.0 .+
+                std_dpara.vol .^ 2.0 .* mean_frac.vol .^ 2.0 .+
+                std_frac.vol .^ 2.0 .* mean_dpara.vol .^ 2.0,
+            )
+
+        elseif ("axon.dpara" in netarg.params) &&
+            ("extra.dpara" => "axon.dpara" in netarg.paralinks)
+            mean_dpara = mri_read(joinpath(savedir, modelname * "axon.dpara.mean.nii.gz"))
+            std_dpara = mri_read(joinpath(savedir, modelname * "axon.dpara.std.nii.gz"))
+
+            mean_frac.vol = mean_frac.vol .* mean_dpara.vol
+            std_frac.vol = sqrt.(
+                std_dpara.vol .^ 2.0 .* std_frac.vol .^ 2.0 .+
+                std_dpara.vol .^ 2.0 .* mean_frac.vol .^ 2.0 .+
+                std_frac.vol .^ 2.0 .* mean_dpara.vol .^ 2.0,
+            )
+        else
+
+            # for fixed extra.dpara
+            mean_frac.vol = mean_frac.vol .* netarg.model.extra.dpara
+            std_frac.vol = std_frac.vol .* netarg.model.extra.dpara
+        end
+
+        mri_write(mean_frac, joinpath(savedir, modelname * "extra.dperp.mean.nii.gz"))
+        mri_write(std_frac, joinpath(savedir, modelname * "extra.dperp.std.nii.gz"))
     end
 end
 
