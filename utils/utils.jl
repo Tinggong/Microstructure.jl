@@ -127,8 +127,8 @@ function sensitivity_plot(SNR, d0, bval_mea, tdelta, tsmalldel, n=32)
 end
 
 """
-Retrun evaluation plots for each parameter as ground truth vs. estimates
-# Standard units are used in computation and nifti saving, while they are scaled to microstructure units in plots
+Return evaluation plots for each parameter as ground truth vs. estimates
+Standard units are used in computation while they are scaled to microstructure units in plots
 """
 function eval_plt(netarg::NetworkArg, est, est_std, labels)
     P_mean = Dict{String,Any}()
@@ -212,43 +212,52 @@ function eval_plt(netarg::NetworkArg, est, est_std, labels)
     end
 
     # save the extra.dperp if it was represented and estimated as a fraction of extra-/intra-cellular parallel diffusivity
-    if !isempty(findall(netarg.params .== "extra.dperp_frac"))
-        if !isempty(findall(netarg.params .== "extra.dpara"))
+    if ("extra.dperp_frac" in netarg.params)
+        if ("extra.dpara" in netarg.params)
             ind = [para_range["extra.dperp_frac"][1], para_range["extra.dpara"][1]]
             scale_factor = para_range["extra.dpara"][2]
-        elseif !isempty(findall(netarg.params .== "axon.dpara")) &&
-            !isempty(findall(netarg.paralinks .== ("extra.dpara" => "axon.dpara")))
+
+        elseif ("axon.dpara" in netarg.params) &&
+            ("extra.dpara" => "axon.dpara" in netarg.paralinks)
             ind = [para_range["extra.dperp_frac"][1], para_range["axon.dpara"][1]]
             scale_factor = para_range["axon.dpara"][2]
+
+        else
+            ind = missing
         end
 
-        p = histogram2d(
-            labels[ind[1], :] .* labels[ind[2], :] .* scale_factor[2],
-            est[ind[1], :] .* est[ind[2], :] .* scale_factor[2];
-            bins=(range(0, 3.0..., 20)),
-            show_empty_bins=false,
-        )
-        plot!(
-            range(0, 3.0..., 20),
-            range(0, 3.0..., 20);
-            legend=false,
-            xticks=[0, 3.0],
-            yticks=[0, 3.0],
-        )
+        if !ismissing(ind)
+            p = histogram2d(
+                labels[ind[1], :] .* labels[ind[2], :] .* scale_factor[2],
+                est[ind[1], :] .* est[ind[2], :] .* scale_factor[2];
+                bins=(range(0, 3.0..., 20)),
+                show_empty_bins=false,
+            )
+            plot!(
+                range(0, 3.0..., 20),
+                range(0, 3.0..., 20);
+                legend=false,
+                xticks=[0, 3.0],
+                yticks=[0, 3.0],
+            )
 
-        push!(P_mean, "extra.dperp" => p)
+            push!(P_mean, "extra.dperp" => p)
 
-        p = histogram2d(
-            labels[ind[1], :] .* labels[ind[2], :] .* scale_factor[2],
-            est[ind[1], :] .* est_std[ind[2], :] .* scale_factor[2] ./
-            (scale_factor[2] - scale_factor[1]);
-            bins=(range(0, 3.0..., 20), range(0, 0.25, 25)),
-            show_empty_bins=false,
-            xticks=[0, 3.0],
-            yticks=[0, 0.1, 0.2],
-        )
+            p = histogram2d(
+                labels[ind[1], :] .* labels[ind[2], :] .* scale_factor[2],
+                sqrt.(
+                    est_std[ind[1], :] .^ 2.0 .* est_std[ind[2], :] .^ 2.0 .+
+                    est_std[ind[1], :] .^ 2.0 .* est[ind[2], :] .^ 2.0 .+
+                    est_std[ind[2], :] .^ 2.0 .* est[ind[1], :] .^ 2.0,
+                ) .* scale_factor[2] ./ (scale_factor[2] - scale_factor[1]);
+                bins=(range(0, 3.0..., 20), range(0, 0.25, 25)),
+                show_empty_bins=false,
+                xticks=[0, 3.0],
+                yticks=[0, 0.1, 0.2],
+            )
 
-        push!(P_std, "extra.dperp" => p)
+            push!(P_std, "extra.dperp" => p)
+        end
     end
 
     return P_mean, P_std, para_range
@@ -311,7 +320,41 @@ function sigma_level(snr::MRI, mask::MRI, protocol::Protocol)
 end
 
 """
+This is the sigma on b=0 image
+"""
+function sigma_level(snr::MRI, mask::MRI)
+    snrs = snr.vol[mask.vol .> 0]
+    snrs = snrs[.!isnan.(snrs)]
+
+    # The mean sigma level decided by mean SNR across tissue mask 
+    sigma = 1.0/mean(snrs)
+
+    # varing noise levels 
+    minsnr, iqr1, iqr2, maxsnr = quantile(snrs, (0.05, 0.25, 0.75, 0.95))
+    sigma_dist = Normal(sigma, (1.0/iqr1-1.0/iqr2)/2.0)
+    sigma_range = (1/maxsnr, 1/minsnr)
+
+    return sigma_range, sigma_dist
+end
+
+function sigma_level(snr::Array{<:AbstractFloat,3}, mask::Array{<:Real,3})
+    snrs = snr[mask .> 0]
+    snrs = snrs[.!isnan.(snrs)]
+
+    # The mean sigma level decided by mean SNR across tissue mask 
+    sigma = 1.0/mean(snrs)
+
+    # varing noise levels 
+    minsnr, iqr1, iqr2, maxsnr = quantile(snrs, (0.05, 0.25, 0.75, 0.95))
+    sigma_dist = Normal(sigma, (1.0/iqr1-1.0/iqr2)/2.0)
+    sigma_range = (1/maxsnr, 1/minsnr)
+
+    return sigma_range, sigma_dist
+end
+
+"""
 Deciding the level of noise to add to synthetic training data based on target real datasets
+This is the sigma on spherical mean
 """
 function sigma_level(snr::MRI, mask::MRI, nmeas::Int)
     index = dropdims(mask.vol; dims=4) .> 0

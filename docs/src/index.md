@@ -11,8 +11,8 @@ If you are interested, please try it out! The getting started page includes the 
 ### Feature Summary 
 - Combined diffusion-relaxometry compartment modelling
 - Flexible in creating models and adjusting assumptions
-- Generic MCMC and neural network estimators
-- Faster MCMC with Parallel computing
+- Generic MCMC sampling with parallel computing 
+- Generic and fast neural network estimators with uncertainty quantification
 - Compatible with the probabilistic programming language [Turing.jl](https://turinglang.org/dev/)
 
 ### Installation 
@@ -33,4 +33,4 @@ pkg> up Microstructure
 Microstructure.jl focuses on tissue microstructure estimation. If you are also interested in fiber orientation and tractography, please check out [Fibers.jl](https://github.com/lincbrain/Fibers.jl). Microstructure.jl also uses I/O functions from Fibers.jl for reading and writing mri image files. 
 
 ### Acknowledgements
-Development of this package is supported by the NIH National Institute of Neurologic Disorders and Stroke (grants UM1-NS132358, R01-NS119911, R01-NS127353).
+Development of this package is supported by the NIH National Institute of Neurological Disorders and Stroke (grants UM1-NS132358, R01-NS119911, R01-NS127353).

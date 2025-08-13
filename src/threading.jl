@@ -59,23 +59,32 @@ function threading(
 
     sampler isa Tuple ? params = sampler[1].params : params = sampler.params
 
-    print("saving nifti files...")
+    print("saving nifti files in microstructure units...")
     for (ip, para) in enumerate(params)
+        
+        # find unit scaling factor for the parameter
+        if !hasfield(typeof(model_start), Symbol(para))
+            (~, subfield) = Microstructure.findsubfield(para)
+            unit_scale_factor = Microstructure.scalings["in_vivo"][String(subfield)][2]
+        else
+            unit_scale_factor = 1
+        end
+
         if est[ip][1] isa Vector
             mri = MRI(mask, length(est[ip][1]), Float64)
 
-            mri.vol[indexing .> 0, :] .= reduce(hcat, est[ip])'
+            mri.vol[indexing .> 0, :] .= reduce(hcat, est[ip])' .* unit_scale_factor
             mri_write(mri, datadir * para * ".mean.nii.gz")
 
-            mri.vol[indexing .> 0, :] .= reduce(hcat, est_std[ip])'
+            mri.vol[indexing .> 0, :] .= reduce(hcat, est_std[ip])' .* unit_scale_factor
             mri_write(mri, datadir * para * ".std.nii.gz")
         else
             mri = MRI(mask, 1, Float64)
 
-            mri.vol[indexing .> 0] .= est[ip]
+            mri.vol[indexing .> 0] .= est[ip] .* unit_scale_factor
             mri_write(mri, datadir * para * ".mean.nii.gz")
 
-            mri.vol[indexing .> 0] .= est_std[ip]
+            mri.vol[indexing .> 0] .= est_std[ip] .* unit_scale_factor
             mri_write(mri, datadir * para * ".std.nii.gz")
         end
     end

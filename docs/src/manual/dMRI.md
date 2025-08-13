@@ -6,6 +6,12 @@ This page introduces functions for reading dMRI data and protocols for microstru
 ```@docs
 spherical_mean
 ```
+
+### Read from DWI data and fit to spherical harnomics to estimate rotational invariant measurements at specified order
+```@docs
+spherical_fit
+```
+
 ### The dMRI and Protocol type
 
 ```@docs

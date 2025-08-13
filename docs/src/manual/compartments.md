@@ -1,6 +1,6 @@
 # Tissue Compartments
 
-This page introduces Compartment types with fields of relevant tissue parameters and forward functions inferencing signals from the compartment model and imaging protocol. Featuring spherical mean based models with compartmental relaxation-weighting.
+This page introduces Compartment types with fields of relevant tissue parameters and forward functions inferencing signals from the compartment model and imaging protocol. 
 
 ## Overview
 
