@@ -12,7 +12,7 @@
 # G: 1000 mT/m = 1 T/m
 # diffusivity: 1 um^2/ms = 10^-9 m^2/s
 
-using StaticArrays
+using StaticArrays, FastGaussQuadrature
 
 """
 gyromagnetic ratio
@@ -89,7 +89,9 @@ const scalings_in_vivo = Dict(
     "λ1" => ((0.5e-9, 3.0e-9), 1.0e9, 1.0 / 3.0),
     "λ2_frac" => ((0.0, 1.0), 1.0, 1.0),
     "λ3_frac" => ((0.0, 1.0), 1.0, 1.0),
-    "κ" => ((0.0, Inf), 1.0, 1.0 ),
+    "κ" => ((0.0, Inf), 1.0, 1.0),
+    "p2" => ((0.0, 1.0), 1.0, 1.0),
+    "p4_frac" => ((0.0, 1.0), 1.0, 1.0),
 )
 
 const scalings_ex_vivo = Dict(
@@ -108,7 +110,47 @@ const scalings_ex_vivo = Dict(
     "λ1" => ((0.5e-9, 3.0e-9), 1.0e9, 1.0 / 3.0),
     "λ2_frac" => ((0.0, 1.0), 1.0, 1.0),
     "λ3_frac" => ((0.0, 1.0), 1.0, 1.0),
-    "κ" => ((0.0, Inf), 1.0, 1.0 ),
+    "κ" => ((0.0, Inf), 1.0, 1.0),
+    "p2" => ((0.0, 1.0), 1.0, 1.0),
+    "p4_frac" => ((0.0, 1.0), 1.0, 1.0),
 )
 
 const scalings = Dict("in_vivo" => scalings_in_vivo, "ex_vivo" => scalings_ex_vivo)
+
+# the number of points for integration using Gaussian quadrature
+npoint = 200
+nodes, weights = gausslegendre(npoint)
+
+# rescale nodes from [-1, 1] to [0, 1] and adjust weights; dot product of gradient direction and kernel direction
+ns = (nodes .+ 1) ./ 2
+ww = weights ./ 2
+
+# Legendre polynomials at even order
+function legendre_polynomials(ns, l)
+    if l == 0
+        return ones(size(ns))
+    elseif l == 2
+        return 0.5 .* (3 .* ns .^ 2 .- 1)
+    elseif l == 4
+        return (35 .* ns .^ 4 .- 30 .* ns .^ 2 .+ 3) ./ 8
+    elseif l == 6
+        return (231 .* ns .^ 6 .- 315 .* ns .^ 4 .+ 105 .* ns .^ 2 .- 5) ./ 16
+    elseif l == 8
+        return (
+            6435 .* ns .^ 8 .- 12012 .* ns .^ 6 .+ 6930 .* ns .^ 4 .- 1260 .* ns .^ 2 .+ 35
+        ) ./ 128
+    else
+        error("Only even olders 0, 2, 4, 6, and 8 are supported.")
+    end
+end
+
+# Loopup values used to project K(b,n) to Klb in SMI
+const Pl = Dict(
+    0 => legendre_polynomials(ns, 0),
+    2 => legendre_polynomials(ns, 2),
+    4 => legendre_polynomials(ns, 4),
+    6 => legendre_polynomials(ns, 6),
+    8 => legendre_polynomials(ns, 8),
+    "weights" => ww,
+    "nodes" => ns,
+)

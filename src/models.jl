@@ -2,21 +2,21 @@
 #
 # This script builds model structs with fields of tissue compartments and signal fractions,
 # and forward functions inferencing signals from the model struct and imaging protocol.
-# 
-# quickly fetch literature models
-# you can also add your models with desired combinations of compartments here
 
 export model_signals,
-    SANDI, 
-    SANDIdot, 
-    MTE_SANDI, 
-    ExCaliber, 
-    MTE_SMT, 
-    print_model, 
-    BiophysicalModel,  
+    SANDI,
+    SANDIdot,
+    MTE_SANDI,
+    ExCaliber,
+    MTE_SMT,
+    print_model,
+    BiophysicalModel,
     MultiTensor1,
     MultiTensor2,
-    MultiTensor3
+    MultiTensor3,
+    SMI,
+    SMIfw,
+    get_pl_vec
 
 """
 All models in this page belong to the BiophysicalModel Type. You can also build your models with desired combinations of compartments using a similar syntax. 
@@ -182,22 +182,20 @@ end
 
 function model_signals(sandi::MTE_SANDI, prot::Protocol)
     fextra = 1.0 - sum(sandi.fracs)
-    signals =
-        (
-            sandi.fracs[1] .* compartment_signals(sandi.soma, prot) .+
-            sandi.fracs[2] .* compartment_signals(sandi.neurite, prot) .+
-            fextra .* compartment_signals(sandi.extra, prot)
-        ) 
+    signals = (
+        sandi.fracs[1] .* compartment_signals(sandi.soma, prot) .+
+        sandi.fracs[2] .* compartment_signals(sandi.neurite, prot) .+
+        fextra .* compartment_signals(sandi.extra, prot)
+    )
     return signals ./ signals[1]
 end
 
 function model_signals(model::MTE_SMT, prot::Protocol)
-    signals =
-        (
-            model.fracs .* compartment_signals(model.axon, prot) .+
-            (1.0 .- model.fracs) .* compartment_signals(model.extra, prot)
-        ) 
-    return signals ./ signals[1] 
+    signals = (
+        model.fracs .* compartment_signals(model.axon, prot) .+
+        (1.0 .- model.fracs) .* compartment_signals(model.extra, prot)
+    )
+    return signals ./ signals[1]
 end
 
 """
@@ -222,7 +220,6 @@ function model_signals(
     PMI.update!(model, links)
     return model_signals(model, prot)
 end
-
 
 #####################################################################################
 # testing multi-tensor data synthesis
@@ -249,34 +246,124 @@ end
 
 function model_signals(model::MultiTensor3, prot::Protocol)
     fextra = 1.0 - sum(model.fracs)
-    signals =
-        (
-            model.fracs[1] .* compartment_signals(model.fascicle1, prot) .+
-            model.fracs[2] .* compartment_signals(model.fascicle2, prot) .+
-            model.fracs[3] .* compartment_signals(model.fascicle3, prot) .+
-
-            fextra .* compartment_signals(model.extra, prot)
-        ) 
+    signals = (
+        model.fracs[1] .* compartment_signals(model.fascicle1, prot) .+
+        model.fracs[2] .* compartment_signals(model.fascicle2, prot) .+
+        model.fracs[3] .* compartment_signals(model.fascicle3, prot) .+
+        fextra .* compartment_signals(model.extra, prot)
+    )
     return signals ./ signals[1]
 end
 
 function model_signals(model::MultiTensor2, prot::Protocol)
     fextra = 1.0 - sum(model.fracs)
-    signals =
-        (
-            model.fracs[1] .* compartment_signals(model.fascicle1, prot) .+
-            model.fracs[2] .* compartment_signals(model.fascicle2, prot) .+
-            fextra .* compartment_signals(model.extra, prot)
-        ) 
+    signals = (
+        model.fracs[1] .* compartment_signals(model.fascicle1, prot) .+
+        model.fracs[2] .* compartment_signals(model.fascicle2, prot) .+
+        fextra .* compartment_signals(model.extra, prot)
+    )
     return signals ./ signals[1]
 end
 
 function model_signals(model::MultiTensor1, prot::Protocol)
     fextra = 1.0 - sum(model.fracs)
-    signals =
-        (
-            model.fracs[1] .* compartment_signals(model.fascicle1, prot) .+
-            fextra .* compartment_signals(model.extra, prot)
-        ) 
+    signals = (
+        model.fracs[1] .* compartment_signals(model.fascicle1, prot) .+
+        fextra .* compartment_signals(model.extra, prot)
+    )
     return signals ./ signals[1]
+end
+
+"""
+    SMI(
+        axon::Stick_kernel
+        extra::Zeppelin_kernel
+        fodf::fODF
+        fracs::Float64
+    )
+
+    SMIfw(
+        axon::Stick_kernel
+        extra::Zeppelin_kernel
+        csf::Iso_kernel
+        fodf::fODF
+        fracs::Vector{Float64}
+        )
+Standard model imaging without or with free water compartment.
+
+Reference
+Novikov, D.S., Veraart, J., Jelescu, I.O. and Fieremans, E., 2018. Rotationally-invariant mapping of scalar and orientational metrics of neuronal microstructure with diffusion MRI. NeuroImage, 174, pp.518-538.
+
+Novikov, D.S., Fieremans, E., Jespersen, S.N. and Kiselev, V.G., 2019. Quantifying brain microstructure with diffusion MRI: Theory and parameter estimation. NMR in Biomedicine, 32(4), p.e3998.
+
+Veraart, J., Novikov, D.S., Fieremans, E., 2017. TE dependent Diffusion Imaging (TEdDI) distinguishes between compartmental T 2 relaxation times. https://doi.org/10.1016/j.neuroimage.2017.09.030
+
+Coelho, S., Baete, S.H., Lemberskiy, G., Ades-Aron, B., Barrol, G., Veraart, J., Novikov, D.S. and Fieremans, E., 2022. Reproducibility of the standard model of diffusion in white matter on clinical MRI systems. NeuroImage, 257, p.119290.
+"""
+Base.@kwdef mutable struct SMI <: BiophysicalModel
+    axon::Stick_kernel = Stick_kernel()
+    extra::Zeppelin_kernel = Zeppelin_kernel()
+    fodf::fODF = fODF(lmax=2, p2=0.5)
+    fracs::Float64 = 0.5
+end
+
+function model_signals(model::SMI, prot::Protocol)
+    signals = (
+        model.fracs .* compartment_signals(model.axon, prot) .+
+        (1.0 .- model.fracs) .* compartment_signals(model.extra, prot)
+    )
+
+    signals .= get_pl_vec(model.fodf, prot.lmeas) .* signals
+    return signals ./ signals[1]
+end
+
+Base.@kwdef mutable struct SMIfw <: BiophysicalModel
+    axon::Stick_kernel = Stick_kernel()
+    extra::Zeppelin_kernel = Zeppelin_kernel()
+    csf::Iso_kernel = Iso_kernel(diff=3.0e-9, t2=2.0)
+    fodf::fODF = fODF(lmax=2, p2=0.5)
+    fracs::Vector{Float64} = [0.5, 0.1]
+end
+
+function model_signals(model::SMIfw, prot::Protocol)
+    fextra = 1.0 - sum(model.fracs)
+    signals = (
+        model.fracs[1] .* compartment_signals(model.axon, prot) .+
+        fextra .* compartment_signals(model.extra, prot) .+
+        model.fracs[2] .* compartment_signals(model.csf, prot)
+    )
+
+    signals .= get_pl_vec(model.fodf, prot.lmeas) .* signals
+    return signals ./ signals[1]
+end
+
+"""
+construct a vector pl based on protocol
+"""
+function get_pl_vec(fodf::fODF, lmeas)
+    pl = ones(length(lmeas))
+    for (i, l) in enumerate(lmeas)
+        if iszero(l)
+            continue
+        elseif l==2
+            pl[i] = fodf.p2
+        elseif l==4
+            pl[i] = fodf.p4_frac * fodf.p2
+        else
+            error("not recommended to estimate pl at lmax >=6")
+        end
+    end
+    return pl
+end
+
+function get_pl_vec(odf_pl::Vector{Float64}, lmeas)
+    pl = ones(length(lmeas))
+    for (i, l) in enumerate(lmeas)
+        if iszero(l)
+            continue
+        else
+            pl[i] = odf_pl[l / 2]
+        end
+    end
+    return pl
 end

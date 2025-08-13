@@ -1,20 +1,21 @@
 # This script builds compartment structs with fields of relevant tissue parameters and 
 # forward functions inferencing signals from the compartment model and imaging protocol. 
-#
-# Featuring spherical mean based models with compartmental relaxation-weighting.
 
 using LinearAlgebra, SpecialFunctions
 
-export Cylinder, 
-    Stick, 
-    Zeppelin, 
-    Iso, 
-    Sphere, 
-    compartment_signals, 
-    Compartment, 
+export Cylinder,
+    Stick,
+    Zeppelin,
+    Iso,
+    Sphere,
+    compartment_signals,
+    Compartment,
     smt_signals,
-    Tensor
-# export compartment_signals!, smt_signals!
+    Tensor,
+    Stick_kernel,
+    Zeppelin_kernel,
+    Iso_kernel,
+    fODF
 
 """
 Compartment Type is an abstract type that includes the `Cylinder`, `Stick`, `Zeppelin`, `Sphere` and `Iso` type. 
@@ -188,13 +189,21 @@ Zhang, H., Schneider, T., Wheeler-Kingshott, C.A., Alexander, D.C., 2012. NODDI:
 
 # Compartmental T2-weighting: 
 
-Veraart, J., Novikov, D.S., Fieremans, E., 2017. TE dependent Diffusion Imaging (TEdDI) distinguishes between compartmental T 2 relaxation times. https://doi.org/10.1016/j.neuroimage.2017.09.030
+Veraart, J., Novikov, D.S., Fieremans, E., 2017. TE dependent Diffusion Imaging (TEdDI) distinguishes between compartmental T2 relaxation times. https://doi.org/10.1016/j.neuroimage.2017.09.030
 
 Lampinen, B., Szczepankiewicz, F., Novén, M., van Westen, D., Hansson, O., Englund, E., Mårtensson, J., Westin, C.F., Nilsson, M., 2019. Searching for the neurite density with diffusion MRI: Challenges for biophysical modeling. Hum Brain Mapp 40, 2529–2545. https://doi.org/10.1002/hbm.24542
 
 Gong, T., Tong, Q., He, H., Sun, Y., Zhong, J., Zhang, H., 2020. MTE-NODDI: Multi-TE NODDI for disentangling non-T2-weighted signal fractions from compartment-specific T2 relaxation times. Neuroimage 217. https://doi.org/10.1016/j.neuroimage.2020.116906
 
 Gong, T., Tax, C.M., Mancini, M., Jones, D.K., Zhang, H., Palombo, M., 2023. Multi-TE SANDI: Quantifying compartmental T2 relaxation times in the grey matter. Toronto.
+
+Kernel functions of the Zeppelin/Stick/Iso compartments are also included for standard model imaging using higher order rotational invariants:
+
+Novikov, D.S., Veraart, J., Jelescu, I.O. and Fieremans, E., 2018. Rotationally-invariant mapping of scalar and orientational metrics of neuronal microstructure with diffusion MRI. NeuroImage, 174, pp.518-538.
+
+Novikov, D.S., Fieremans, E., Jespersen, S.N. and Kiselev, V.G., 2019. Quantifying brain microstructure with diffusion MRI: Theory and parameter estimation. NMR in Biomedicine, 32(4), p.e3998.
+
+Coelho, S., Baete, S.H., Lemberskiy, G., Ades-Aron, B., Barrol, G., Veraart, J., Novikov, D.S. and Fieremans, E., 2022. Reproducibility of the standard model of diffusion in white matter on clinical MRI systems. NeuroImage, 257, p.119290.
 """
 function compartment_signals(model::Cylinder, prot::Protocol)
 
@@ -324,51 +333,151 @@ function compartment_signals(model::Tensor, protocol::Protocol)
     R = rotation(model.dir_polar, model.dir_azimuth)
 
     # diffusivities of the tensor
-    D = [bundle.λ1 0 0
-    0 bundle.λ1*bundle.λ2_frac 0
-    0 0 bundle.λ1*bundle.λ3_frac]
-   
+    D = [
+        bundle.λ1 0 0
+        0 bundle.λ1*bundle.λ2_frac 0
+        0 0 bundle.λ1*bundle.λ3_frac
+    ]
+
     # get the diffusion tensor 
     DT = R*D*R'
 
     iszero(model.t2) && return dt_signals(DT, protocol) # t2 not considered
     return dt_signals(DT, protocol) .* exp.(-prot.techo ./ model.t2)
-end 
+end
 
 """
 Return rotation matrix for rotating x vector ([pi/2, 0]/[1, 0, 0]) to the given orienation
-"""    
+"""
 function rotation(polar::AbstractFloat, azimuth::AbstractFloat)
-        
     ϕ = polar - pi/2
-    θ = azimuth 
+    θ = azimuth
 
-    Ry = [cos(ϕ) 0 sin(ϕ)
+    Ry = [
+        cos(ϕ) 0 sin(ϕ)
         0 1 0
-        -sin(ϕ) 0 cos(ϕ)]
-        
-    Rz = [cos(θ) -sin(θ) 0
-        sin(θ) cos(θ) 0 
-        0 0 1]
-    
-    return Ry*Rz 
-end 
+        -sin(ϕ) 0 cos(ϕ)
+    ]
+
+    Rz = [
+        cos(θ) -sin(θ) 0
+        sin(θ) cos(θ) 0
+        0 0 1
+    ]
+
+    return Ry*Rz
+end
 
 """
 Return diffusion tensor signals
 """
 function dt_signals(dt::Matrix{<:AbstractFloat}, prot::Protocol)
-
-    signals = exp.(.- prot.bval .* (
-                    prot.bvec[:,1].^2.0 .* dt[1,1]
-                    .+ prot.bvec[:,2].^2.0 .* dt[2,2]
-                    .+ prot.bvec[:,3].^2.0 .* dt[3,3]
-                    .+ 2.0 .* prot.bvec[:,1].* prot.bvec[:,2] .* dt[1,2]
-                    .+ 2.0 .* prot.bvec[:,1].* prot.bvec[:,3] .* dt[1,3]
-                    .+ 2.0 .* prot.bvec[:,2].* prot.bvec[:,3] .* dt[2,3]
-                    ))
+    signals = exp.(
+        .- prot.bval .* (
+            prot.bvec[:, 1] .^ 2.0 .* dt[1, 1] .+ prot.bvec[:, 2] .^ 2.0 .* dt[2, 2] .+
+            prot.bvec[:, 3] .^ 2.0 .* dt[3, 3] .+
+            2.0 .* prot.bvec[:, 1] .* prot.bvec[:, 2] .* dt[1, 2] .+
+            2.0 .* prot.bvec[:, 1] .* prot.bvec[:, 3] .* dt[1, 3] .+
+            2.0 .* prot.bvec[:, 2] .* prot.bvec[:, 3] .* dt[2, 3]
+        ),
+    )
 
     signals[findall(iszero, prot.bval)] .= 1.0
-    
-    return signals 
+
+    return signals
+end
+
+"""
+Kernel functions from each compartment in standard model imaging. 
+These compartments contains the same parameters but the compartment_signals predicts rotational invariants at orders higher than zero
+"""
+Base.@kwdef mutable struct Stick_kernel <: Compartment
+    dpara::Float64 = 0.6e-9
+    t2::Float64 = 0.0
+end
+
+Base.@kwdef mutable struct Zeppelin_kernel <: Compartment
+    dpara::Float64 = 0.6e-9
+    dperp_frac::Float64 = 0.5
+    t2::Float64 = 0.0
+end
+
+Base.@kwdef mutable struct Iso_kernel <: Compartment
+    diff::Float64 = 3.0e-9
+    t2::Float64 = 2.0
+end
+
+"""
+The fiber orientation distribution functions represented in SH basis
+
+lmax: the maximum SH order represented
+p2: a measure of anisotropy; rotational invariant of fODF at l=2
+p4_frac: a fraction of p2; rotational invariant of fODF at l=4
+plm: all the SH coefficients
+
+"""
+Base.@kwdef mutable struct fODF <: Compartment
+    lmax::Int = 2
+    p2::Float64 = 0.5
+    p4_frac::Float64 = 0.5   # p4 is represented as p2 multiplied by a fraction between 0-1; only meaningful when lmax = 4
+    plm::Vector{Float64} = ones(Int((lmax+1)*(lmax+2)/2)) # the SH coefficents of the fODF
+end
+
+function compartment_signals(model::Stick_kernel, prot::Protocol)
+    Klb = zeros(length(prot.lmeas))
+
+    for i in 1:length(prot.lmeas)
+        Klb[i] = abs(
+            sum(
+                Microstructure.Pl["weights"] .*
+                exp.(-prot.bval[i] .* model.dpara .* Microstructure.Pl["nodes"] .^ 2) .*
+                Microstructure.Pl[prot.lmeas[i]],
+            ),
+        )
+    end
+
+    Klb[findall(iszero, prot.bval)] .= 1.0
+
+    iszero(model.t2) && return Klb
+    return Klb .* exp.(-prot.techo ./ model.t2)
+end
+
+function compartment_signals(model::Zeppelin_kernel, prot::Protocol)
+    Klb = zeros(length(prot.lmeas))
+
+    for i in 1:length(prot.lmeas)
+        Klb[i] = abs(
+            sum(
+                Microstructure.Pl["weights"] .* exp.(
+                    -prot.bval[i] .* model.dpara .* (
+                        Microstructure.Pl["nodes"] .^ 2 .+
+                        model.dperp_frac .* (1.0 .- Microstructure.Pl["nodes"] .^ 2)
+                    ),
+                ) .* Microstructure.Pl[prot.lmeas[i]],
+            ),
+        )
+    end
+
+    Klb[findall(iszero, prot.bval)] .= 1.0
+
+    iszero(model.t2) && return Klb
+    return Klb .* exp.(-prot.techo ./ model.t2)
+end
+
+function compartment_signals(model::Iso_kernel, prot::Protocol)
+    Klb = zeros(length(prot.lmeas))
+
+    for i in 1:length(prot.lmeas)
+        Klb[i] = abs(
+            sum(
+                Microstructure.Pl["weights"] .* exp.(-prot.bval[i] .* model.diff) .*
+                Microstructure.Pl[prot.lmeas[i]],
+            ),
+        )
+    end
+
+    Klb[findall(iszero, prot.bval)] .= 1.0
+
+    iszero(model.t2) && return Klb
+    return Klb .* exp.(-prot.techo ./ model.t2)
 end
