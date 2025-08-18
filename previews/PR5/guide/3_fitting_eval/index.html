@@ -1,0 +1,128 @@
+<!DOCTYPE html>
+<html lang="en"><head><meta charset="UTF-8"/><meta name="viewport" content="width=device-width, initial-scale=1.0"/><title>Fitting evaluation · Microstructure.jl</title><meta name="title" content="Fitting evaluation · Microstructure.jl"/><meta property="og:title" content="Fitting evaluation · Microstructure.jl"/><meta property="twitter:title" content="Fitting evaluation · Microstructure.jl"/><meta name="description" content="Documentation for Microstructure.jl."/><meta property="og:description" content="Documentation for Microstructure.jl."/><meta property="twitter:description" content="Documentation for Microstructure.jl."/><script data-outdated-warner src="../../assets/warner.js"></script><link href="https://cdnjs.cloudflare.com/ajax/libs/lato-font/3.0.0/css/lato-font.min.css" rel="stylesheet" type="text/css"/><link href="https://cdnjs.cloudflare.com/ajax/libs/juliamono/0.050/juliamono.min.css" rel="stylesheet" type="text/css"/><link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.2/css/fontawesome.min.css" rel="stylesheet" type="text/css"/><link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.2/css/solid.min.css" rel="stylesheet" type="text/css"/><link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.2/css/brands.min.css" rel="stylesheet" type="text/css"/><link href="https://cdnjs.cloudflare.com/ajax/libs/KaTeX/0.16.8/katex.min.css" rel="stylesheet" type="text/css"/><script>documenterBaseURL="../.."</script><script src="https://cdnjs.cloudflare.com/ajax/libs/require.js/2.3.6/require.min.js" data-main="../../assets/documenter.js"></script><script src="../../search_index.js"></script><script src="../../siteinfo.js"></script><script src="../../../versions.js"></script><link class="docs-theme-link" rel="stylesheet" type="text/css" href="../../assets/themes/catppuccin-mocha.css" data-theme-name="catppuccin-mocha"/><link class="docs-theme-link" rel="stylesheet" type="text/css" href="../../assets/themes/catppuccin-macchiato.css" data-theme-name="catppuccin-macchiato"/><link class="docs-theme-link" rel="stylesheet" type="text/css" href="../../assets/themes/catppuccin-frappe.css" data-theme-name="catppuccin-frappe"/><link class="docs-theme-link" rel="stylesheet" type="text/css" href="../../assets/themes/catppuccin-latte.css" data-theme-name="catppuccin-latte"/><link class="docs-theme-link" rel="stylesheet" type="text/css" href="../../assets/themes/documenter-dark.css" data-theme-name="documenter-dark" data-theme-primary-dark/><link class="docs-theme-link" rel="stylesheet" type="text/css" href="../../assets/themes/documenter-light.css" data-theme-name="documenter-light" data-theme-primary/><script src="../../assets/themeswap.js"></script></head><body><div id="documenter"><nav class="docs-sidebar"><a class="docs-logo" href="../../"><img class="docs-light-only" src="../../assets/logo.png" alt="Microstructure.jl logo"/><img class="docs-dark-only" src="../../assets/logo-dark.png" alt="Microstructure.jl logo"/></a><button class="docs-search-query input is-rounded is-small is-clickable my-2 mx-auto py-1 px-2" id="documenter-search-query">Search docs (Ctrl + /)</button><ul class="docs-menu"><li><a class="tocitem" href="../../">Home</a></li><li><a class="tocitem" href="../../getting_started/">Getting started</a></li><li><span class="tocitem">Manual</span><ul><li><a class="tocitem" href="../../manual/dMRI/">I/O functions</a></li><li><a class="tocitem" href="../../manual/compartments/">Tissue Compartments</a></li><li><a class="tocitem" href="../../manual/models/">Microstructure Models</a></li><li><a class="tocitem" href="../../manual/estimators/">Estimators</a></li><li><a class="tocitem" href="../../manual/multithreads/">Multi threads</a></li></ul></li><li><span class="tocitem">Demos in preprint</span><ul><li><a class="tocitem" href="../0_intro/">Introduction to Microstructure.jl</a></li><li><a class="tocitem" href="../1_sensitivity_range/">Sensitivity range of axon diameter index</a></li><li><a class="tocitem" href="../2_two_stage_MCMC/">Two-stage MCMC</a></li><li class="is-active"><a class="tocitem" href>Fitting evaluation</a><ul class="internal"><li><a class="tocitem" href="#Results"><span>Results</span></a></li><li><a class="tocitem" href="#References"><span>References</span></a></li></ul></li><li><a class="tocitem" href="../4_smt/">SMT</a></li><li><a class="tocitem" href="../5_sandi/">SANDI</a></li></ul></li><li><span class="tocitem">Tutorials</span><ul><li><a class="tocitem" href="../../tutorials/1_build_models/">How to build a microstructure model</a></li></ul></li><li><a class="tocitem" href="../">Developer guide</a></li></ul><div class="docs-version-selector field has-addons"><div class="control"><span class="docs-label button is-static is-size-7">Version</span></div><div class="docs-selector control is-expanded"><div class="select is-fullwidth is-size-7"><select id="documenter-version-selector"></select></div></div></div></nav><div class="docs-main"><header class="docs-navbar"><a class="docs-sidebar-button docs-navbar-link fa-solid fa-bars is-hidden-desktop" id="documenter-sidebar-button" href="#"></a><nav class="breadcrumb"><ul class="is-hidden-mobile"><li><a class="is-disabled">Demos in preprint</a></li><li class="is-active"><a href>Fitting evaluation</a></li></ul><ul class="is-hidden-tablet"><li class="is-active"><a href>Fitting evaluation</a></li></ul></nav><div class="docs-right"><a class="docs-navbar-link" href="https://github.com/Tinggong/Microstructure.jl" title="View the repository on GitHub"><span class="docs-icon fa-brands"></span><span class="docs-label is-hidden-touch">GitHub</span></a><a class="docs-navbar-link" href="https://github.com/Tinggong/Microstructure.jl/blob/main/docs/src/guide/3_fitting_eval.md" title="Edit source on GitHub"><span class="docs-icon fa-solid"></span></a><a class="docs-settings-button docs-navbar-link fa-solid fa-gear" id="documenter-settings-button" href="#" title="Settings"></a><a class="docs-article-toggle-button fa-solid fa-chevron-up" id="documenter-article-toggle-button" href="javascript:;" title="Collapse all docstrings"></a></div></header><article class="content" id="documenter-page"><h1 id="guide-eval"><a class="docs-heading-anchor" href="#guide-eval">Fitting evaluation</a><a id="guide-eval-1"></a><a class="docs-heading-anchor-permalink" href="#guide-eval" title="Permalink"></a></h1><p>Fitting on synthetic data is helpful for evaluating parameter estimation accuracy under different SNR levels or imaging protocols.  Using the <code>ExCaliber</code> model as an example, we generate signals from the forward model with varying tissue properties and perform MCMC sampling. We vary the axon diameter indices from 1 μm to 10 μm at 1 μm intervals. This range of evaluation extends slightly beyond the <a href="../1_sensitivity_range/">sensitivity ranges calculated before</a>.</p><p>The tissue parameters chosen for the synthetic data were values typically observed in ex vivo WM tissue: intra-axonal signal fraction  <span>$f_{ia} = 0.7$</span>, dot signal fraction <span>$f_{dot} = 0.15$</span>, extra-cellular signal fraction <span>$f_{ec}$</span> = 0.15, parallel diffusivity <span>$D_∥ = 0.6 𝜇m^2/ms$</span> and perpendicular diffusivity <span>$D_⊥ = 0.6 * 0.3 𝜇m^2/ms$</span>. We tested three protocols with a single diffusion time and multiple b-values, where the maximum b-value was chosen to reach Gmax = 660 mT/m. The first had δ/∆ = 9.6/12 ms and b = 1, 2.5, 5, 7.5, 11.1, 18.1, 25 <span>$ms/𝜇m^2$</span> (7 b-values total), the second had δ/∆ = 11/15.192 ms and an additional b = 43 <span>$ms/𝜇m^2$</span> (8 b-values total), and the third had δ/∆ = 11/21 ms and an additional b = 64 <span>$ms/𝜇m^2$</span> (9 b-values total). Gaussian-distributed noise was added to generate 100 realizations of noisy spherical mean measurements; we show results for a moderate and lower SNR of 100 and 50 for the spherical mean measurements. </p><p>The code below demonstrates the evaluation for the shortest diffusion time and SNR =100:</p><pre><code class="language-julia hljs"># %% packages used in this demo
+using Microstructure
+using Random, Distributions
+using StatsPlots
+using LaTeXStrings
+using Plots.PlotMeasures
+
+figdir = &quot;/Users/tgong/Work/Projects/Microstructure.jl/demos/Toolbox/figures&quot; 
+dpi = 600  # figure resoluton
+
+#  change setting to test on different levels of SNR 
+snr = 100
+
+# make the imaging protocol 
+bval = [0, 1000, 2500, 5000, 7500, 11100, 18100, 25000] .* 1.0e6
+nvol = length(bval)
+techo = 40.0 .* ones(nvol) .* 1e-3
+tdelta = 12.0*ones(nvol) .* 1e-3
+tsmalldel = 9.6 .* ones(nvol) .* 1e-3
+prot = Protocol(bval, techo, tdelta, tsmalldel)
+
+# setup the MCMC sampler
+# set the tissue parameters you want to estimate in the model; 
+paras = (&quot;axon.da&quot;, &quot;axon.dpara&quot;, &quot;extra.dperp_frac&quot;, &quot;fracs&quot;)
+# set parameter links
+paralinks = (&quot;axon.d0&quot; =&gt; &quot;axon.dpara&quot;, &quot;extra.dpara&quot; =&gt; &quot;axon.dpara&quot;)
+
+# set the range of priors and proposal distributions
+pararange = ((1.0e-7, 1.0e-5), (0.01e-9, 1.2e-9), (0.0, 1.0), (0.0, 1.0))
+proposal = (
+    Normal(0, 0.25e-6), Normal(0, 0.025e-9), Normal(0, 0.05), MvNormal([0.0025 0; 0 0.0001])
+)
+
+# setup sampler and noise model
+sampler_full = Sampler(;
+    params=paras,
+    prior_range=pararange,
+    proposal=proposal,
+    paralinks=paralinks,
+    nsamples=70000,
+    burnin=20000,
+    thinning=100,
+)
+sampler_sub = subsampler(sampler_full, [1, 4])
+sampler = (sampler_full, sampler_sub)
+
+gaussian_noise = Noisemodel()
+model = ExCaliber(; axon=Cylinder(; da=5.0e-6))
+
+# simulate signals with different configurations of tissue parameters
+sigma = 1.0/snr  # noise level in simulation
+da_test = 1.0e-6:1.0e-6:10.0e-6  # tested range of axon diameter index
+dpara = 0.6e-9
+dperp_frac = 0.3
+fracs = [0.7, 0.15]
+
+Random.seed!(1)
+N = 100 # the number of noise realization 
+
+# get estimations 
+est_sim = []
+est_std_sim = []
+for ia in eachindex(da_test)
+    simpara = ExCaliber(;
+        axon=Cylinder(; da=da_test[ia], dpara=dpara, d0=dpara),
+        extra=Zeppelin(; dpara=dpara, dperp_frac=dperp_frac),
+        fracs=fracs,
+    )
+    signals = model_signals(simpara, prot)
+
+    # add gaussian noise
+    noise = rand(Normal(0, sigma), nvol, N)
+    meas = repeat(signals, 1, N) .+ noise
+
+    # normalizing measurements by the b0
+    meas = meas ./ repeat(meas[1, :], 1, nvol)&#39;
+
+    # do MCMC sampling with multi-threads 
+    est, est_std = threading(model, sampler, meas, prot, gaussian_noise)
+
+    push!(est_sim, est)
+    push!(est_std_sim, est_std) 
+end</code></pre><p>We can then visualize the ground truth parameters vs. estimates as boxplots:</p><pre><code class="language-julia hljs"># plot and save figure 
+da_est = [est_sim[ia][1] for ia in eachindex(da_test)]
+dpara_est = [est_sim[ia][2] for ia in eachindex(da_test)]
+dperp_frac_est = [est_sim[ia][3] for ia in eachindex(da_test)]
+frac_est = [reduce(hcat, est_sim[ia][4]) for ia in eachindex(da_test)]
+fia = [frac_est[ia][1, :] for ia in eachindex(da_test)]
+fdot = [frac_est[ia][2, :] for ia in eachindex(da_test)]
+
+f1 = boxplot(da_est*1e6; label=false, ylabel=L&quot;{\mu}m&quot;, ylims=(0, 10))
+plot!(da_test*1e6; lw=2, label=&quot;GT&quot;)
+#annotate!(1,-1,text(L&quot;({\mu}m)&quot;, 10))
+
+f2 = boxplot(dpara_est*1e9; label=false, ylabel=L&quot;{{\mu}m}^2/ms&quot;, ylims=(0, 0.9))
+hline!([dpara]*1e9; lw=2, label=&quot;GT&quot;)
+annotate!(1, -1, text(L&quot;({\mu}m)&quot;, 10))
+
+f3 = boxplot(dperp_frac_est; label=false, ylims=(0, 1))
+hline!([dperp_frac]; lw=2, label=&quot;GT&quot;)
+annotate!(1, -1, text(L&quot;({\mu}m)&quot;, 10))
+
+f4 = boxplot(fia; label=false, ylims=(0, 1))
+hline!([fracs[1]]; lw=2, label=&quot;GT&quot;)
+annotate!(1, -1, text(L&quot;({\mu}m)&quot;, 10))
+
+f5 = boxplot(fdot; label=false, ylims=(0, 0.5))
+hline!([fracs[2]]; lw=2, label=&quot;GT&quot;)
+annotate!(1, -1, text(L&quot;({\mu}m)&quot;, 10))
+
+titles =
+    [L&quot;d_{a}&quot; L&quot;D_{\parallel}^{ia}&quot; L&quot;D_{\perp}^{ec} to D_{\parallel}^{ia} fraction &quot; L&quot;f_{ia}&quot; L&quot;f_{dot}&quot;]
+plot(
+    f1,
+    f2,
+    f3,
+    f4,
+    f5;
+    layout=(1, 5),
+    size=(1400, 250),
+    titles=titles,
+    xlabel=L&quot;diameter ({\mu}m)&quot;,
+    dpi=dpi,
+    left_margin=8mm,
+    bottom_margin=8mm,
+)
+savefig(figdir * &quot;/Estimation_3c_fitd0_dt12_snr&quot; * string(snr))</code></pre><img src="../../assets/package_demo/Estimation_3c_fitd0_dt12_snr100.png" width=800> <h2 id="Results"><a class="docs-heading-anchor" href="#Results">Results</a><a id="Results-1"></a><a class="docs-heading-anchor-permalink" href="#Results" title="Permalink"></a></h2><h3 id="Measurements-with-a-single-diffusion-time"><a class="docs-heading-anchor" href="#Measurements-with-a-single-diffusion-time">Measurements with a single diffusion time</a><a id="Measurements-with-a-single-diffusion-time-1"></a><a class="docs-heading-anchor-permalink" href="#Measurements-with-a-single-diffusion-time" title="Permalink"></a></h3><p>Smaller axons had more precise diameter estimates and more accurate intra-axonal signal fractions than larger axons. However, diameter estimates in the low range were biased in a way that made different diameters more difficult to discriminate. In comparison, the diameters and intra-axonal signal fractions of larger axons were always under-estimated, while the dot signal fractions were more accurate. Among the different diffusion times, the shorter ones (∆ = 12 and 15.2 ms) maintained a consistent trend of axon diameter index estimates within the resolution limit (about 2-8 𝜇m). Comparison of the two SNR levels shows that the lower SNR (SNR = 50) decreased estimation precision for smaller axons but increased the discriminability of axon diameter indices in the low range. The lower SNR also increased bias for larger axons. These findings highlight the importance of performing such evaluations to understand the effects of different acquisition parameters on model fitting. </p><embed src="../../assets/package_demo/Figure6_ExCaliber_eval_sdt.pdf" width="800px" height="400px"><p>Estimates of axon diameters from single diffusion time data when (A) SNR = 100 and (B) SNR = 50 for spherical mean signal. (i) Data generated with 7 values, <span>$bmax = 25 ms/𝜇m^2$</span> and δ/∆ = 9.6/12 ms; (ii) Data generated with 8 b-values, <span>$bmax = 43 ms/𝜇m^2$</span> and δ/∆ = 11/15.2 ms; (iii) Data generated with 9 b-values, <span>$bmax = 64 ms/𝜇m^2$</span> and δ/∆ = 11/21 ms. Parameter estimates from 100 noise realizations are shown as boxplots and ground-truth (GT) parameter values are shown as line plots. </p><h3 id="Measurements-with-multiple-diffusion-timee"><a class="docs-heading-anchor" href="#Measurements-with-multiple-diffusion-timee">Measurements with multiple diffusion timee</a><a id="Measurements-with-multiple-diffusion-timee-1"></a><a class="docs-heading-anchor-permalink" href="#Measurements-with-multiple-diffusion-timee" title="Permalink"></a></h3><p>Including data with multiple diffusion times improved the accuracy of axon diameter estimation, with better discriminability between smaller axons and lower biases and variances for larger axons, particularly at high SNR.  However, at lower SNR, there was less to be gained by including multiple diffusion times vs. a single diffusion time, as the differences between signals with different diffusion times were very small. In real datasets, we need to consider if the SNR is sufficient for the differences between signals acquired with different diffusion times to be significant. When using data from all the diffusion times for fitting, both the bias and variance decreased substantially. </p><embed src="../../assets/package_demo/Figure7_ExCaliber_eval_mdt.pdf" width="800px" height="400px"><p>Estimates of axon diameter from multi-diffusion time data when (A) SNR = 100 and (B) SNR = 50 for the spherical mean signal. (i) Data combining two shorter diffusion times: δ/∆ = 9.6/12 ms and δ/∆ = 11/15.2 ms; (ii) Data combing two longer diffusion times δ/∆ = 11/15.2 ms and δ/∆ = 11/21 ms; (iii) Data combining all three diffusion times. Parameter estimates from 100 noise realizations are shown as boxplots and ground-truth parameter values are shown as line plots. </p><h2 id="References"><a class="docs-heading-anchor" href="#References">References</a><a id="References-1"></a><a class="docs-heading-anchor-permalink" href="#References" title="Permalink"></a></h2><p>Gong, T., &amp; Yendiki, A. (2024). Microstructure. jl: a Julia Package for Probabilistic Microstructure Model Fitting with Diffusion MRI. arXiv preprint arXiv:2407.06379.</p></article><nav class="docs-footer"><a class="docs-footer-prevpage" href="../2_two_stage_MCMC/">« Two-stage MCMC</a><a class="docs-footer-nextpage" href="../4_smt/">SMT »</a><div class="flexbox-break"></div><p class="footer-message">Powered by <a href="https://github.com/JuliaDocs/Documenter.jl">Documenter.jl</a> and the <a href="https://julialang.org/">Julia Programming Language</a>.</p></nav></div><div class="modal" id="documenter-settings"><div class="modal-background"></div><div class="modal-card"><header class="modal-card-head"><p class="modal-card-title">Settings</p><button class="delete"></button></header><section class="modal-card-body"><p><label class="label">Theme</label><div class="select"><select id="documenter-themepicker"><option value="auto">Automatic (OS)</option><option value="documenter-light">documenter-light</option><option value="documenter-dark">documenter-dark</option><option value="catppuccin-latte">catppuccin-latte</option><option value="catppuccin-frappe">catppuccin-frappe</option><option value="catppuccin-macchiato">catppuccin-macchiato</option><option value="catppuccin-mocha">catppuccin-mocha</option></select></div></p><hr/><p>This document was generated with <a href="https://github.com/JuliaDocs/Documenter.jl">Documenter.jl</a> version 1.14.1 on <span class="colophon-date" title="Monday 18 August 2025 06:11">Monday 18 August 2025</span>. Using Julia version 1.10.10.</p></section><footer class="modal-card-foot"></footer></div></div></div></body></html>
