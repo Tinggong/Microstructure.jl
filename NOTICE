@@ -1,13 +1,13 @@
-# Additional Patent Notice 
+Additional Patent Notice 
 
 The MIT License applies to the source code in this repository. However, 
 no rights are granted under any patent. Relevant patent notices and 
-licenses (if obtained) are described in this file.
+licenses (if obtained) are described below.
 
-1. As of package v0.1.9, the implementation of the Standard Model (SMI and SMIfw)
+1. As of updates after package v0.1.8, the inclusion of the Standard Model (`SMI` and `SMIfw`)
 is subject to U.S. Patent No. US10360472B2, held by New York University (NYU). 
-Usage of the Standard Model is allowed for non-commercial research only, as 
-provided by NYU’s license below. 
+Usage of the model `SMI` and `SMIfw` in the package is allowed for non-commercial research only, 
+as provided by NYU’s license below. 
 
 ------------------------------------------------------------
 NYU NON-COMMERCIAL LICENSE
