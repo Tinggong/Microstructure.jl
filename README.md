@@ -24,12 +24,11 @@ For upgrade to a new version, simply replace the `add` with `up`:
 pkg> up Microstructure
 ```
 
-If you want to try the development version before a release, first remove the current installation and then add the repository directly with a specific commit ID:
+### Usage 
+This project is licensed under the MIT License, which covers the copyright of the source code.
 
-```julia
-pkg> rm Microstructure
-pkg> add https://github.com/Tinggong/Microstructure.jl.git#<commit-id>
-```
+⚠️ Note: Certain components implement patented methods and may only be used for non-commercial purposes.  
+For details, please see the [NOTICE](./NOTICE) file.
 
 ### Relationship to Other Packages
 Microstructure.jl focuses on tissue microstructure estimation. If you are also interested in fiber orientation and tractography, please check out [Fibers.jl](https://github.com/lincbrain/Fibers.jl). Additional, Microstructure.jl uses I/O functions from Fibers.jl for reading and writing NIfTI image files.

@@ -1,0 +1,54 @@
+# Additional Patent Notice 
+
+The MIT License applies to the source code in this repository. However, 
+no rights are granted under any patent. Relevant patent notices and 
+licenses (if obtained) are described in this file.
+
+1. As of package v0.1.9, the implementation of the Standard Model (SMI and SMIfw)
+is subject to U.S. Patent No. US10360472B2, held by New York University (NYU). 
+Usage of the Standard Model is allowed for non-commercial research only, as 
+provided by NYU’s license below. 
+
+------------------------------------------------------------
+NYU NON-COMMERCIAL LICENSE
+------------------------------------------------------------
+Copyright (c) 2016 New York University
+
+Permission is hereby granted, free of charge, to any non-commercial entity 
+('Recipient') obtaining a copy of this software and associated documentation 
+files (the 'Software'), to the Software solely for non-commercial research,
+including the rights to use, copy and modify the Software, subject to the 
+following conditions:
+
+1. The above copyright notice and this permission notice shall be
+   included by Recipient in all copies or substantial portions of the
+   Software.
+
+2. THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND,
+   EXPRESS OR IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF
+   MERCHANTABILITY, FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT.
+   IN NO EVENT SHALL THE AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY
+   CLAIM, DAMAGES OR OTHER LIABILITY, WHETHER IN AN ACTION OF CONTRACT,
+   TORT OR OTHERWISE, ARISING FROM, OUT OF OR IN CONNECTION WITH THE 
+   SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE. 
+
+3. In no event shall NYU be liable for direct, indirect, special,
+   incidental or consequential damages in connection with the Software.
+   Recipient will defend, indemnify and hold NYU harmless from any claims 
+   or liability resulting from the use of the Software by recipient. 
+
+4. Neither anything contained herein nor the delivery of the Software to
+   recipient shall be deemed to grant the Recipient any right or licenses
+   under any patents or patent application owned by NYU. 
+
+5. The Software may only be used for non-commercial research and may not
+   be used for clinical care. 
+
+6. Any publication by Recipient of research involving the Software shall cite:
+
+   Dmitry S. Novikov, Jelle Veraart, Ileana O. Jelescu, Els Fieremans,
+   "Rotationally-invariant mapping of scalar and orientational metrics 
+   of neuronal microstructure with diffusion MRI,"
+   NeuroImage 174, 518-538 (2018).
+   https://doi.org/10.1016/j.neuroimage.2018.03.006
+------------------------------------------------------------
