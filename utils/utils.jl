@@ -5,7 +5,7 @@ using LaTeXStrings
 using Plots.PlotMeasures
 
 export axon_da_sensitivity,
-    sensitivity_plot, eval_plt, logs_plt, nn_eval, nn_estimate, sigma_level
+    sensitivity_plot, eval_plt, logs_plt, nn_eval, nn_estimate, sigma_level_smt
 
 """
 Calculate the sensitivity range for axon diameter index with PA signal from a single b-value.
@@ -218,7 +218,7 @@ function eval_plt(netarg::NetworkArg, est, est_std, labels)
             scale_factor = para_range["extra.dpara"][2]
 
         elseif ("axon.dpara" in netarg.params) &&
-            ("extra.dpara" => "axon.dpara" in netarg.paralinks)
+            !isempty(findall(netarg.paralinks .== ("extra.dpara" => "axon.dpara")))
             ind = [para_range["extra.dperp_frac"][1], para_range["axon.dpara"][1]]
             scale_factor = para_range["axon.dpara"][2]
 
@@ -320,43 +320,10 @@ function sigma_level(snr::MRI, mask::MRI, protocol::Protocol)
 end
 
 """
-This is the sigma on b=0 image
-"""
-function sigma_level(snr::MRI, mask::MRI)
-    snrs = snr.vol[mask.vol .> 0]
-    snrs = snrs[.!isnan.(snrs)]
-
-    # The mean sigma level decided by mean SNR across tissue mask 
-    sigma = 1.0/mean(snrs)
-
-    # varing noise levels 
-    minsnr, iqr1, iqr2, maxsnr = quantile(snrs, (0.05, 0.25, 0.75, 0.95))
-    sigma_dist = Normal(sigma, (1.0/iqr1-1.0/iqr2)/2.0)
-    sigma_range = (1/maxsnr, 1/minsnr)
-
-    return sigma_range, sigma_dist
-end
-
-function sigma_level(snr::Array{<:AbstractFloat,3}, mask::Array{<:Real,3})
-    snrs = snr[mask .> 0]
-    snrs = snrs[.!isnan.(snrs)]
-
-    # The mean sigma level decided by mean SNR across tissue mask 
-    sigma = 1.0/mean(snrs)
-
-    # varing noise levels 
-    minsnr, iqr1, iqr2, maxsnr = quantile(snrs, (0.05, 0.25, 0.75, 0.95))
-    sigma_dist = Normal(sigma, (1.0/iqr1-1.0/iqr2)/2.0)
-    sigma_range = (1/maxsnr, 1/minsnr)
-
-    return sigma_range, sigma_dist
-end
-
-"""
 Deciding the level of noise to add to synthetic training data based on target real datasets
 This is the sigma on spherical mean
 """
-function sigma_level(snr::MRI, mask::MRI, nmeas::Int)
+function sigma_level_smt(snr::MRI, mask::MRI, nmeas::Int)
     index = dropdims(mask.vol; dims=4) .> 0
 
     snrs = snr.vol[index, 1]

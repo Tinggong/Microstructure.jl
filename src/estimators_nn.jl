@@ -6,6 +6,7 @@ export NetworkArg,
     TrainingArg,
     prepare_training,
     create_mlp,
+    sigma_level,
     generate_samples,
     train_loop!,
     training,
@@ -220,6 +221,45 @@ function create_mlp(
     end
 
     return mlp
+end
+
+"""
+    sigma_level(
+        snr::MRI, 
+        mask::MRI, 
+    )
+
+Return the limits (sigma_range) and distribution (sigma_distribution) of noise sigma based on SNR map defined on the b0 images, 
+which defines the level of noise added to synthtic training data for neural network estimator. 
+"""
+function sigma_level(snr::MRI, mask::MRI)
+    snrs = snr.vol[mask.vol .> 0]
+    snrs = snrs[.!isnan.(snrs)]
+
+    # The mean sigma level decided by mean SNR across tissue mask 
+    sigma = 1.0/mean(snrs)
+
+    # varing noise levels 
+    minsnr, iqr1, iqr2, maxsnr = quantile(snrs, (0.05, 0.25, 0.75, 0.95))
+    sigma_dist = Normal(sigma, (1.0/iqr1-1.0/iqr2)/2.0)
+    sigma_range = (1/maxsnr, 1/minsnr)
+
+    return sigma_range, sigma_dist
+end
+
+function sigma_level(snr::Array{<:AbstractFloat,3}, mask::Array{<:Real,3})
+    snrs = snr[mask .> 0]
+    snrs = snrs[.!isnan.(snrs)]
+
+    # The mean sigma level decided by mean SNR across tissue mask 
+    sigma = 1.0/mean(snrs)
+
+    # varing noise levels 
+    minsnr, iqr1, iqr2, maxsnr = quantile(snrs, (0.05, 0.25, 0.75, 0.95))
+    sigma_dist = Normal(sigma, (1.0/iqr1-1.0/iqr2)/2.0)
+    sigma_range = (1/maxsnr, 1/minsnr)
+
+    return sigma_range, sigma_dist
 end
 
 """
@@ -629,7 +669,7 @@ function save_nn_maps(
             )
 
         elseif ("axon.dpara" in netarg.params) &&
-            ("extra.dpara" => "axon.dpara" in netarg.paralinks)
+            !isempty(findall(netarg.paralinks .== ("extra.dpara" => "axon.dpara")))
             mean_dpara = mri_read(joinpath(savedir, modelname * "axon.dpara.mean.nii.gz"))
             std_dpara = mri_read(joinpath(savedir, modelname * "axon.dpara.std.nii.gz"))
 
