@@ -303,24 +303,6 @@ end
 
 """
 Deciding the level of noise to add to synthetic training data based on target real datasets
-"""
-function sigma_level(snr::MRI, mask::MRI, protocol::Protocol)
-    snrs = snr.vol[mask.vol .> 0]
-    snrs_smt = snrs[snrs .> 0]*sqrt(mean(protocol.nmeas))
-
-    # The mean sigma level decided by mean SNR across tissue mask 
-    sigma = 1.0/mean(snrs_smt)
-
-    # varing noise levels 
-    minsnr, iqr1, iqr2, maxsnr = quantile(snrs_smt, (0.05, 0.25, 0.75, 0.95))
-    sigma_dist = Normal(sigma, (1.0/iqr1-1.0/iqr2)/2.0)
-    sigma_range = (1/maxsnr, 1/minsnr)
-
-    return sigma_range, sigma_dist
-end
-
-"""
-Deciding the level of noise to add to synthetic training data based on target real datasets
 This is the sigma on spherical mean
 """
 function sigma_level_smt(snr::MRI, mask::MRI, nmeas::Int)
