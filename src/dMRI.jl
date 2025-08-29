@@ -282,10 +282,10 @@ Arguments:
                 .techo is needed if your data is collected with multiple echo-time and you want to do combined diffusion-relaxometry modelling. 
                
 Returns:
-- Sl_norm: a 4D Array containing the rotional invariants Sl normalized by the b=0 invariant with minimal TE
-- snr_b0: a 3D Array containing the SNR map estimated from the b=0 measurements with minimal TE
+- Sl_norm: An MRI type object containing the rotional invariants Sl normalized by the b=0 invariant with minimal TE
+- snr_b0: An MRI type object containing the SNR map estimated from the b=0 measurements with minimal TE
 - protocol: A Protocol type object containing the relevant parameters associated with each volume in Sl_norm
-- mask: An MRI type object with nifti header information and Array of brain mask
+- mask: An MRI type object of the given brain mask
 
 Besides returning necessary variables for model fitting, files are saved under `save_dir` for reuse (naming examples with Lmax=2):
 Sl_lmax2_norm.nii.gz: the normalized measurements that are used for model fitting
@@ -312,7 +312,7 @@ function spherical_fit(
     # correct for rician bias based on given sigma map when estimating the SH coefficents
     volsize = size(mri.vol)
     sigma = mri_read(sigma_file)
-    for x in 1:volsize[1]
+    Threads.@threads for x in 1:volsize[1]
         for y in 1:volsize[2]
             for z in 1:volsize[3]
                 brainmask.vol[x, y, z] == 0 && continue
@@ -344,25 +344,24 @@ end
 function spherical_fit(
     dmri::dMRI, brainmask::MRI, Lmax::Int, tissuetype::String, savedir::String
 )
-    Sl, prot, sigma, Slm = spherical_fit(dmri, brainmask, Lmax, tissuetype)
+    sl, prot, sigma, slm = spherical_fit(dmri, brainmask, Lmax, tissuetype)
 
     # snr estimate on b=0 images with minimal TE
-    mri = MRI(brainmask, 1, Float32)
-    snr_b0 = Sl[:, :, :, 1] ./ sigma[:, :, :, 1]
-    mri.vol = snr_b0
-    mri_write(mri, joinpath(savedir, "snr_b0.nii.gz"))
+    snr_b0 = MRI(brainmask, 1, Float32)
+    snr_b0.vol = sl[:, :, :, 1] ./ sigma[:, :, :, 1]
+    mri_write(snr_b0, joinpath(savedir, "snr_b0.nii.gz"))
 
-    mri = MRI(brainmask, size(Sl, 4), Float32)
-    mri.vol = Sl
-    mri_write(mri, joinpath(savedir, "Sl_lmax" * string(Lmax) * ".nii.gz"))
+    Sl = MRI(brainmask, size(sl, 4), Float32)
+    Sl.vol = sl
+    mri_write(Sl, joinpath(savedir, "Sl_lmax" * string(Lmax) * ".nii.gz"))
 
-    Sl_norm = Sl ./ repeat(Sl[:, :, :, 1], 1, 1, 1, size(Sl, 4))
-    mri.vol = Sl_norm
-    mri_write(mri, joinpath(savedir, "Sl_lmax" * string(Lmax) * "_norm.nii.gz"))
+    Sl_norm = sl ./ repeat(sl[:, :, :, 1], 1, 1, 1, size(sl, 4))
+    Sl.vol = Sl_norm
+    mri_write(Sl, joinpath(savedir, "Sl_lmax" * string(Lmax) * "_norm.nii.gz"))
 
-    mri = MRI(brainmask, size(Slm, 4), Float32)
-    mri.vol = Slm
-    mri_write(mri, joinpath(savedir, "Slm.nii.gz"))
+    Slm = MRI(brainmask, size(slm, 4), Float32)
+    Slm.vol = slm
+    mri_write(Slm, joinpath(savedir, "Slm.nii.gz"))
 
     mri = MRI(brainmask, size(sigma, 4), Float32)
     mri.vol = sigma
@@ -379,7 +378,7 @@ function spherical_fit(
     )
     writedlm(joinpath(savedir, "Sl_lmax" * string(Lmax) * ".btable"), btable, ' ')
 
-    return Sl_norm, snr_b0, prot, brainmask
+    return Sl, snr_b0, prot, brainmask
 end
 
 function spherical_fit(dmri::dMRI, brainmask::MRI, Lmax::Int, tissuetype::String)
@@ -427,7 +426,7 @@ function spherical_fit(dmri::dMRI, brainmask::MRI, Lmax::Int, tissuetype::String
         n_ml = Int((L+1)*(L+2)/2)
         Slm_shell = zeros(volsize[1:3]..., n_ml)
 
-        for x in 1:volsize[1]
+        Threads.@threads for x in 1:volsize[1]
             for y in 1:volsize[2]
                 for z in 1:volsize[3]
                     brainmask.vol[x, y, z] == 0 && continue
