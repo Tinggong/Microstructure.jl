@@ -1,0 +1,152 @@
+<!DOCTYPE html>
+<html lang="en"><head><meta charset="UTF-8"/><meta name="viewport" content="width=device-width, initial-scale=1.0"/><title>Sensitivity range of axon diameter index · Microstructure.jl</title><meta name="title" content="Sensitivity range of axon diameter index · Microstructure.jl"/><meta property="og:title" content="Sensitivity range of axon diameter index · Microstructure.jl"/><meta property="twitter:title" content="Sensitivity range of axon diameter index · Microstructure.jl"/><meta name="description" content="Documentation for Microstructure.jl."/><meta property="og:description" content="Documentation for Microstructure.jl."/><meta property="twitter:description" content="Documentation for Microstructure.jl."/><script data-outdated-warner src="../../assets/warner.js"></script><link href="https://cdnjs.cloudflare.com/ajax/libs/lato-font/3.0.0/css/lato-font.min.css" rel="stylesheet" type="text/css"/><link href="https://cdnjs.cloudflare.com/ajax/libs/juliamono/0.050/juliamono.min.css" rel="stylesheet" type="text/css"/><link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.2/css/fontawesome.min.css" rel="stylesheet" type="text/css"/><link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.2/css/solid.min.css" rel="stylesheet" type="text/css"/><link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.2/css/brands.min.css" rel="stylesheet" type="text/css"/><link href="https://cdnjs.cloudflare.com/ajax/libs/KaTeX/0.16.8/katex.min.css" rel="stylesheet" type="text/css"/><script>documenterBaseURL="../.."</script><script src="https://cdnjs.cloudflare.com/ajax/libs/require.js/2.3.6/require.min.js" data-main="../../assets/documenter.js"></script><script src="../../search_index.js"></script><script src="../../siteinfo.js"></script><script src="../../../versions.js"></script><link class="docs-theme-link" rel="stylesheet" type="text/css" href="../../assets/themes/catppuccin-mocha.css" data-theme-name="catppuccin-mocha"/><link class="docs-theme-link" rel="stylesheet" type="text/css" href="../../assets/themes/catppuccin-macchiato.css" data-theme-name="catppuccin-macchiato"/><link class="docs-theme-link" rel="stylesheet" type="text/css" href="../../assets/themes/catppuccin-frappe.css" data-theme-name="catppuccin-frappe"/><link class="docs-theme-link" rel="stylesheet" type="text/css" href="../../assets/themes/catppuccin-latte.css" data-theme-name="catppuccin-latte"/><link class="docs-theme-link" rel="stylesheet" type="text/css" href="../../assets/themes/documenter-dark.css" data-theme-name="documenter-dark" data-theme-primary-dark/><link class="docs-theme-link" rel="stylesheet" type="text/css" href="../../assets/themes/documenter-light.css" data-theme-name="documenter-light" data-theme-primary/><script src="../../assets/themeswap.js"></script></head><body><div id="documenter"><nav class="docs-sidebar"><a class="docs-logo" href="../../"><img class="docs-light-only" src="../../assets/logo.png" alt="Microstructure.jl logo"/><img class="docs-dark-only" src="../../assets/logo-dark.png" alt="Microstructure.jl logo"/></a><button class="docs-search-query input is-rounded is-small is-clickable my-2 mx-auto py-1 px-2" id="documenter-search-query">Search docs (Ctrl + /)</button><ul class="docs-menu"><li><a class="tocitem" href="../../">Home</a></li><li><a class="tocitem" href="../../getting_started/">Getting started</a></li><li><span class="tocitem">Manual</span><ul><li><a class="tocitem" href="../../manual/dMRI/">I/O functions</a></li><li><a class="tocitem" href="../../manual/compartments/">Tissue Compartments</a></li><li><a class="tocitem" href="../../manual/models/">Microstructure Models</a></li><li><a class="tocitem" href="../../manual/estimators/">Estimators</a></li><li><a class="tocitem" href="../../manual/multithreads/">Multi threads</a></li></ul></li><li><span class="tocitem">Demos in preprint</span><ul><li><a class="tocitem" href="../0_intro/">Introduction to Microstructure.jl</a></li><li class="is-active"><a class="tocitem" href>Sensitivity range of axon diameter index</a><ul class="internal"><li><a class="tocitem" href="#For-single-high-b-value"><span>For single high b-value</span></a></li><li><a class="tocitem" href="#For-multiple-high-b-values"><span>For multiple high b-values</span></a></li><li><a class="tocitem" href="#References"><span>References</span></a></li></ul></li><li><a class="tocitem" href="../2_two_stage_MCMC/">Two-stage MCMC</a></li><li><a class="tocitem" href="../3_fitting_eval/">Fitting evaluation</a></li><li><a class="tocitem" href="../4_smt/">SMT</a></li><li><a class="tocitem" href="../5_sandi/">SANDI</a></li></ul></li><li><span class="tocitem">Tutorials</span><ul><li><a class="tocitem" href="../../tutorials/1_build_models/">How to build a microstructure model</a></li></ul></li><li><a class="tocitem" href="../">Developer guide</a></li></ul><div class="docs-version-selector field has-addons"><div class="control"><span class="docs-label button is-static is-size-7">Version</span></div><div class="docs-selector control is-expanded"><div class="select is-fullwidth is-size-7"><select id="documenter-version-selector"></select></div></div></div></nav><div class="docs-main"><header class="docs-navbar"><a class="docs-sidebar-button docs-navbar-link fa-solid fa-bars is-hidden-desktop" id="documenter-sidebar-button" href="#"></a><nav class="breadcrumb"><ul class="is-hidden-mobile"><li><a class="is-disabled">Demos in preprint</a></li><li class="is-active"><a href>Sensitivity range of axon diameter index</a></li></ul><ul class="is-hidden-tablet"><li class="is-active"><a href>Sensitivity range of axon diameter index</a></li></ul></nav><div class="docs-right"><a class="docs-navbar-link" href="https://github.com/Tinggong/Microstructure.jl" title="View the repository on GitHub"><span class="docs-icon fa-brands"></span><span class="docs-label is-hidden-touch">GitHub</span></a><a class="docs-navbar-link" href="https://github.com/Tinggong/Microstructure.jl/blob/main/docs/src/guide/1_sensitivity_range.md" title="Edit source on GitHub"><span class="docs-icon fa-solid"></span></a><a class="docs-settings-button docs-navbar-link fa-solid fa-gear" id="documenter-settings-button" href="#" title="Settings"></a><a class="docs-article-toggle-button fa-solid fa-chevron-up" id="documenter-article-toggle-button" href="javascript:;" title="Collapse all docstrings"></a></div></header><article class="content" id="documenter-page"><h1 id="guide-sensitivity"><a class="docs-heading-anchor" href="#guide-sensitivity">Sensitivity range of axon diameter index</a><a id="guide-sensitivity-1"></a><a class="docs-heading-anchor-permalink" href="#guide-sensitivity" title="Permalink"></a></h1><p>When estimating axon diameter indices from MRI data, the sensitivity range of such estimates is closely associated with experimental factors, such as gradient strength and diffusion times, and tissue properties such as the intrinsic diffusivity. Therefore, evaluation of experimental settings is important for understanding the validity of the axon diameter index. Following the sensitivity criterion for the PA signal introduced by previous studies (Andersson et al., 2022; Nilsson et al., 2017), we can conveniently calculate the sensitivity range of axon diameter index estimates obtained from Microstructure.jl. </p><h2 id="For-single-high-b-value"><a class="docs-heading-anchor" href="#For-single-high-b-value">For single high b-value</a><a id="For-single-high-b-value-1"></a><a class="docs-heading-anchor-permalink" href="#For-single-high-b-value" title="Permalink"></a></h2><p>The sensitivity criterion concerns whether the normalized signal along a single gradient can be differentiated from the noise floor and the maximum signal. The smallest measurable signal attenuation <span>$\overline{σ}$</span> relates to the SNR level of the signal as follows:</p><p class="math-container">\[\overline{σ} =  \frac{z_α}{SNR\sqrt{n}},\]</p><p>where <span>$n$</span> is the number of measurements and <span>$z_α$</span> is the z-threshold for the significance level <span>$α$</span> (<span>$z_α = 1.64$</span> when <span>$α = 0.05$</span>). The PA signal from a Cylinder compartment is upper bounded by a Cylinder with zero diameter, which is equal to the Stick model signal. A Cylinder therefore has a measurable diameter if its PA signal falls within the range of <span>$[\overline{σ}, S_{stick} - \overline{σ}]$</span>. Given a single b-value, the lower and upper bounds of axon diameter are thus the minimal diameter that gives <span>$S_{cylinder}$</span> smaller than <span>$S_{stick} - \overline{σ}$</span> and maximal diameter that gives <span>$S_{cylinder}$</span> above <span>$\overline{σ}$</span>.</p><p>We start by using the packages we need:</p><pre><code class="language-julia hljs"># We use Microstructure.jl for sensitivity analysis and other libraries for visualization 
+using Microstructure
+using Plots
+using LaTeXStrings
+using Plots.PlotMeasures</code></pre><p>Based on the sensitivity criterion, we can define the following function to calculate the sensitivity range for a given high b-value measurement:</p><pre><code class="language-julia hljs">&quot;&quot;&quot;
+Calculate the sensitivity range for axon diameter index with PA signal from a single b-value.
+Inputs: 
+    SNR: SNR level of data
+    n: the number of unique gradient directions for the b-value measurements
+    bval: b-value
+    tdelta: gradient seperation time
+    tsmalldel: gradient duration time
+    d0: the intrinsic diffusivity within intra-axonal compartment
+Outputs:
+    lower bound (m), upper bound (m), G (T/m)
+&quot;&quot;&quot;
+
+function axon_da_sensitivity(SNR, n, bval, tdelta, tsmalldel, d0)
+    za = 1.64
+    sigma = za ./ SNR ./ sqrt.(n)
+
+    # make a Protocol type object from the single-b measurement
+    prot = Protocol([bval], zeros(length(bval)), [tdelta], [tsmalldel])
+    
+    # generate signals from a Stick compartment and the protocol
+    Sstick = compartment_signals(Stick(; dpara=d0), prot)
+
+    # maximal signal
+    upperb = Sstick[1] - sigma
+
+    # the range of diameter indices for searching the lower and upper bounds
+    range_lb = 0.5e-6:0.01e-6:4.0e-6
+    range_ub = 5.0e-6:0.01e-6:20.0e-6
+
+    cyl = Cylinder(; dpara=d0, d0=d0)
+    for ia in eachindex(range_lb)
+        cyl.da = range_lb[ia]
+        signal = compartment_signals(cyl, prot)
+        signal[1] &lt; upperb &amp;&amp; break
+    end
+    da_min = cyl.da
+
+    for ia in eachindex(range_ub)
+        cyl.da = range_ub[ia]
+        signal = compartment_signals(cyl, prot)
+        signal[1] &lt; sigma &amp;&amp; break
+    end
+
+    da_max = cyl.da
+    return da_min, da_max, prot.gvec[1]
+end</code></pre><p>An example call of the function that returns (1.76e-6, 5.63e-6, 0.6576631887436215), meaning sensitivity range of [1.76, 5.63] 𝜇m at G ≈ 658 mT/m (The package uses standard unit for computation):</p><pre><code class="language-julia hljs">axon_da_sensitivity(37, 32, 43.0*1e9, 15.192e-3, 11.0e-3, 0.6*1e-9)</code></pre><p>To visualize the sensitivity ranges for different protocols, we define a function to plot the sensitivity profile from several b-values (G) with same diffusion times:</p><pre><code class="language-julia hljs">
+&quot;&quot;&quot;
+Visulize the sensitivity profile of axon diameter given several b-values
+    call the axon_da_sensitivity function and plot figures
+&quot;&quot;&quot;
+function sensitivity_plot(SNR, d0, bval_mea, tdelta, tsmalldel, n = 32)
+
+    da_min_mea = zeros(length(bval_mea))
+    da_max_mea = zeros(length(bval_mea))
+    g_mea = zeros(length(bval_mea))
+
+    # calculate sensitivity range for given b-values in the protocol 
+    for ib in eachindex(bval_mea)
+        da_min_mea[ib], da_max_mea[ib], g_mea[ib] = axon_da_sensitivity(
+            SNR, n, bval_mea[ib], tdelta, tsmalldel, d0
+        )
+    end
+
+    # continous plots
+    bval = (000.0 * 1.0e6):(1000.0 * 1.0e6):max(bval_mea...)
+    da_min = zeros(length(bval))
+    da_max = zeros(length(bval))
+    G = zeros(length(bval))
+    for ib in eachindex(bval)
+        da_min[ib], da_max[ib], G[ib] = axon_da_sensitivity(
+            SNR, n, bval[ib], tdelta, tsmalldel, d0
+        )
+    end
+
+    xticks = bval_mea*1.0e-9
+    xlabel = L&quot;b: ms/{{\mu}m}^2&quot;
+    yticks = [0.0, 2.0, 5.0, 8.0, 11.0, 15.0]
+    ylabel = L&quot;diameter: {\mu}m&quot;
+    label = [&quot;lower bound&quot; &quot;upper bound&quot;]
+
+    p = plot(
+        bval*1.0e-9,
+        [da_min, da_max]*1.0e6;
+        xticks=xticks,
+        xlabel=xlabel,
+        yticks=yticks,
+        ylabel=ylabel,
+        label=label,
+        legend=:topright,
+        lw=2,
+        ylims=(0, 18),
+    )
+    scatter!(bval_mea*1.0e-9, [da_min_mea, da_max_mea]*1.0e6; label=false)
+    annotate!(
+        bval_mea*1.0e-9,
+        da_min_mea*1.0e6 .+ 1.5,
+        text.(round.(da_min_mea*1.0e6; digits=2), :top, :green, 8),
+    )
+    annotate!(
+        bval_mea[2:end]*1.0e-9,
+        da_max_mea[2:end]*1.0e6 .- 1.0,
+        text.(round.(da_max_mea[2:end]*1.0e6; digits=2), :right, :purple, 8),
+    )
+
+    vline!([xticks[1], xticks[end]]; line=(:dash), labels=false)
+    annotate!(
+        xticks[1]-2.5, 1, text(&quot;G=&quot;*string(round(Int, g_mea[1]*1000))*&quot;mT/m&quot;, :top, 7, :red)
+    )
+    annotate!(
+        xticks[end]-4,
+        1,
+        text(&quot;G=&quot;*string(round(Int, g_mea[end]*1000))*&quot;mT/m&quot;, :top, 7, :red),
+    )
+    return p
+end</code></pre><p>The functions for visualizing sensitivity profiles are included as utility functions outside the package. You can use these functions by including the utility script in the package folder:</p><pre><code class="language-julia hljs">using Microstructure
+srcpath = dirname(pathof(Microstructure))
+include(joinpath(srcpath, &quot;../utils/utils.jl&quot;))</code></pre><h3 id="Experiments"><a class="docs-heading-anchor" href="#Experiments">Experiments</a><a id="Experiments-1"></a><a class="docs-heading-anchor-permalink" href="#Experiments" title="Permalink"></a></h3><p>We calculate the sensitivity ranges of axon diameter estimation at different high b-values feasible on a 4.7 T preclinical scanner with maximum gradient strength Gmax = 660 mT/m.  We investigate the effects of diffusion time and b-value to sensitivity ranges by using different diffusion times that reach the Gmax with different b-values. We assume that the number of gradient directions is 32 and the ex vivo intrinsic diffusivity is 0.6 <span>$𝜇m^2/ms$</span>. We consider SNR levels of 100, 50 and 30. </p><p>Example for the median diffusion time:</p><pre><code class="language-julia hljs"># directory for saving figures
+figdir = &quot;/Users/tgong/Work/Projects/Microstructure.jl/demos/Toolbox/figures&quot;
+dpi = 600
+
+# %%  evaluating protocol 2 
+bval_mea = [11100, 18100, 25000, 43000] .* 1.0e6
+tdelta = 15.2*1e-3
+tsmalldel = 11.0 .* 1e-3
+
+p1 = sensitivity_plot(100.0, 0.6e-9, bval_mea, tdelta, tsmalldel)
+p2 = sensitivity_plot(50.0, 0.6e-9, bval_mea, tdelta, tsmalldel)
+p3 = sensitivity_plot(30.0, 0.6e-9, bval_mea, tdelta, tsmalldel)
+
+titles = [&quot;SNR = 100&quot; &quot;SNR = 50&quot; &quot;SNR = 30&quot;]
+plot(
+    p1,
+    p2,
+    p3;
+    layout=(1, 3),
+    titles=titles,
+    titlefont=font(10),
+    xlabel=L&quot;b: ms/{{\mu}m}^2&quot;,
+    #xlabel=L&quot;b: ms/{{\mu}m}^2; {\delta}/{\Delta}=11/15.2ms&quot;,
+    left_margin=5mm,
+    bottom_margin=5mm,
+    xguidefontsize=10,
+    size=(800, 300),
+    dpi=dpi,
+)
+savefig(figdir * &quot;/1_sensitivity_dt15&quot;)</code></pre><img src="../../assets/package_demo/1_sensitivity_dt15.png" width=800> <h3 id="Results"><a class="docs-heading-anchor" href="#Results">Results</a><a id="Results-1"></a><a class="docs-heading-anchor-permalink" href="#Results" title="Permalink"></a></h3><p>For the same diffusion time, the sensitivity range shifts towards smaller axons when the gradient strength G and thus b-value increases, as seen in Figure 3(A-C) in our preprint. Higher gradient strengths yield sensitivity to smaller axons, which are most abundant in tissue. However, they also reduce the sensitivity to very large axons, e.g. axons with diameter &gt; 7.5 𝜇m for G = 660 mT/m. For the same gradient strength G, shorter diffusion time and therefore lower b-value widens the sensitivity range on both sides. For example, see G≈ 660 mT/m, b = 25, 43 and 64 <span>$ms/𝜇m^2$</span> in Figure 3(A-C). For the same b-value, shorter diffusion time and thus higher G lowers the lower bound of axon diameters that can be estimated accurately but also reduces sensitivity to larger axons. This analysis suggests that using higher gradient strength and shorter diffusion time to achieve lower b-values is preferable, as it achieves a wider sensitivity range that covers most axon diameters expected in real tissue.</p><embed src="../../assets/package_demo/Figure3_sensitivity.pdf" width="800px" height="600px"><h2 id="For-multiple-high-b-values"><a class="docs-heading-anchor" href="#For-multiple-high-b-values">For multiple high b-values</a><a id="For-multiple-high-b-values-1"></a><a class="docs-heading-anchor-permalink" href="#For-multiple-high-b-values" title="Permalink"></a></h2><p>The above analysis assumes measurements with a single bvalue. If data are collected with multiple b-values that are sensitive to the practical range of axon diameter in tissue, the lower and upper bounds of <strong><span>$S_{cylinder}$</span></strong> (corresponding to the upper and lower bounds of axon diameter) become vectors [<strong><span>$\overline{σ}$</span></strong>, <strong><span>$S_{stick}$</span> − <span>$\overline{σ}$</span></strong>]. In this case, we can approximate the sensitivity range by finding the diameters that give minimal mean squared error (MSE) between their signals and signal bounds across all shells. For estimating the upper bound of axon diameters, we use only shells of high b-values because data with lower b-values can be sensitive to infinitely large axons, and if included their signal contributions will dominate the calculation of MSE. Considering the three high b-shells in Figure 3(B) for ex vivo imaging (b= 18.1, 25 and 43 ms/ 𝜇m2), the sensitivity ranges are [1.42, 10.5], [1.70, 9.18], and [1.94, 8.32] 𝜇m for SNR level of 100, 50 and 30 respectively.</p><h2 id="References"><a class="docs-heading-anchor" href="#References">References</a><a id="References-1"></a><a class="docs-heading-anchor-permalink" href="#References" title="Permalink"></a></h2><p>Andersson, M., Pizzolato, M., Kjer, H.M., Skodborg, K.F., Lundell, H., Dyrby, T.B., 2022. Does powder averaging remove dispersion bias in diffusion MRI diameter estimates within real 3D axonal architectures? Neuroimage 248. https://doi.org/10.1016/j.neuroimage.2021.118718</p><p>Nilsson, M., Lasič, S., Drobnjak, I., Topgaard, D., Westin, C.F., 2017. Resolution limit of cylinder diameter estimation by diffusion MRI: The impact of gradient waveform and orientation dispersion. NMR Biomed 30. https://doi.org/10.1002/NBM.3711</p></article><nav class="docs-footer"><a class="docs-footer-prevpage" href="../0_intro/">« Introduction to Microstructure.jl</a><a class="docs-footer-nextpage" href="../2_two_stage_MCMC/">Two-stage MCMC »</a><div class="flexbox-break"></div><p class="footer-message">Powered by <a href="https://github.com/JuliaDocs/Documenter.jl">Documenter.jl</a> and the <a href="https://julialang.org/">Julia Programming Language</a>.</p></nav></div><div class="modal" id="documenter-settings"><div class="modal-background"></div><div class="modal-card"><header class="modal-card-head"><p class="modal-card-title">Settings</p><button class="delete"></button></header><section class="modal-card-body"><p><label class="label">Theme</label><div class="select"><select id="documenter-themepicker"><option value="auto">Automatic (OS)</option><option value="documenter-light">documenter-light</option><option value="documenter-dark">documenter-dark</option><option value="catppuccin-latte">catppuccin-latte</option><option value="catppuccin-frappe">catppuccin-frappe</option><option value="catppuccin-macchiato">catppuccin-macchiato</option><option value="catppuccin-mocha">catppuccin-mocha</option></select></div></p><hr/><p>This document was generated with <a href="https://github.com/JuliaDocs/Documenter.jl">Documenter.jl</a> version 1.11.0 on <span class="colophon-date" title="Saturday 10 May 2025 23:09">Saturday 10 May 2025</span>. Using Julia version 1.10.9.</p></section><footer class="modal-card-foot"></footer></div></div></div></body></html>

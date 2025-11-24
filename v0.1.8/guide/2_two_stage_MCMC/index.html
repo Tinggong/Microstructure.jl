@@ -1,0 +1,163 @@
+<!DOCTYPE html>
+<html lang="en"><head><meta charset="UTF-8"/><meta name="viewport" content="width=device-width, initial-scale=1.0"/><title>Two-stage MCMC · Microstructure.jl</title><meta name="title" content="Two-stage MCMC · Microstructure.jl"/><meta property="og:title" content="Two-stage MCMC · Microstructure.jl"/><meta property="twitter:title" content="Two-stage MCMC · Microstructure.jl"/><meta name="description" content="Documentation for Microstructure.jl."/><meta property="og:description" content="Documentation for Microstructure.jl."/><meta property="twitter:description" content="Documentation for Microstructure.jl."/><script data-outdated-warner src="../../assets/warner.js"></script><link href="https://cdnjs.cloudflare.com/ajax/libs/lato-font/3.0.0/css/lato-font.min.css" rel="stylesheet" type="text/css"/><link href="https://cdnjs.cloudflare.com/ajax/libs/juliamono/0.050/juliamono.min.css" rel="stylesheet" type="text/css"/><link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.2/css/fontawesome.min.css" rel="stylesheet" type="text/css"/><link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.2/css/solid.min.css" rel="stylesheet" type="text/css"/><link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.2/css/brands.min.css" rel="stylesheet" type="text/css"/><link href="https://cdnjs.cloudflare.com/ajax/libs/KaTeX/0.16.8/katex.min.css" rel="stylesheet" type="text/css"/><script>documenterBaseURL="../.."</script><script src="https://cdnjs.cloudflare.com/ajax/libs/require.js/2.3.6/require.min.js" data-main="../../assets/documenter.js"></script><script src="../../search_index.js"></script><script src="../../siteinfo.js"></script><script src="../../../versions.js"></script><link class="docs-theme-link" rel="stylesheet" type="text/css" href="../../assets/themes/catppuccin-mocha.css" data-theme-name="catppuccin-mocha"/><link class="docs-theme-link" rel="stylesheet" type="text/css" href="../../assets/themes/catppuccin-macchiato.css" data-theme-name="catppuccin-macchiato"/><link class="docs-theme-link" rel="stylesheet" type="text/css" href="../../assets/themes/catppuccin-frappe.css" data-theme-name="catppuccin-frappe"/><link class="docs-theme-link" rel="stylesheet" type="text/css" href="../../assets/themes/catppuccin-latte.css" data-theme-name="catppuccin-latte"/><link class="docs-theme-link" rel="stylesheet" type="text/css" href="../../assets/themes/documenter-dark.css" data-theme-name="documenter-dark" data-theme-primary-dark/><link class="docs-theme-link" rel="stylesheet" type="text/css" href="../../assets/themes/documenter-light.css" data-theme-name="documenter-light" data-theme-primary/><script src="../../assets/themeswap.js"></script></head><body><div id="documenter"><nav class="docs-sidebar"><a class="docs-logo" href="../../"><img class="docs-light-only" src="../../assets/logo.png" alt="Microstructure.jl logo"/><img class="docs-dark-only" src="../../assets/logo-dark.png" alt="Microstructure.jl logo"/></a><button class="docs-search-query input is-rounded is-small is-clickable my-2 mx-auto py-1 px-2" id="documenter-search-query">Search docs (Ctrl + /)</button><ul class="docs-menu"><li><a class="tocitem" href="../../">Home</a></li><li><a class="tocitem" href="../../getting_started/">Getting started</a></li><li><span class="tocitem">Manual</span><ul><li><a class="tocitem" href="../../manual/dMRI/">I/O functions</a></li><li><a class="tocitem" href="../../manual/compartments/">Tissue Compartments</a></li><li><a class="tocitem" href="../../manual/models/">Microstructure Models</a></li><li><a class="tocitem" href="../../manual/estimators/">Estimators</a></li><li><a class="tocitem" href="../../manual/multithreads/">Multi threads</a></li></ul></li><li><span class="tocitem">Demos in preprint</span><ul><li><a class="tocitem" href="../0_intro/">Introduction to Microstructure.jl</a></li><li><a class="tocitem" href="../1_sensitivity_range/">Sensitivity range of axon diameter index</a></li><li class="is-active"><a class="tocitem" href>Two-stage MCMC</a><ul class="internal"><li><a class="tocitem" href="#Inspecting-quality-of-fitting-and-posterior-samples"><span>Inspecting quality of fitting and posterior samples</span></a></li><li><a class="tocitem" href="#Results"><span>Results</span></a></li><li><a class="tocitem" href="#References"><span>References</span></a></li></ul></li><li><a class="tocitem" href="../3_fitting_eval/">Fitting evaluation</a></li><li><a class="tocitem" href="../4_smt/">SMT</a></li><li><a class="tocitem" href="../5_sandi/">SANDI</a></li></ul></li><li><span class="tocitem">Tutorials</span><ul><li><a class="tocitem" href="../../tutorials/1_build_models/">How to build a microstructure model</a></li></ul></li><li><a class="tocitem" href="../">Developer guide</a></li></ul><div class="docs-version-selector field has-addons"><div class="control"><span class="docs-label button is-static is-size-7">Version</span></div><div class="docs-selector control is-expanded"><div class="select is-fullwidth is-size-7"><select id="documenter-version-selector"></select></div></div></div></nav><div class="docs-main"><header class="docs-navbar"><a class="docs-sidebar-button docs-navbar-link fa-solid fa-bars is-hidden-desktop" id="documenter-sidebar-button" href="#"></a><nav class="breadcrumb"><ul class="is-hidden-mobile"><li><a class="is-disabled">Demos in preprint</a></li><li class="is-active"><a href>Two-stage MCMC</a></li></ul><ul class="is-hidden-tablet"><li class="is-active"><a href>Two-stage MCMC</a></li></ul></nav><div class="docs-right"><a class="docs-navbar-link" href="https://github.com/Tinggong/Microstructure.jl" title="View the repository on GitHub"><span class="docs-icon fa-brands"></span><span class="docs-label is-hidden-touch">GitHub</span></a><a class="docs-navbar-link" href="https://github.com/Tinggong/Microstructure.jl/blob/main/docs/src/guide/2_two_stage_MCMC.md" title="Edit source on GitHub"><span class="docs-icon fa-solid"></span></a><a class="docs-settings-button docs-navbar-link fa-solid fa-gear" id="documenter-settings-button" href="#" title="Settings"></a><a class="docs-article-toggle-button fa-solid fa-chevron-up" id="documenter-article-toggle-button" href="javascript:;" title="Collapse all docstrings"></a></div></header><article class="content" id="documenter-page"><h1 id="guide-mcmc"><a class="docs-heading-anchor" href="#guide-mcmc">Two-stage MCMC</a><a id="guide-mcmc-1"></a><a class="docs-heading-anchor-permalink" href="#guide-mcmc" title="Permalink"></a></h1><p>After fitting a microstructure model, it is important to assess the quality of the fitting by inspecting the parameter posterior samples and determine if the fitting assumptions should be adjusted to improve fitting quality. We demonstrate this process with a two-stage MCMC fitting method that we developed for estimating axon diameter indices in ex vivo tissue (Gong et al., 2025).  </p><h2 id="Inspecting-quality-of-fitting-and-posterior-samples"><a class="docs-heading-anchor" href="#Inspecting-quality-of-fitting-and-posterior-samples">Inspecting quality of fitting and posterior samples</a><a id="Inspecting-quality-of-fitting-and-posterior-samples-1"></a><a class="docs-heading-anchor-permalink" href="#Inspecting-quality-of-fitting-and-posterior-samples" title="Permalink"></a></h2><p>For estimating axon diameter index in ex vivo tissue, previous studies have used only the intra-axonal compartment with very few, ultra-high b-values (&gt;=20 ms/𝜇m2 for ex vivo tissue)(Veraart et al., 2020). We use the multi-compartment model <code>ExCaliber</code>, with the additional consideration that a nonnegligible and spatially varying dot signal is present in ex vivo tissue at high b-values and needs to be differentiated from the intra-axonal signals. We therefore model the full signal decay from a range of low and high b-values. The five free parameters in the <code>ExCaliber</code> model are the axon diameter index, the intra-axonal parallel diffusivity, the extra-cellular perpendicular diffusivity, and the intra-axonal and dot signal fraction. Parallel diffusivities in the intra-axonal and extra-cellular space are assumed to be equal to the intrinsic diffusivity. </p><p>We first simulate noisy measurements from a typical WM voxel with the <code>ExCaliber</code> model and test protocol:</p><pre><code class="language-julia hljs"># %% packages used in this demo
+using Microstructure
+using Random, Distributions
+using Plots
+using LaTeXStrings
+using Plots.PlotMeasures
+
+figdir = &quot;/Users/tgong/Work/Projects/Microstructure.jl/demos/Toolbox/figures/&quot;
+dpi = 600  # figure resoluton
+
+# make a imaging protocol (you can also read from a *.table file)
+bval = [0, 1000, 2500, 5000, 7500, 11100, 18100, 25000, 43000] .* 1.0e6
+nbval = length(bval)
+techo = 40.0 .* ones(nbval) .* 1e-3
+tdelta = 15.192 .* ones(nbval) .* 1e-3
+tsmalldel = 11.0 .* ones(nbval) .* 1e-3
+prot = Protocol(bval, techo, tdelta, tsmalldel)
+
+# make a protocol 
+bval = [0, 1000, 2500, 5000, 7500, 11100, 18100, 25000, 43000] .* 1.0e6
+nbval = length(bval)
+techo = 40.0 .* ones(nbval) .* 1e-3
+tdelta = 15.192 .* ones(nbval) .* 1e-3
+tsmalldel = 11.0 .* ones(nbval) .* 1e-3
+prot = Protocol(bval, techo, tdelta, tsmalldel)
+
+# declare a model object and generate signal 
+model = ExCaliber(;
+    axon=Cylinder(; da=2.0e-6), 
+    extra=Zeppelin(; dperp_frac=0.3), 
+    fracs=[0.7, 0.15]
+) # ExCaliber(Cylinder(2.0e-6, 6.0e-10, 6.0e-10, 0.0), Zeppelin(6.0e-10, 0.3, 0.0), Iso(0.0, 0.0), [0.7, 0.15])
+signals = model_signals(model, prot)
+
+# add gaussian noise to simulate noisy measurements
+sigma = 1.0/100.0 # SNR=100 
+meas = signals .+ rand(Normal(0, sigma), size(signals))
+meas = meas ./ meas[1]</code></pre><p>We can them setup the MCMC sampler to estimate model parameters from the measurements</p><pre><code class="language-julia hljs"># set the tissue parameters you want to estimate in the model; 
+paras = (&quot;axon.da&quot;, &quot;axon.dpara&quot;, &quot;extra.dperp_frac&quot;, &quot;fracs&quot;)
+# set parameter links
+paralinks = (&quot;axon.d0&quot; =&gt; &quot;axon.dpara&quot;, &quot;extra.dpara&quot; =&gt; &quot;axon.dpara&quot;)
+
+# set the range of priors and proposal distributions
+pararange = ((1.0e-7, 1.0e-5), (0.01e-9, 1.2e-9), (0.0, 1.0), (0.0, 1.0))
+proposal = (
+    Normal(0, 0.25e-6), Normal(0, 0.025e-9), Normal(0, 0.05), MvNormal([0.0025 0; 0 0.0001])
+)
+
+# The first sampler samples all parameters defined above
+sampler_full = Sampler(;
+    params=paras,
+    prior_range=pararange,
+    proposal=proposal,
+    paralinks=paralinks,
+    nsamples=70000,
+    burnin=20000,
+    thinning=100,
+)
+
+# The second sampler samples only the first and the fourth parameters while other settings are kept the same as the first sampler
+sampler_sub = subsampler(sampler_full, [1, 4])
+
+# you can combine the two samplers to run a two-stage sampling
+sampler = (sampler_full, sampler_sub)
+
+# setup the noise model the starting point (memory space) for the estimates
+gaussian_noise = Noisemodel()
+estimates = ExCaliber(; axon=Cylinder(; da=5.0e-6))</code></pre><p>We can now run <code>mcmc!</code> with the two-stage <code>sampler</code> directly, but since we want to inspect the posteriors of each run, we first run only the <code>sampler_full</code>:</p><pre><code class="language-julia hljs"># do mcmc using only the first sampler
+chain = mcmc!(estimates, meas, prot, sampler_full, gaussian_noise, 1)
+
+# show the estimates after first sampler 
+@show estimates</code></pre><p><code>chain</code> is the whole mcmc chain while <code>estimates</code> is the model object with estimated parameters. We can now check the fitting curve and posteriors based on these two:</p><pre><code class="language-julia hljs">&quot;&quot;&quot;
+    get the fraction for each compartment from the vector of fractions
+&quot;&quot;&quot;
+function getfrac(fracsvec::Vector{&lt;:Any})
+
+    # fracsvec = chain[&quot;fracs&quot;][burnin:thinning:end] or chain[&quot;fracs&quot;]
+    fax = [];
+    fdot=[];
+    fex=[]
+    for vec in fracsvec
+        push!(fax, vec[1])
+        push!(fdot, vec[2])
+    end
+    fex = 1 .- fax .- fdot
+    return (fax, fex, fdot)
+end
+
+# get fractions
+(fax, fex, fdot) = getfrac(chain[&quot;fracs&quot;])
+
+# %% check the samples from posterior distributions of each parameter and show the estimates as means from the posterior distributions
+burnin = 20000
+thinning = 100
+
+nbin = 20
+function histograms(samples, nbins, GT, label=[false false])
+    histogram(samples; normalize=:pdf, bins=nbins, label=label[1], color=:gray)
+    vline!([mean(samples) GT]; label=label[2], lw=2)
+end
+
+p1 = histograms(
+    chain[&quot;axon.da&quot;][burnin:thinning:end]*1e6, 0:0.5:10, 2.0, [&quot;samples&quot;, [&quot;mean&quot; &quot;GT&quot;]]
+)
+p2 = histograms(fax[burnin:thinning:end], 0:0.05:1, 0.7)
+p3 = histograms(chain[&quot;axon.dpara&quot;][burnin:thinning:end]*1e9, 0:0.1:1.2, 0.6)
+p4 = histograms(fdot[burnin:thinning:end], 0:0.05:1, 0.15)
+p5 = histograms(fex[burnin:thinning:end], 0:0.05:1, 0.15)
+p6 = histograms(chain[&quot;extra.dperp_frac&quot;][burnin:thinning:end], 0:0.1:1, 0.3)
+p7 = histograms(chain[&quot;sigma&quot;][burnin:thinning:end], 0:0.005:0.05, 0.01)
+
+p8 = histogram(
+    chain[&quot;logp&quot;][burnin:thinning:end];
+    normalize=:pdf,
+    bins=10:2:30,
+    label=&quot;samples&quot;,
+    color=:gray,
+)
+vline!([mean(chain[&quot;logp&quot;][burnin:thinning:end])]; label=&quot;mean&quot;, lw=2)
+
+titles =
+    [L&quot;d_{a} [{\mu}m]&quot; L&quot;f_{ia}&quot; L&quot;D_{\parallel}^{ia} [ms/{{\mu}m}^2]&quot; L&quot;f_{dot}&quot; L&quot;f_{ec}&quot; L&quot;D_{\perp}^{ec} to D_{\parallel}^{ia} fraction&quot; L&quot;sigma&quot; L&quot;log(p)&quot;]
+plot(
+    p1,
+    p2,
+    p3,
+    p4,
+    p5,
+    p6,
+    p7,
+    p8;
+    layout=(2, 4),
+    titles=titles,
+    left_margin=5mm,
+    bottom_margin=5mm,
+    xguidefontsize=10,
+    size=(1200, 400),
+    dpi=dpi,
+)
+savefig(figdir * &quot;/2_samples_mcmc_stage1&quot;)
+
+# %% get predicted signals and compare to the measurements 
+pred = model_signals(estimates, prot)
+bvals = bval * 1e-9
+blabel = bval[1:2:end] * 1e-9
+# assess goodness of fit
+plot(
+    bvals,
+    pred;
+    label=&quot;predictions&quot;,
+    lc=:black,
+    lw=2,
+    xticks=blabel,
+    size=(600, 400),
+    dpi=dpi,
+)
+scatter!(bvals, meas; label=&quot;measurements&quot;, mc=:red, ms=4, ma=0.5)
+title!(&quot;Goodness of fit&quot;)
+xlabel!(L&quot;b\ [ms/{{\mu}m}^2]&quot;)
+ylabel!(&quot;Normalized signal&quot;)
+savefig(figdir * &quot;/2_curves_mcmc_stage1&quot;)</code></pre><p>Now we run the second MCMC sampler <code>sampler_sub</code> while keeping the diffusivity parameters fixed </p><pre><code class="language-julia hljs">chain2 = mcmc!(estimates, meas, prot, sampler_sub, gaussian_noise, 1)
+@show estimates</code></pre><p>As above, we use <code>chain2</code> and updated <code>estimates</code> to inspect the quality of fitting and posterior samples</p><h2 id="Results"><a class="docs-heading-anchor" href="#Results">Results</a><a id="Results-1"></a><a class="docs-heading-anchor-permalink" href="#Results" title="Permalink"></a></h2><p>In the first stage, where all five tissue parameters are sampled, we find high uncertainty of estimated intra-axonal fractions. By fixing the parallel diffusivity and extra-cellular perpendicular diffusivity to their posterior means and sampling only the distributions of other 3 tissue parameters, the second MCMC run achieves similar likelihood of measurements, but lower parameter uncertainty and higher accuracy for the axon diameter index and compartment signal fractions.</p><embed src="../../assets/package_demo/Figure5_MCMC.pdf" width="800px" height="400px"><h2 id="References"><a class="docs-heading-anchor" href="#References">References</a><a id="References-1"></a><a class="docs-heading-anchor-permalink" href="#References" title="Permalink"></a></h2><p>Gong, T., Maffei, C., Dann, E., Lee, H.-H., Lee, H., Augustinack, J.C., Huang, S.Y., Haber, S.N., Yendiki, A., 2025. Interplay between MRI-based axon diameter and myelination estimates in macaque and human brain. Imaging Neuroscience. https://doi.org/10.1162/IMAG<em>A</em>00576</p><p>Veraart, J., Nunes, D., Rudrapatna, U., Fieremans, E., Jones, D.K., Novikov, D.S., Shemesh, N., 2020. Noninvasive quantification of axon radii using diffusion MRI. Elife 9. https://doi.org/10.7554/eLife.49855</p></article><nav class="docs-footer"><a class="docs-footer-prevpage" href="../1_sensitivity_range/">« Sensitivity range of axon diameter index</a><a class="docs-footer-nextpage" href="../3_fitting_eval/">Fitting evaluation »</a><div class="flexbox-break"></div><p class="footer-message">Powered by <a href="https://github.com/JuliaDocs/Documenter.jl">Documenter.jl</a> and the <a href="https://julialang.org/">Julia Programming Language</a>.</p></nav></div><div class="modal" id="documenter-settings"><div class="modal-background"></div><div class="modal-card"><header class="modal-card-head"><p class="modal-card-title">Settings</p><button class="delete"></button></header><section class="modal-card-body"><p><label class="label">Theme</label><div class="select"><select id="documenter-themepicker"><option value="auto">Automatic (OS)</option><option value="documenter-light">documenter-light</option><option value="documenter-dark">documenter-dark</option><option value="catppuccin-latte">catppuccin-latte</option><option value="catppuccin-frappe">catppuccin-frappe</option><option value="catppuccin-macchiato">catppuccin-macchiato</option><option value="catppuccin-mocha">catppuccin-mocha</option></select></div></p><hr/><p>This document was generated with <a href="https://github.com/JuliaDocs/Documenter.jl">Documenter.jl</a> version 1.11.0 on <span class="colophon-date" title="Saturday 10 May 2025 23:09">Saturday 10 May 2025</span>. Using Julia version 1.10.9.</p></section><footer class="modal-card-foot"></footer></div></div></div></body></html>
